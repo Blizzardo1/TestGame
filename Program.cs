@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using SDL2;
 using SDL2.TTF;
+using TestGame.Analytics;
 
 namespace TestGame;
 
@@ -16,6 +17,7 @@ internal static class Program {
 #if DEBUG
         NativeMethods.AllocConsole();
 #endif
+        CrashReporter.Capture();
 
         _ = SDL.Init(InitFlags.Everything);
         _ = TTF.Init();
