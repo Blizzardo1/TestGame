@@ -1,13 +1,14 @@
 ﻿using System.Reflection;
+using NLog;
 using SDL2;
 using SDL2.TTF;
-using TestGame.Analytics;
 
 namespace TestGame;
 
 internal static class Program {
     public const int FramesPerSecond = 30;
     public static readonly string StartupPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
 
     /// <summary>
     ///  The main entry point for the application.
@@ -17,7 +18,15 @@ internal static class Program {
 #if DEBUG
         NativeMethods.AllocConsole();
 #endif
-        CrashReporter.Capture();
+        LogManager.Setup().LoadConfiguration(builder => {
+            builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToConsole();
+            builder.ForLogger().FilterMinLevel(LogLevel.Info).WriteToFile(fileName: "output.log");
+        });
+
+        Logger? log = LogManager.GetCurrentClassLogger();
+        log.Info("Initialized Core");
+
+        //CrashReporter.Capture();
 
         _ = SDL.Init(InitFlags.Everything);
         _ = TTF.Init();
@@ -37,6 +46,7 @@ internal static class Program {
             }
         }
 
+        log.Info("Goodbye!");
 #if DEBUG
         NativeMethods.FreeConsole();
 #endif

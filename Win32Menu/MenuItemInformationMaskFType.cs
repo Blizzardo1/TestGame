@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TestGame.Win32Menu;
+﻿namespace TestGame.Win32Menu;
 
 [Flags]
 public enum MenuItemInformationMaskFType {

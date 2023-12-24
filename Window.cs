@@ -1,5 +1,5 @@
-﻿using SDL2;
-using System.ComponentModel;
+﻿using NLog;
+using SDL2;
 using TestGame.GameObjects;
 
 namespace TestGame;
@@ -62,6 +62,7 @@ internal abstract class Window : Renderer, IGameObject {
     #endregion
 
     protected IntPtr WindowPtr { get; }
+    private Logger _log;
 
     protected Window(string title, Point location, Size size, WindowFlags flags) {
         int x, y;
@@ -71,6 +72,8 @@ internal abstract class Window : Renderer, IGameObject {
         Width = size.Width;
         Height = size.Height;
 
+        _log = LogManager.GetCurrentClassLogger();
+
         WindowPtr = SDL.CreateWindow(title,
             x == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : x,
             y == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : y,
@@ -79,14 +82,16 @@ internal abstract class Window : Renderer, IGameObject {
             flags);
 
         if (WindowPtr == IntPtr.Zero) {
-            throw new Exception("Cannot create Window");
+            _log.Error($"Cannot create Window: {SDL.GetError()}");
         }
 
         Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.PresentVSync));
 
         if (RendererPtr == IntPtr.Zero) {
-            throw new Exception("Cannot create RendererPtr");
+            _log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
         }
+
+        
     }
 
     /// <inheritdoc />

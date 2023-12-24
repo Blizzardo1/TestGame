@@ -1,16 +1,17 @@
-﻿using SDL2;
+﻿using NLog;
+using SDL2;
 using SDL2.TTF;
-using System;
 using Color = SDL2.Color;
 
-namespace TestGame; 
+namespace TestGame;
 
-public abstract class Renderer
-{
-    protected IntPtr RendererPtr;
+public abstract class Renderer {
+    protected nint RendererPtr;
     protected Font Font;
 
     private const int FontSize = 18;
+
+    private Logger _log = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// Initializes the Rendering Engine for a class
@@ -18,9 +19,14 @@ public abstract class Renderer
     /// <param name="renderer">The renderer to pass through</param>
     /// <param name="font">The font file to load, else Arial</param>
     /// <param name="fontSize">A real number depicting the size of the font</param>
-    public void Initialize(IntPtr renderer, string font = @"C:\Windows\Fonts\Arial.ttf", int fontSize = FontSize)
-    {
+    public void Initialize(nint renderer, string font = @"C:\Windows\Fonts\Arial.ttf", int fontSize = FontSize) {
         Font = TTF.OpenFont(font, fontSize);
+
+        if (Font.Pointer == nint.Zero)
+        {
+            _log.Error($"Failed to load font: {SDL.GetError()}");
+        }
+
         RendererPtr = renderer;
     }
 
@@ -31,10 +37,20 @@ public abstract class Renderer
     /// <param name="x">Absolute X Coordinate</param>
     /// <param name="y">Absolute Y Coordinate</param>
     /// <param name="color">The BackgroundColor to use</param>
-    public void RenderText(string? text, int x, int y, Color color)
-    {
-        IntPtr surface = TTF.RenderTextSolid(Font, text, color);
-        IntPtr texture = SDL.CreateTextureFromSurface(RendererPtr, surface);
+    public void RenderText(string? text, int x, int y, Color color) {
+        nint surface = TTF.RenderTextSolid(Font, text, color);
+        if (surface == nint.Zero) {
+            _log.Error($"Error rendering text: {SDL.GetError()}");
+            return;
+        }
+
+        nint texture = SDL.CreateTextureFromSurface(RendererPtr, surface);
+        
+        if (texture == nint.Zero) {
+            _log.Error($"Failed to create texture: {SDL.GetError()}");
+            return;
+        }
+        
         _ = SDL.QueryTexture(
             texture,
             out _,
@@ -43,14 +59,17 @@ public abstract class Renderer
             out int textureHeight
         );
         var rect = new Rect { X = x, Y = y, W = textureWidth, H = textureHeight };
-        _ = SDL.RenderCopy(RendererPtr, texture, IntPtr.Zero, ref rect);
-
+        int result = SDL.RenderCopy(RendererPtr, texture, nint.Zero, ref rect);
+        if (result != 0)
+        {
+            _log.Error($"Error rendering text: {SDL.GetError()}");
+        }
+        
         SDL.FreeSurface(surface);
         SDL.DestroyTexture(texture);
     }
 
-    protected Size MeasureString(string text)
-    {
+    protected Size MeasureString(string text) {
         _ = TTF.SizeText(Font, text, out int width, out int height);
         return new Size { Width = width, Height = height };
     }

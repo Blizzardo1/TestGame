@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)sentry\3.41.3\buildTransitive\Sentry.targets" Condition="Exists('$(NuGetPackageRoot)sentry\3.41.3\buildTransitive\Sentry.targets')" />
+    <Import Project="$(NuGetPackageRoot)eto.forms\2.8.2\build\Eto.Forms.targets" Condition="Exists('$(NuGetPackageRoot)eto.forms\2.8.2\build\Eto.Forms.targets')" />
+  </ImportGroup>
+</Project>

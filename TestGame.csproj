@@ -9,10 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Eto.Forms" Version="2.8.2" />
+    <PackageReference Include="eto.platform.windows" Version="2.8.2" />
+    <PackageReference Include="nlog" Version="5.2.7" />
+    <PackageReference Include="Sentry" Version="3.41.3" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="3.41.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Blizzardo1\SharpSDL2\SharpSDL2.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Nlog.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
     <None Update="SDL2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

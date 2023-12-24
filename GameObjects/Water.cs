@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SDL2;
-using TestGame.GameObjects.Textures;
+﻿using SDL2;
 
-namespace TestGame.GameObjects
-{
+namespace TestGame.GameObjects {
     public class Water : AnimatedSprite {
         private const int PSize = 16;
+
         /// <inheritdoc />
         public Water(IntPtr rendererPtr)
-            : base(rendererPtr, 64, 64, Path.Combine(Program.StartupPath, "Water.bmp"),
-                new Rect[]
-                {
+            : base(rendererPtr, 16, 16, Path.Combine(Program.StartupPath, "Water.bmp"),
+                new Rect[] {
                     new() {
                         W = PSize,
                         H = PSize,
@@ -39,9 +32,8 @@ namespace TestGame.GameObjects
                         X = 52,
                         Y = 1
                     }
-
-                }
-                ) {
-        }
+                },
+                6
+            ) { }
     }
 }

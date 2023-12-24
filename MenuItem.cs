@@ -1,5 +1,4 @@
 ﻿using SDL2;
-using TestGame.Colors;
 using TestGame.GameObjects;
 
 namespace TestGame;

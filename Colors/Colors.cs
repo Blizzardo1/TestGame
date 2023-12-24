@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TestGame.Colors;
+﻿namespace TestGame.Colors;
 
 public enum KnownColor {
     Transparent = 0x00FFFFFF,

@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "TestGame/1.0.0": {
+        "dependencies": {
+          "SharpSDL2": "1.0.0"
+        },
+        "runtime": {
+          "TestGame.dll": {}
+        }
+      },
+      "SharpSDL2/1.0.0": {
+        "runtime": {
+          "SharpSDL2.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TestGame/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpSDL2/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
