@@ -6,4 +6,4 @@
 
 namespace TestGame.GameObjects.Characters;
 
-public interface IDefensive : IGameObject { }
+public interface IDefensive : IRenderer { }

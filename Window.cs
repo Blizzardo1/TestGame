@@ -1,12 +1,11 @@
-﻿using SDL2;
-using System.ComponentModel;
+﻿using NLog;
+using SDL2;
 using TestGame.GameObjects;
 
 namespace TestGame;
 
-internal abstract class Window : Renderer, IGameObject {
+public abstract class Window : Renderer, IRenderer {
     #region Events
-
     public event SDL2.EventHandler? AppDidEnterBackground;
     public event SDL2.EventHandler? AppDidEnterForeground;
     public event SDL2.EventHandler? AppLowMemory;
@@ -62,6 +61,11 @@ internal abstract class Window : Renderer, IGameObject {
     #endregion
 
     protected IntPtr WindowPtr { get; }
+    private readonly Logger Log;
+
+    ~Window() {
+        SDL.DestroyWindow(WindowPtr);
+    }
 
     protected Window(string title, Point location, Size size, WindowFlags flags) {
         int x, y;
@@ -71,6 +75,8 @@ internal abstract class Window : Renderer, IGameObject {
         Width = size.Width;
         Height = size.Height;
 
+        Log = LogManager.GetCurrentClassLogger();
+
         WindowPtr = SDL.CreateWindow(title,
             x == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : x,
             y == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : y,
@@ -79,13 +85,13 @@ internal abstract class Window : Renderer, IGameObject {
             flags);
 
         if (WindowPtr == IntPtr.Zero) {
-            throw new Exception("Cannot create Window");
+            Log.Error($"Cannot create Window: {SDL.GetError()}");
         }
 
         Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.PresentVSync));
 
         if (RendererPtr == IntPtr.Zero) {
-            throw new Exception("Cannot create RendererPtr");
+            Log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
         }
     }
 
@@ -94,6 +100,9 @@ internal abstract class Window : Renderer, IGameObject {
 
     /// <inheritdoc />
     public float Y { get; protected set; }
+
+    /// <inheritdoc />
+    public float Z { get; } = float.MaxValue;
 
     /// <inheritdoc />
     public int Width { get; protected set; }
@@ -128,163 +137,220 @@ internal abstract class Window : Renderer, IGameObject {
     }
 
     #region Event Handler
+    /*  A potential redo of the event System for speedy delivery.
+        I can't figure out if I need to do Dependency Injection or some other
+        Method to handle the many Unioned Events.
 
+       _hTable.Add(EventType.FirstEvent, OnFirstEvent);
+       _hTable.Add(EventType.Quit, OnQuit);
+       _hTable.Add(EventType.AppTerminating, OnAppTerminating);
+       _hTable.Add(EventType.AppLowMemory, OnAppLowMemory);
+       _hTable.Add(EventType.AppWillEnterBackground, OnAppWillEnterBackground);
+       _hTable.Add(EventType.AppDidEnterBackground, OnAppDidEnterBackground);
+       _hTable.Add(EventType.AppWillEnterForeground, OnAppWillEnterForeground);
+       _hTable.Add(EventType.AppDidEnterForeground, OnAppDidEnterForeground);
+       _hTable.Add(EventType.DisplayEvent, OnDisplayEvent); //e.Display
+       _hTable.Add(EventType.WindowEvent, OnWindowEvent); //e.Window
+       _hTable.Add(EventType.SyswmEvent, OnSysWmEvent); // e.Syswm
+       _hTable.Add(EventType.KeyDown, OnKeyDown); // e.Key
+       _hTable.Add(EventType.KeyUp, OnKeyUp); // e.Key
+       _hTable.Add(EventType.TextEditing, OnTextEditing); // e.Edit
+       _hTable.Add(EventType.TextInput, OnTextInput); // e.Text
+       _hTable.Add(EventType.KeymapChanged, OnKeymapChanged); // e.Key
+       _hTable.Add(EventType.MouseMotion, OnMouseMove); // e.Motion
+       _hTable.Add(EventType.MouseButtonDown, OnMouseDown); // e.Button
+       _hTable.Add(EventType.MouseButtonUp, OnMouseUp); // e.Button
+       _hTable.Add(EventType.MouseWheel, OnMouseWheel); // e.Wheel
+       _hTable.Add(EventType.JoyAxisMotion, OnJoyAxisMotion); // e.JAxis
+       _hTable.Add(EventType.JoyBallMotion, OnJoyBallMotion); // e.JBall
+       _hTable.Add(EventType.JoyHatMotion, OnJoyHatMotion); // e.JHat
+       _hTable.Add(EventType.JoyButtonDown, OnJoyButtonDown); // e.JButton
+       _hTable.Add(EventType.JoyButtonUp, OnJoyButtonUp); // e.JButton
+       _hTable.Add(EventType.JoyDeviceAdded, OnJoyDeviceAdded); // e.JDevice
+       _hTable.Add(EventType.JoyDeviceRemoved, OnJoyDeviceRemoved); // e.JDevice
+       _hTable.Add(EventType.ControllerAxisMotion, OnControllerAxisMotion); // e.CAxis
+       _hTable.Add(EventType.ControllerButtonDown, OnControllerButtonDown); // e.CButton
+       _hTable.Add(EventType.ControllerButtonUp, OnControllerButtonUp); // e.CButton
+       _hTable.Add(EventType.ControllerDeviceAdded, OnControllerDeviceAdded); // e.CDevice
+       _hTable.Add(EventType.ControllerDeviceRemoved, OnControllerDeviceRemoved); // e.CDevice
+       _hTable.Add(EventType.ControllerDeviceRemapped, OnControllerDeviceRemapped); // e.CDevice
+       _hTable.Add(EventType.FingerDown, OnFingerDown); // e.TFinger
+       _hTable.Add(EventType.FingerUp, OnFingerUp); // e.TFinger
+       _hTable.Add(EventType.FingerMotion, OnFingerMotion); // e.TFinger
+       _hTable.Add(EventType.DollarGesture, OnDollarGesture); // e.DGesture
+       _hTable.Add(EventType.DollarRecord, OnDollarRecord); // e.DGesture
+       _hTable.Add(EventType.MultiGesture, OnMultiGesture); // e.MGesture
+       _hTable.Add(EventType.ClipboardUpdate, OnClipboardUpdate);
+       _hTable.Add(EventType.DropFile, OnDropFile); // e.Drop
+       _hTable.Add(EventType.DropText, OnDropText); // e.Drop
+       _hTable.Add(EventType.DropBegin, OnDropBegin); // e.Drop
+       _hTable.Add(EventType.DropComplete, OnDropComplete); // e.Drop
+       _hTable.Add(EventType.AudioDeviceAdded, OnAudioDeviceAdded); // e.ADevice
+       _hTable.Add(EventType.AudioDeviceRemoved, OnAudioDeviceRemoved); // e.ADevice
+       _hTable.Add(EventType.SensorUpdate, OnSensorUpdate); // e.Sensor
+       _hTable.Add(EventType.RenderTargetsReset, OnRenderTargetsReset);
+       _hTable.Add(EventType.RenderDeviceReset, OnRenderDeviceReset);
+       _hTable.Add(EventType.UserEvent, OnUserEvent); // e.User
+       _hTable.Add(EventType.LastEvent, OnLastEvent);
+       _hTable.Add((EventType)32512, () => { });
+     *
+     */
     private void HandleEvents(Event e) {
-        switch (e.Type) {
-            case EventType.FirstEvent:
+        switch (e) {
+            case { Type: EventType.FirstEvent }:
                 OnFirstEvent(e);
                 break;
-            case EventType.Quit:
+            case { Type: EventType.Quit }:
                 OnQuit(e.Quit);
                 break;
-            case EventType.AppTerminating:
+            case { Type: EventType.AppTerminating }:
                 OnAppTerminating(e);
                 break;
-            case EventType.AppLowMemory:
+            case { Type: EventType.AppLowMemory }:
                 OnAppLowMemory(e);
                 break;
-            case EventType.AppWillEnterBackground:
+            case { Type: EventType.AppWillEnterBackground }:
                 OnAppWillEnterBackground(e);
                 break;
-            case EventType.AppDidEnterBackground:
+            case { Type: EventType.AppDidEnterBackground }:
                 OnAppDidEnterBackground(e);
                 break;
-            case EventType.AppWillEnterForeground:
+            case { Type: EventType.AppWillEnterForeground }:
                 OnAppWillEnterForeground(e);
                 break;
-            case EventType.AppDidEnterForeground:
+            case { Type: EventType.AppDidEnterForeground }:
                 OnAppDidEnterForeground(e);
                 break;
-            case EventType.DisplayEvent:
+            case { Type: EventType.DisplayEvent }:
                 OnDisplayEvent(e.Display);
                 break;
-            case EventType.WindowEvent:
+            case { Type: EventType.WindowEvent }:
                 OnWindowEvent(e.Window);
                 break;
-            case EventType.SyswmEvent:
+            case { Type: EventType.SyswmEvent }:
                 OnSysWmEvent(e.Syswm);
                 break;
-            case EventType.KeyDown:
+            case { Type: EventType.KeyDown }:
                 OnKeyDown(e.Key);
                 break;
-            case EventType.KeyUp:
+            case { Type: EventType.KeyUp }:
                 OnKeyUp(e.Key);
                 break;
-            case EventType.TextEditing:
+            case { Type: EventType.TextEditing }:
                 OnTextEditing(e.Edit);
                 break;
-            case EventType.TextInput:
+            case { Type: EventType.TextInput }:
                 OnTextInput(e.Text);
                 break;
-            case EventType.KeymapChanged:
+            case { Type: EventType.KeymapChanged }:
                 OnKeymapChanged(e.Key);
                 break;
-            case EventType.MouseMotion:
+            case { Type: EventType.MouseMotion }:
                 OnMouseMove(e.Motion);
                 break;
-            case EventType.MouseButtonDown:
+            case { Type: EventType.MouseButtonDown }:
                 OnMouseDown(e.Button);
                 break;
-            case EventType.MouseButtonUp:
+            case { Type: EventType.MouseButtonUp }:
                 OnMouseUp(e.Button);
                 break;
-            case EventType.MouseWheel:
+            case { Type: EventType.MouseWheel }:
                 OnMouseWheel(e.Wheel);
                 break;
-            case EventType.JoyAxisMotion:
+            case { Type: EventType.JoyAxisMotion }:
                 OnJoyAxisMotion(e.JAxis);
                 break;
-            case EventType.JoyBallMotion:
+            case { Type: EventType.JoyBallMotion }:
                 OnJoyBallMotion(e.JBall);
                 break;
-            case EventType.JoyHatMotion:
+            case { Type: EventType.JoyHatMotion }:
                 OnJoyHatMotion(e.JHat);
                 break;
-            case EventType.JoyButtonDown:
+            case { Type: EventType.JoyButtonDown }:
                 OnJoyButtonDown(e.JButton);
                 break;
-            case EventType.JoyButtonUp:
+            case { Type: EventType.JoyButtonUp }:
                 OnJoyButtonUp(e.JButton);
                 break;
-            case EventType.JoyDeviceAdded:
+            case { Type: EventType.JoyDeviceAdded }:
                 OnJoyDeviceAdded(e.JDevice);
                 break;
-            case EventType.JoyDeviceRemoved:
+            case { Type: EventType.JoyDeviceRemoved }:
                 OnJoyDeviceRemoved(e.JDevice);
                 break;
-            case EventType.ControllerAxisMotion:
+            case { Type: EventType.ControllerAxisMotion }:
                 OnControllerAxisMotion(e.CAxis);
                 break;
-            case EventType.ControllerButtonDown:
+            case { Type: EventType.ControllerButtonDown }:
                 OnControllerButtonDown(e.CButton);
                 break;
-            case EventType.ControllerButtonUp:
+            case { Type: EventType.ControllerButtonUp }:
                 OnControllerButtonUp(e.CButton);
                 break;
-            case EventType.ControllerDeviceAdded:
+            case { Type: EventType.ControllerDeviceAdded }:
                 OnControllerDeviceAdded(e.CDevice);
                 break;
-            case EventType.ControllerDeviceRemoved:
+            case { Type: EventType.ControllerDeviceRemoved }:
                 OnControllerDeviceRemoved(e.CDevice);
                 break;
-            case EventType.ControllerDeviceRemapped:
+            case { Type: EventType.ControllerDeviceRemapped }:
                 OnControllerDeviceRemapped(e.CDevice);
                 break;
-            case EventType.FingerDown:
+            case { Type: EventType.FingerDown }:
                 OnFingerDown(e.TFinger);
                 break;
-            case EventType.FingerUp:
+            case { Type: EventType.FingerUp }:
                 OnFingerUp(e.TFinger);
                 break;
-            case EventType.FingerMotion:
+            case { Type: EventType.FingerMotion }:
                 OnFingerMotion(e.TFinger);
                 break;
-            case EventType.DollarGesture:
+            case { Type: EventType.DollarGesture }:
                 OnDollarGesture(e.DGesture);
                 break;
-            case EventType.DollarRecord:
+            case { Type: EventType.DollarRecord }:
                 OnDollarRecord(e.DGesture);
                 break;
-            case EventType.MultiGesture:
+            case { Type: EventType.MultiGesture }:
                 OnMultiGesture(e.MGesture);
                 break;
-            case EventType.ClipboardUpdate:
+            case { Type: EventType.ClipboardUpdate }:
                 OnClipboardUpdate(e);
                 break;
-            case EventType.DropFile:
+            case { Type: EventType.DropFile }:
                 OnDropFile(e.Drop);
                 break;
-            case EventType.DropText:
+            case { Type: EventType.DropText }:
                 OnDropText(e.Drop);
                 break;
-            case EventType.DropBegin:
+            case { Type: EventType.DropBegin }:
                 OnDropBegin(e.Drop);
                 break;
-            case EventType.DropComplete:
+            case { Type: EventType.DropComplete }:
                 OnDropComplete(e.Drop);
                 break;
-            case EventType.AudioDeviceAdded:
+            case { Type: EventType.AudioDeviceAdded }:
                 OnAudioDeviceAdded(e.ADevice);
                 break;
-            case EventType.AudioDeviceRemoved:
+            case { Type: EventType.AudioDeviceRemoved }:
                 OnAudioDeviceRemoved(e.ADevice);
                 break;
-            case EventType.SensorUpdate:
+            case { Type: EventType.SensorUpdate }:
                 OnSensorUpdate(e.Sensor);
                 break;
-            case EventType.RenderTargetsReset:
+            case { Type: EventType.RenderTargetsReset }:
                 OnRenderTargetsReset(e);
                 break;
-            case EventType.RenderDeviceReset:
+            case { Type: EventType.RenderDeviceReset }:
                 OnRenderDeviceReset(e);
                 break;
-            case EventType.UserEvent:
+            case { Type: EventType.UserEvent }:
                 OnUserEvent(e.User);
                 break;
-            case EventType.LastEvent:
+            case { Type: EventType.LastEvent }:
                 OnLastEvent(e);
                 break;
-            case (EventType)32512:
+            case { Type: (EventType)32512 }:
 
                 break;
             default:

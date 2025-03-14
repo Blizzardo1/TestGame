@@ -1,0 +1,3 @@
+[submodule "SharpSDL2"]
+	path = SharpSDL2
+	url = https://github.com/GeorchW/SharpSDL2.git

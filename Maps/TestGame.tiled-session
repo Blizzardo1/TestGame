@@ -1,0 +1,25 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "TestSet.tsx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "TestSet.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "openFiles": [
+        "TestSet.tsx"
+    ],
+    "project": "TestGame.tiled-project",
+    "recentFiles": [
+        "TestSet.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.type": 1
+}

@@ -1,57 +1,43 @@
 ﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TestGame.GameObjects;
 
-public class Button : Renderer, IGameObject {
+public class Button : GameObject {
     public event SDL2.EventHandler< MouseButtonEvent >? Click;
     public event SDL2.EventHandler< MouseButtonEvent >? RightClick;
+    public event SDL2.EventHandler< MouseButtonEvent >? DoubleClick;
+    public event SDL2.EventHandler< MouseButtonEvent >? RightDoubleClick;
     public event SDL2.EventHandler< MouseMotionEvent >? MouseEnter;
     public event SDL2.EventHandler< MouseMotionEvent >? MouseLeave;
-
-    private FRect _rect;
+    
     private bool _inverse;
-
+    private string _text;
+    
     public ButtonState State { get; set; }
 
     public bool Flat { get; set; }
 
-    public float X
-    {
-        get => _rect.X;
-        set => _rect.X = value;
+    private FRect sfRect;
+    public bool ShadowEnabled { get; set; }
+    public int ShadowDepth { get; set; }
+    public float ShadowOrientation { get; set; }
+    public Color ShadowColor { get; set; }
+    
+    public string Text { get => _text;
+        set {
+            _text = value;
+            TextPosition = new() {
+                X = (Width / 2) - (MeasureString(Font, value).Width / 2),
+                Y = (Height / 2) - 4
+            };
+        }
     }
-
-    public float Y
-    {
-        get => _rect.Y;
-        set => _rect.Y = value;
-    }
-
-    public int Width
-    {
-        get => (int)_rect.W;
-        set => _rect.W = value;
-    }
-
-    public int Height
-    {
-        get => (int)_rect.H;
-        set => _rect.H = value;
-    }
-
-    /// <inheritdoc />
-    public string Name { get; set; } = "Button";
-
-    public string Text { get; set; } = "Text";
 
     public Point TextPosition { get; set; } = new() { X = 10, Y = 6 };
 
     private Color _selectedColor;
+
+    private ButtonState _previousState;
 
     public Color BackgroundColor { get; set; } = new() { R = 240, G = 240, B = 240, A = 255 };
     public Color HighlightColor { get; set; } = new() { R = 64, G = 150, B = 255, A = 255 };
@@ -62,56 +48,118 @@ public class Button : Renderer, IGameObject {
     /// <summary>
     /// Creates a new Button
     /// </summary>
-    /// <param name="rendererPtr">A pointer to a rendererPtr</param>
-    public Button(nint rendererPtr) {
-        Initialize(rendererPtr);
-        _rect = new FRect { X = 0, Y = 0, W = 75, H = 23 };
+    /// <param name="context">A <see cref="GameContext"/> record containing information about what to do with <see cref="Button"/></param>
+    public Button(GameContext context) {
+        Initialize(context.RendererPtr);
+        Name = "Button";
+        // TODO: This is a horrible hack and exists elsewhere around the code. I need to fix this.
+        // Essentially just use FRect unless you need to use Rect.
+        frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Rect.W, H = context.Rect.H};
+        Width = context.Rect.W;
+        Height = context.Rect.H;
         _inverse = false;
         // Cheap hacky way to preserve original background color
         _selectedColor = BackgroundColor;
+        _previousState = ButtonState.Default;
+        State = _previousState;
+        _text = "Text";
+        Font = GetFont("font/consola", 12);
         ForegroundColor = ForegroundColor.SetInverseBasedOn(_selectedColor);
     }
 
     public virtual void OnClick(object? sender, MouseButtonEvent e) {
+        if (!frect.Intersects(e.X, e.Y))
+            return;
+        
+        _previousState = State;
+        State = ButtonState.Clicked;
+
         switch (e.Button) {
             case (int)MouseButton.Left:
-                if (!_rect.Intersects(e.X, e.Y)) break;
-                State = ButtonState.Clicked;
                 Click?.Invoke(sender, e);
                 break;
             case (int)MouseButton.Right:
-                if (!_rect.Intersects(e.X, e.Y)) break;
                 RightClick?.Invoke(sender, e);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public virtual void OnDoubleClick(object? sender, MouseButtonEvent e) {
+        if (!frect.Intersects(e.X, e.Y))
+            return;
+        
+        _previousState = State;
+        State = ButtonState.Clicked;
+
+        switch (e.Button) {
+            case (int)MouseButton.Left:        
+                DoubleClick?.Invoke(sender, e);
+                break;
+            case (int)MouseButton.Right:
+                RightDoubleClick?.Invoke(sender, e);
                 break;
         }
     }
 
     public virtual void OnMouseEnter(object? sender, MouseMotionEvent e) {
-        if (State == ButtonState.Disabled) return;
+        if (State == ButtonState.Disabled)
+            return;
+        
+        _previousState = State;
         State = ButtonState.Highlighted;
+        _selectedColor = HighlightColor;
+        
         MouseEnter?.Invoke(sender, e);
     }
 
     public virtual void OnMouseLeave(object? sender, MouseMotionEvent e) {
         if (State == ButtonState.Disabled) return;
+        _previousState = State;
         State = ButtonState.Default;
+        _selectedColor = BackgroundColor;
         MouseLeave?.Invoke(sender, e);
     }
 
-    #region Implementation of IGameObject
+    #region Implementation of IRenderable
 
     /// <inheritdoc />
-    public virtual void Draw() {
+    public override void Draw() {
+
+        // If shadow is enabled, draw the shadow
+        // DUH! kekw
+        if(ShadowEnabled) {
+            _ = SDL.SetRenderDrawColor(RendererPtr,
+                ShadowColor.R,
+                ShadowColor.G,
+                ShadowColor.B,
+                ShadowColor.A
+                );
+            _ = SDL.RenderFillRectF(RendererPtr, ref sfRect);
+            
+        }
+
         _ = SDL.SetRenderDrawColor(
             RendererPtr,
             _selectedColor.R,
             _selectedColor.G,
             _selectedColor.B,
             _selectedColor.A
-        );
+            );
+
+        // If shadow is enabled and our depth is more than 0
+        if(ShadowEnabled && ShadowDepth > 0 && State == ButtonState.Clicked) {
+            // We "move" the button to the depth of the shadow.
+            _ = SDL.RenderFillRectF(RendererPtr, ref sfRect);
+            DrawText(ref sfRect);
+            
+            // We don't need to render the rest of the button.
+            return;
+        }
 
         // Draw Untouched Square
-        _ = SDL.RenderFillRectF(RendererPtr, ref _rect);
+        _ = SDL.RenderFillRectF(RendererPtr, ref frect);
         _ = SDL.SetRenderDrawColor(RendererPtr, 255, 255, 255, 16);
         if (!Flat) {
             if (_inverse) {
@@ -127,36 +175,61 @@ public class Button : Renderer, IGameObject {
                     RendererPtr, X, Y, X, Y + Height);
             }
         }
+        DrawText(ref frect);
+    }
 
+    private void DrawText(ref FRect fr) {
         // Draw Number
-        RenderText(Text, (int)X + TextPosition.X, (int)Y + TextPosition.Y, ForegroundColor);
+        RenderText(Text, (int)fr.X + TextPosition.X, (int)fr.Y + TextPosition.Y, ForegroundColor);
+    }
+
+    private bool InRange(MouseMotionEvent mme) {
+        // Check if the mouse is within the bounds of the button
+        return mme.X >= X
+            && mme.X <= X + Width
+            && mme.Y >= Y
+            && mme.Y <= Y + Height;
     }
 
     /// <inheritdoc />
-    public virtual void Update(Event e) {
-        if (e.Button is { Clicks: 1, Type: EventType.MouseButtonDown }) {
-            OnClick(this, e.Button);
-        }
+    public override void Update(Event e) {
 
-        if (e.Type is EventType.MouseMotion) {
-            if (e.Motion.X >= X && e.Motion.X <= X + Width && e.Motion.Y >= Y && e.Motion.Y <= Y + Height) {
-                OnMouseEnter(this, e.Motion);
-                _selectedColor = HighlightColor;
-            }
-            else {
-                OnMouseLeave(this, e.Motion);
-                _selectedColor = BackgroundColor;
-            }
-        }
+        sfRect = frect with { X = X + ShadowDepth, Y = Y + ShadowDepth };
 
-        // It's Untouched, Highlight or not
         _selectedColor = State switch {
             ButtonState.Disabled => DisabledColor,
             ButtonState.Default => BackgroundColor,
             ButtonState.Highlighted => HighlightColor,
             ButtonState.Clicked => ClickedColor,
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(_selectedColor))
         };
+
+        ForegroundColor = ForegroundColor.SetInverseBasedOn(_selectedColor);
+
+        if (e.Button is { Type: EventType.MouseButtonUp }) {
+            State = _previousState;
+            return;
+        }
+        
+        if (e.Button is { Clicks: 2, Type: EventType.MouseButtonDown }
+        && InRange(e.Motion)) {
+            OnDoubleClick(this, e.Button);
+            return;
+        }
+        
+        if (e.Button is { Clicks: >=1, Type: EventType.MouseButtonDown }
+        && InRange(e.Motion)) {
+            OnClick(this, e.Button);
+            return;
+        }
+
+        if (e.Type is EventType.MouseMotion) {
+            if (InRange(e.Motion)) {
+                OnMouseEnter(this, e.Motion);
+            } else {
+                OnMouseLeave(this, e.Motion);
+            }
+        }
     }
 
     #endregion

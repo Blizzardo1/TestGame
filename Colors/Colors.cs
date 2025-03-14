@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SDL2;
 
 namespace TestGame.Colors;
 
@@ -148,4 +144,16 @@ public enum KnownColor {
     WhiteSmoke = unchecked((int)0xFFF5F5F5),
     Yellow = unchecked((int)0xFFFFFF00),
     YellowGreen = unchecked((int)0xFF9ACD32)
+}
+
+public static class Colors {
+    public static Color FromKnownColor(KnownColor knownColor) {
+        // In ARGB format? Sheesh.... Should probably fix that...
+        // Anywho......
+        byte a = (byte)((int)knownColor >> 24 & 0xFF);
+        byte r = (byte)((int)knownColor >> 16 & 0xFF);
+        byte g = (byte)((int)knownColor >> 8 & 0xFF);
+        byte b = (byte)((int)knownColor & 0xFF);
+        return new() { A = a, B = b, G = g, R = r };
+    }
 }
