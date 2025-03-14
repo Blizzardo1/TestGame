@@ -1,0 +1,463 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="TestGame.Analytics.CrashReporter" Collapsed="true">
+    <Position X="50.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAQAAAAAAACAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>Analytics\CrashReporter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Colors.ColorConverter" Collapsed="true">
+    <Position X="49" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Colors\ColorConverter.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Config.AudioConfig" Collapsed="true">
+    <Position X="45.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAIEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Config\AudioConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Config.AudioDeviceConfig" Collapsed="true">
+    <Position X="47.25" Y="1.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAIAAEAAAAAAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Config\AudioDeviceConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Config.FontConfig" Collapsed="true">
+    <Position X="49" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>Config\FontConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Config.MapConfig" Collapsed="true">
+    <Position X="50.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAIAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Config\MapConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Config.SceneConfig" Collapsed="true">
+    <Position X="50.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIEAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Config\SceneConfig.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Textures.Sprite" Collapsed="true">
+    <Position X="11.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Textures\Sprite.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Textures.Sprite32" Collapsed="true">
+    <Position X="13.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAEAAAAAAAAAAAIAIAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Textures\Sprite32.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Textures.Texture" Collapsed="true">
+    <Position X="12.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAgAAAAAAAAAAACAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>GameObjects\Textures\Texture.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.AnimatedSprite" Collapsed="true">
+    <Position X="11.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAACAAAAgAAAEAAAAAAAAAAAEAAAAAAgAAAAAA=</HashCode>
+      <FileName>GameObjects\AnimatedSprite.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Audio" Collapsed="true">
+    <Position X="1.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAIAAAAAQEAAgBAAAAQAAAQACACBoAIAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Audio.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestGame.GameObjects.Button" Collapsed="true">
+    <Position X="20.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgSAAAAIAAAgAgAFAiBAGABCCAAAAAAJAAAIDCEgQgA=</HashCode>
+      <FileName>GameObjects\Button.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Clock" Collapsed="true">
+    <Position X="4.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAIAAACAgAgBAQKoAAAABCAAAAABACAAAIAAAAAQ=</HashCode>
+      <FileName>GameObjects\Clock.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.GameObject" Collapsed="true">
+    <Position X="13.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAKABAAAAgAAAAAAAEQAAACAAAAAAAAAAAACYAE=</HashCode>
+      <FileName>GameObjects\GameObject.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestGame.GameObjects.MenuButton" Collapsed="true">
+    <Position X="22.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\MenuButton.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Music" Collapsed="true">
+    <Position X="2.75" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAgACACAgAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Music.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.ResourceManager" Collapsed="true">
+    <Position X="49" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAgAAAABAAAAABAAQAAgAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\ResourceManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Simple" Collapsed="true">
+    <Position X="25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAIAgAAQAgAAAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Simple.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.SoundEffect" Collapsed="true">
+    <Position X="0.5" Y="10.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAAAAgACACAgAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\SoundEffect.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Star" Collapsed="true">
+    <Position X="7" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQCAAAAAAAAAkAAAAAAAAAAQAAAAADAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Star.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Text" Collapsed="true">
+    <Position X="9.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAIAgAAAAAAAAAAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Text.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.TexturedButton" Collapsed="true">
+    <Position X="20.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\TexturedButton.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.GameObjects.Water" Collapsed="true">
+    <Position X="11.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Water.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Maps.Map" Collapsed="true">
+    <Position X="16" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAQAgACAAAEAAkAIAAAAAAEAAAAAIAAACEAABAAAAAA=</HashCode>
+      <FileName>Maps\Map.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.EventArgs.SceneEventArgs" Collapsed="true">
+    <Position X="45.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Scenes\EventArgs\SceneEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.BalatroScene" Collapsed="true">
+    <Position X="36.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAYAICAIBARyBDBAJAAIRACKAAEAFAIAAgAMAAAIg=</HashCode>
+      <FileName>Scenes\BalatroScene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.ChrisTest" Collapsed="true">
+    <Position X="38.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAwAAAAAAAAQAAAAAAAAAAABgAEAAAAA=</HashCode>
+      <FileName>Scenes\ChrisTest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.PauseScene" Collapsed="true">
+    <Position X="27.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAgAwAAAEABAAQEYAAAAAAAAREACGAAqAA=</HashCode>
+      <FileName>Scenes\PauseScene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.SampleWorld" Collapsed="true">
+    <Position X="29.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAQAAAAAAAAQAAAAAAAAAAAQAAEAAAAA=</HashCode>
+      <FileName>Scenes\SampleWorld.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.Scene" Collapsed="true">
+    <Position X="32.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BARgAAAEBgAAA0BAAAAAAEQACAAAAIBABAggAEAAAAA=</HashCode>
+      <FileName>Scenes\Scene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.SceneFactory" Collapsed="true">
+    <Position X="47.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
+      <FileName>Scenes\SceneFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.StarScene" Collapsed="true">
+    <Position X="31.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgABAAAAUAAAAAAAQQAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Scenes\StarScene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Scenes.TiledScene" Collapsed="true">
+    <Position X="34" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAQAAAAAAAAQAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>Scenes\TiledScene.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.NativeMethods" Collapsed="true">
+    <Position X="47.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAgEBAAACAAAkACIAAAAAAAAgCABIAAAAAIEAGACA=</HashCode>
+      <FileName>Win32Menu\NativeMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.MenuFlagsExtensions" Collapsed="true">
+    <Position X="45.5" Y="3.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Win32Menu\NativeMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Diagnostics" Collapsed="true">
+    <Position X="43" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAwAgAAABAAAAwAAAAABAkQAAIAAAAAAAAAAAAAAYAE=</HashCode>
+      <FileName>Diagnostics.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="TestGame.Engine" Collapsed="true">
+    <Position X="45.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAQAAAAAAEAAAAEAACAQgAwAQBAAAAAQAACACA4=</HashCode>
+      <FileName>Engine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Extensions" Collapsed="true">
+    <Position X="47.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQBAAAAAAAAAAAAAQAABAAEEAAAEEAAAAAEAAAIAAIA=</HashCode>
+      <FileName>Extensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Menu" Collapsed="true">
+    <Position X="2.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAABgAAAAAQAAAAAACAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Menu.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.MenuItem" Collapsed="true">
+    <Position X="18.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>MenuItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Renderer" Collapsed="true">
+    <Position X="22.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AiAAAAAEAAAAAUAABAAAAgAAAAgAAAAAAAAIICACAAA=</HashCode>
+      <FileName>Renderer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.SceneFactory" Collapsed="true">
+    <Position X="49" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
+      <FileName>SceneFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TestGame.Window" Collapsed="true">
+    <Position X="40.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAwSAAhAheiKgnHwVJqVYceerD4CtYAD8IsIMBGCZQk=</HashCode>
+      <FileName>Window.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SDL2.Core" Collapsed="true">
+    <Position X="40.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQEAAAQACICUhCIAAIQQAQAgBISBCAQYAggEMCCAAA=</HashCode>
+      <FileName>Core.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="TestGame.Win32Menu.MenuInfo" Collapsed="true">
+    <Position X="45.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAEAAAgAAAAAAAAAQIAAAAAAAAAAAAAAACBAAAA=</HashCode>
+      <FileName>Win32Menu\MenuInfo.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TestGame.Win32Menu.MenuItemInfo" Collapsed="true">
+    <Position X="47.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAEEAEQAAAAAAAAABAAAAAAAACAAAAAhBAAAAACBAA=</HashCode>
+      <FileName>Win32Menu\MenuItemInfo.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TestGame.Size" Collapsed="true">
+    <Position X="49" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAABAAAAAAAgAAAgEAAAAAAAIAAAAAAAAAAAiA=</HashCode>
+      <FileName>Size.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="TestGame.GameObjects.Characters.ICharacter" Collapsed="true">
+    <Position X="5.25" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAAAAAAgAAAACgICAAAEIAAIAAAAgAAAAEgkAAQAA=</HashCode>
+      <FileName>GameObjects\Characters\ICharacter.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TestGame.GameObjects.Characters.IDefensive" Collapsed="true">
+    <Position X="0.75" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Characters\IDefensive.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TestGame.GameObjects.Characters.IWeapon" Collapsed="true">
+    <Position X="3" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\Characters\IWeapon.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TestGame.GameObjects.IGameObject" Collapsed="true">
+    <Position X="3" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\IGameObject.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="TestGame.GameObjects.IRenderer" Collapsed="true">
+    <Position X="3" Y="6.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAABAAAAgAAAAAAAEAAAAAAAAAAAAAAAAAAYAE=</HashCode>
+      <FileName>GameObjects\IRenderer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="TestGame.Colors.KnownColor" Collapsed="true">
+    <Position X="50.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>Y/o/AcRdQXu0I7OmoRkQ11WRFIBxxgSLiLRtnTQZl4E=</HashCode>
+      <FileName>Colors\Colors.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.GameObjects.AudioFormat" Collapsed="true">
+    <Position X="45.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAgQAAAAAAAAQgAAAAAAAAAAgAAEGAAACAA=</HashCode>
+      <FileName>GameObjects\AudioFormat.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.GameObjects.ButtonState" Collapsed="true">
+    <Position X="47.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAACAIAAAAAAIACAAAAAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\ButtonState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.Win32Menu.HBitmapTable" Collapsed="true">
+    <Position X="49" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAIAAAAEIAAAAACAAACAACAAAABAAAAAEAAAEAAQAA=</HashCode>
+      <FileName>Win32Menu\HBitmapTable.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.Win32Menu.MenuItemInformationMask" Collapsed="true">
+    <Position X="45.5" Y="7.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAICAAAAAAAAAgAAQAgAAAAAAAAAABAAAQAABAAAAAg=</HashCode>
+      <FileName>Win32Menu\MenuItemInformationMask.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.Win32Menu.MenuItemInformationMaskFType" Collapsed="true">
+    <Position X="47.25" Y="7.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAAAAAAAgQAgAAAAAAACAADAABAAAEAAAAAA=</HashCode>
+      <FileName>Win32Menu\MenuItemInformationMaskFType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="TestGame.Win32Menu.MenuItemState" Collapsed="true">
+    <Position X="49" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAICAAACAIAAAAAAAAAAAAAjAAAAAABA=</HashCode>
+      <FileName>Win32Menu\MenuItemState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Delegate Name="TestGame.Scenes.SceneEventHandler" Collapsed="true">
+    <Position X="45.5" Y="9.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>Scenes\Scene.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="SDL2.EventHandler" Collapsed="true">
+    <Position X="45.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAQAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Core.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="SDL2.EventHandler&lt;T&gt;" Collapsed="true">
+    <Position X="47.25" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Core.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="SDL2.MouseMotionEventHandler" Collapsed="true">
+    <Position X="50.75" Y="8.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Core.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Delegate Name="SDL2.MouseButtonEventHandler" Collapsed="true">
+    <Position X="49" Y="8.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Core.cs</FileName>
+    </TypeIdentifier>
+  </Delegate>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

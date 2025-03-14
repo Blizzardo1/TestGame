@@ -6,4 +6,4 @@
 
 namespace TestGame.GameObjects.Characters;
 
-public interface IWeapon : IGameObject { }
+public interface IWeapon : IRenderer { }

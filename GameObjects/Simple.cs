@@ -1,47 +1,30 @@
 ﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-internal class Simple : IGameObject {
+internal class Simple : GameObject {
     private const float Speed = 0.1f;
     private float _xSpeed;
     private float _ySpeed;
     private Color _color;
 
-    #region Implementation of IGameObject
+    #region Implementation of IRenderable
 
-    /// <inheritdoc />
-    public float X { get; set; }
-
-    /// <inheritdoc />
-    public float Y { get; set; }
-
-    /// <inheritdoc />
-    public int Width => 96;
-
-    /// <inheritdoc />
-    public int Height => 64;
-
-    /// <inheritdoc />
-    public string Name => "Simple";
-
-    public Simple(nint rendererPtr) {
-        RendererPtr = rendererPtr;
+    public Simple(GameContext context) {
+        Name = "Simple";
+        Width = 96;
+        Height = 64;
+        X = 0;
+        Y = 0;
+        Z = 0;
+        RendererPtr = context.RendererPtr;
         _xSpeed = Speed;
         _ySpeed = Speed;
-        _color = Game.GetRandomColor();
+        _color = Core.GetRandomColor();
     }
-
-    public IntPtr RendererPtr { get; }
-
+    
     /// <inheritdoc />
-    public void Draw() {
+    public override void Draw() {
         FRect rect = new() { X = X, Y = Y, W = Width, H = Height };
         // _ = SDL.SetRenderDrawColor(RendererPtr, 0, 0, 0, 255);
         // _ = SDL.RenderClear(RendererPtr);
@@ -51,7 +34,7 @@ internal class Simple : IGameObject {
     }
 
     /// <inheritdoc />
-    public void Update(Event e) {
+    public override void Update(Event e) {
         _ = SDL.GetRendererOutputSize(RendererPtr, out int rx, out int by);
 
         if (
@@ -61,7 +44,7 @@ internal class Simple : IGameObject {
             || X >= rx - Width && Y >= by - Height // Bottom right
         ) {
             // Change the Color
-            _color = Game.GetRandomColor();
+            _color = Core.GetRandomColor();
         }
 
         if (X < 0 || X > rx - Width) {

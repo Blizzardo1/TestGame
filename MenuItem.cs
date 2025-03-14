@@ -1,5 +1,4 @@
 ﻿using SDL2;
-using TestGame.Colors;
 using TestGame.GameObjects;
 
 namespace TestGame;
@@ -23,7 +22,7 @@ public class MenuItem : Button {
 
     public Action Action { get; set; }
 
-    public MenuItem(int id, string text, Action action, nint rendererPtr) : base(rendererPtr) {
+    public MenuItem(int id, string text, Action action, GameContext context) : base(context) {
         Id = id;
         Text = text;
         Action = action;

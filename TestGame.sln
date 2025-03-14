@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGame", "TestGame.csproj", "{7AA05AC7-A3DE-49EC-AA1E-D3907C19422B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestGame", "TestGame.csproj", "{7AA05AC7-A3DE-49EC-AA1E-D3907C19422B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpSDL2", "..\Blizzardo1\SharpSDL2\SharpSDL2.csproj", "{F8F4269E-627C-4948-8E91-1EE25B71BA14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bred", "..\Bread\Bred.csproj", "{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{F8F4269E-627C-4948-8E91-1EE25B71BA14}.Release|Any CPU.Build.0 = Release|x64
 		{F8F4269E-627C-4948-8E91-1EE25B71BA14}.Release|x64.ActiveCfg = Release|x64
 		{F8F4269E-627C-4948-8E91-1EE25B71BA14}.Release|x64.Build.0 = Release|x64
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Debug|x64.Build.0 = Debug|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Release|x64.ActiveCfg = Release|Any CPU
+		{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
