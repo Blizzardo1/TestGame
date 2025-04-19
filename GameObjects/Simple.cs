@@ -22,7 +22,7 @@ internal class Simple : GameObject {
         _ySpeed = Speed;
         _color = Core.GetRandomColor();
     }
-    
+
     /// <inheritdoc />
     public override void Draw() {
         FRect rect = new() { X = X, Y = Y, W = Width, H = Height };

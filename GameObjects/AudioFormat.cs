@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestGame.GameObjects; 
+namespace TestGame.GameObjects;
 
 internal enum AudioFormat {
     Unsigned8 = 0x0008,

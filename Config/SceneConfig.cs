@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using TestGame.GameObjects;
 
 namespace TestGame.Config {
-    internal class SceneConfig(string name, string sceneType, List<GameObject> gameObjects) {
+    internal class SceneConfig(string name, string sceneType, List< GameObject > gameObjects) {
         /// <summary>
         /// A Reference to a given Scene
         /// </summary>
         /// <example>scene/main</example>
         [JsonProperty("name")]
         public string SceneName { get; } = name;
-        
+
         /// <summary>
         /// The Type of Scene
         /// </summary>
@@ -26,6 +26,6 @@ namespace TestGame.Config {
         /// The Game objects to load into the scene
         /// </summary>
         [JsonProperty("objects")]
-        public List<GameObject> GameObjects { get; } = gameObjects;
+        public List< GameObject > GameObjects { get; } = gameObjects;
     }
 }

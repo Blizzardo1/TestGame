@@ -5,48 +5,66 @@
 #endregion
 
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Forms = Eto.Forms;
 using NLog;
-using TestGame;
+using SDL2;
+using SDL2.TTF;
 using TestGame.Colors;
+using TestGame.Config;
 using TestGame.GameObjects;
 using TestGame.Scenes;
 using TestGame.Scenes.EventArgs;
 
-namespace SDL2;
+namespace TestGame;
 
+/// <summary>
+/// Standard Event Handler
+/// </summary>
+/// <param name="sender">object triggering the event</param>
+/// <param name="e">An SDL <see cref="Event"/> containing information about the triggered event</param>
 public delegate void EventHandler(object? sender, Event e);
 
+/// <summary>
+/// Standard Event Handler that takes in an <typeparamref name="T"/> parameter
+/// for a more customized and refined event system
+/// </summary>
+/// <typeparam name="T">struct or class type object</typeparam>
+/// <param name="sender">object triggering the event</param>
+/// <param name="e"><typeparamref name="T"/> object containing information (if any) about the triggered event</param>
 public delegate void EventHandler< in T >(object? sender, T e);
 
+/// <summary>
+/// Handles any mouse motion
+/// </summary>
+/// <param name="sender">object triggering the event</param>
+/// <param name="e">An SDL <see cref="MouseMotionEvent"/> containing information about the triggered event</param>
 public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e);
 
+/// <summary>
+/// Handles any mouse button
+/// </summary>
+/// <param name="sender">object triggering the event</param>
+/// <param name="e">An SDL <see cref="MouseButtonEvent"/> containing information about the triggered event</param>
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
-    private const int LocationX = 100;
-    private const int LocationY = 100;
-
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
     private static Core? _instance;
-    public static Core Instance { get => _instance!; }
-    
+    public static Core Instance => _instance!;
+
     public static Random Random { get; } = new();
 
-    private bool _dead;    
+    private bool _dead;
     private bool _debug;
 
-    private Dictionary<string, Scene>? _scenes;
+    private Dictionary< string, Scene >? _scenes;
 
     private Scene? _currentScene;
-    private string? _initialSceneName;
-    private const string PauseMenu = "pause";
 
-    private Diagnostics? _diag;
-    
+    private Diagnostics? _diagnostic;
+
+    private static readonly Logger? Log = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// Creates a new Game
@@ -66,6 +84,15 @@ public class Core : Window {
         _instance = this;
     }
 
+    public void Die() {
+        _dead = true;
+        IsRunning = false;
+    }
+
+    public void ToggleDebug() {
+        _debug = !_debug;
+    }
+
     /// <summary>
     /// Adds a <see cref="Scene"/> to the Scene Engine
     /// </summary>
@@ -73,6 +100,38 @@ public class Core : Window {
     public void AddScene(Scene scene) {
         _scenes ??= [];
         _scenes.Add(scene.Name, scene);
+    }
+
+    public void NextScene(Scene scene) {
+        if (_currentScene is null) {
+            Log?.Error("_currentScene is unset!");
+            return;
+        }
+
+        scene.LastScene = _currentScene;
+        _currentScene.NextScene = scene;
+    }
+
+    /// <summary>
+    /// Gets a <see cref="Scene"/> by name
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="name"></param>
+    /// <param name="scene"></param>
+    /// <returns></returns>
+    public bool TryGetScene< T >(string name, out T? scene) where T : Scene {
+        if (_scenes is null) {
+            scene = null;
+            return false;
+        }
+
+        if (_scenes.TryGetValue(name, out Scene? s)) {
+            scene = (T)s;
+            return true;
+        }
+
+        scene = null;
+        return false;
     }
 
     /// <summary>
@@ -99,7 +158,7 @@ public class Core : Window {
     /// </summary>
     /// <exception cref="Exception">Failure to create the Window and Renderer</exception>
     public void InitializeComponents() {
-        if(_scenes is null) {
+        if (_scenes is null) {
             throw new NullReferenceException("Scene Engine needs to be initialized. Use AddScene or AddScenes");
         }
 
@@ -110,14 +169,25 @@ public class Core : Window {
         IsPaused = false;
 
         _ = SDL.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
-        
 
-        _diag = new Diagnostics(RendererPtr, 256, 256);
+        _diagnostic = new Diagnostics(RendererPtr, 256, 256);
 
+        // TODO: This needs to be moved away from the engine and processed per separate Application.
+
+        if(Engine.GameConfig.AudioTracks is not null) {
+            foreach(AudioConfig ac in Engine.GameConfig.AudioTracks) {
+                ResourceManager.Add(new SoundEffect(ac.Reference, ac.Path));
+            }
+        }
+
+        #if WINDOWS
         // SoundEffect startup = new ("audio/startup", @"E:\Users\Adonis\Music\Youtube Stuff\98 Media\WO_START.WAV");
-        ResourceManager.Add(new SoundEffect("audio/startup", @"E:\Users\Adonis\Music\OST\Yoshi's Island\01-NintendoMark.mp3"));
-        ResourceManager.Add(new SoundEffect("audio/shutdown", @"E:\Users\Adonis\Music\Youtube Stuff\XP Media\tada.wav"));
-        ResourceManager.Add(new SoundEffect("audio/pause", @"E:\Users\Adonis\Music\OST\Earthbound\170- Earthbound - OK _Ssuka_.mp3"));
+        ResourceManager.Add(new SoundEffect("audio/startup",
+            @"E:\Users\Adonis\Music\OST\Yoshi's Island\01-NintendoMark.mp3"));
+        ResourceManager.Add(new SoundEffect("audio/shutdown",
+            @"E:\Users\Adonis\Music\Youtube Stuff\XP Media\tada.wav"));
+        ResourceManager.Add(new SoundEffect("audio/pause",
+            @"E:\Users\Adonis\Music\OST\Earthbound\170- Earthbound - OK _Ssuka_.mp3"));
         // audio/bgm/overworld
         // audio/bgm/dungeon
         // audio/bgm/boss
@@ -127,12 +197,12 @@ public class Core : Window {
         // npc/antagonist
         // npc/village/priest
         // npc/city/priest
-
+        #endif
         foreach (Scene s in _scenes!.Values) {
             s.Initialize();
         }
 
-        (_initialSceneName, _currentScene) = _scenes.First();
+        ( _, _currentScene ) = _scenes.First();
     }
 
     /// <summary>
@@ -148,16 +218,17 @@ public class Core : Window {
     public nint GetWindow() => WindowPtr;
 
     private void AttachListeners() {
+        Log?.Info("Installing listeners");
         FirstEvent += OnFirstEvent;
         Quit += OnQuit;
-        KeyDown += OnKeyDown;
         MouseMove += OnMouseMove;
         MouseDown += OnMouseDown;
         MouseWheel += OnMouseWheel;
         MouseUp += OnMouseUp;
         WindowEvent += OnWindowEvent;
+        Log?.Info("Listeners installed.");
     }
-    
+
     /// <summary>
     /// Wrapper to set Render Draw Color more efficiently.
     /// </summary>
@@ -168,66 +239,35 @@ public class Core : Window {
         return SDL.SetRenderDrawColor(rendererPtr, color.R, color.G, color.B, color.A);
     }
 
-    // TODO: This needs to be reworked so we can map buttons
-    private void OnKeyDown(object? sender, KeyboardEvent e) {
-        if (e.Keysym.Mod == Keymod.LCtrl) {
-            switch (e.Keysym.Sym) {
-                case Keycode.q:
-                    _dead = true;
-                    IsRunning = false;
-                    break;
-            }
-        }
-
-        switch (e.Keysym.Sym) {
-            case Keycode.F3:
-                _debug = !_debug;
-                break;
-            case Keycode.Escape:
-                TogglePause();
-                // Pausa :D
-                // Le Pause
-                break;
-            case Keycode.r:
-                _dead = false;
-                break;
-            case Keycode.d:
-                _dead = false;
-                break;
-            case Keycode.c:
-                _dead = false;
-                break;
-            default:
-                break;
-        }
-    }
-
     private void OnWindowEvent(object? sender, WindowEvent e) {
         try {
             switch (e.Event) {
-                case WindowEventID.None: break;
-                case WindowEventID.Shown: break;
-                case WindowEventID.Hidden: break;
-                case WindowEventID.Exposed: break;
+                case WindowEventID.None:
+                case WindowEventID.Shown:
+                case WindowEventID.Hidden:
+                case WindowEventID.Exposed:
+                    break;
                 case WindowEventID.Moved:
                     UpdatePosition(WindowPtr);
                     break;
+                case WindowEventID.Minimized:
+                case WindowEventID.Restored:
+                    break;
+                case WindowEventID.Maximized:
                 case WindowEventID.Resized:
+                case WindowEventID.SizeChanged:
                     UpdateSize(WindowPtr);
                     break;
-                case WindowEventID.SizeChanged: break;
-                case WindowEventID.Minimized: break;
-                case WindowEventID.Maximized: break;
-                case WindowEventID.Restored: break;
-                case WindowEventID.Enter: break;
-                case WindowEventID.Leave: break;
-                case WindowEventID.FocusGained: break;
-                case WindowEventID.FocusLost: break;
-                case WindowEventID.Close: break; // Handled elsewhere
-                case WindowEventID.TakeFocus: break;
-                case WindowEventID.HitTest: break;
-                case WindowEventID.ICCProfileChanged: break;
-                case WindowEventID.DisplayChanged: break;
+                case WindowEventID.Enter:
+                case WindowEventID.Leave:
+                case WindowEventID.FocusGained:
+                case WindowEventID.FocusLost:
+                case WindowEventID.Close:
+                case WindowEventID.TakeFocus:
+                case WindowEventID.HitTest:
+                case WindowEventID.ICCProfileChanged:
+                case WindowEventID.DisplayChanged:
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(e.Event.ToString());
             }
@@ -237,24 +277,31 @@ public class Core : Window {
         }
     }
 
-    private void OnFirstEvent(object? sender, Event e) { }
+    private void OnFirstEvent(object? sender, Event e) {
+        Log?.Info("Game Engine Fired away!");
+    }
 
     /// <summary>
-    /// Whether or not the game is running
+    /// Whether the game is running
     /// </summary>
     public bool IsRunning { get; private set; }
-    
 
+    /// <summary>
+    /// Clean up any resources used
+    /// </summary>
     private void Cleanup() {
         if (_scenes is null) {
             return;
         }
-        
+
         foreach (Scene s in _scenes.Values) {
             s.Cleanup();
         }
     }
 
+    /// <summary>
+    /// As it states, toggle the pause
+    /// </summary>
     public void TogglePause() {
         IsPaused = !IsPaused;
     }
@@ -262,44 +309,39 @@ public class Core : Window {
     /// <summary>
     /// Start the Game
     /// </summary>
-    public void Start() {
+    public virtual void Start() {
         IsRunning = true;
-        var start = ResourceManager.Get<SoundEffect>("audio/startup");
-        // start.SetVolume(48);
-        // start.Play();
     }
 
-    public void Stop() {
+    /// <summary>
+    /// Stops execution
+    /// </summary>
+    public virtual void Stop() {
         IsRunning = false;
-        var end = ResourceManager.Get<SoundEffect>("audio/shutdown");
-        // end.SetVolume(48);
-        // end.Play();
         Cleanup();
     }
-    
+
     #region Implementation of IRenderable
 
     /// <inheritdoc />
-    public override string Name => "Game";
+    public override string Name => "Game Engine";
 
     /// <inheritdoc />
     public override void Draw() {
-
         SetRenderColor(RendererPtr,
             // We should have this set already, buuuut, if not... DAVE!? Wait... Who's Dave!?
             _currentScene?.BackgroundColor
             // Default to this if the Current Scene's Background Color isn't set.
-            ?? Colors.FromKnownColor(KnownColor.Black));
-        
+            ?? KnownColor.Black.ToColor());
+
         _ = SDL.RenderClear(RendererPtr);
 
         _currentScene?.Draw();
 
         if (_debug) {
-            _diag?.Draw();
+            _diagnostic?.Draw();
         }
 
-        
         SDL.RenderPresent(RendererPtr);
     }
 
@@ -308,9 +350,9 @@ public class Core : Window {
     /// <summary>
     /// Handles Quit Procedures
     /// </summary>
-    public void OnQuit(object? sender, QuitEvent e) {
+    private void OnQuit(object? sender, QuitEvent e) {
         CloseFonts();
-        TTF.TTF.Quit();
+        TTF.Quit();
 
         SDL.DestroyRenderer(RendererPtr);
         SDL.DestroyWindow(WindowPtr);
@@ -323,38 +365,44 @@ public class Core : Window {
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
-    public void OnMouseMove(object? sender, MouseMotionEvent e) {
-        _diag!.MouseData = _diag.MouseData with { Position = new System.Numerics.Vector2 { X = e.X, Y = e.Y } };
+    private void OnMouseMove(object? sender, MouseMotionEvent e) {
+        if (_diagnostic is null) return;
+        _diagnostic.MouseData = _diagnostic.MouseData with {
+            Position = new System.Numerics.Vector2 { X = e.X, Y = e.Y }
+        };
     }
 
     private void OnMouseDown(object? sender, MouseButtonEvent e) {
-        _diag!.MouseData = _diag.MouseData with { Button = e.Button };
+        if (_diagnostic is null) return;
+        _diagnostic.MouseData = _diagnostic.MouseData with { Button = e.Button };
     }
 
     private void OnMouseUp(object? sender, MouseButtonEvent e) {
-        _diag!.MouseData = _diag.MouseData with { Button = 0 };
-    }
-    private void OnMouseWheel(object? sender, MouseWheelEvent e) {
-        _diag!.MouseData = _diag.MouseData with { WheelDirection = e.Y };
+        if (_diagnostic is null) return;
+        _diagnostic.MouseData = _diagnostic.MouseData with { Button = 0 };
     }
 
+    private void OnMouseWheel(object? sender, MouseWheelEvent e) {
+        if (_diagnostic is null) return;
+        _diagnostic.MouseData = _diagnostic.MouseData with { WheelDirection = e.Y };
+    }
 
     #endregion
 
     /// <inheritdoc />
     public override void Update(Event e) {
-        if(_currentScene == null) {
+        if (_currentScene == null) {
             return;
         }
-        
+
         if (_dead) {
             return;
         }
 
         base.Update(e);
-        
-        _diag?.UpdateDiagnostics(_currentScene);
-        _diag?.Update(e);
+
+        _diagnostic?.UpdateDiagnostics(_currentScene);
+        _diagnostic?.Update(e);
 
         // Death Check has not countered the InvalidOpEx:
         //      "Collection was modified, enumeration operation may not execute."
@@ -363,16 +411,20 @@ public class Core : Window {
             Either way, something needs to be done to include multiple scenes
             while still referencing the Pause Menu.
          */
-        _currentScene = IsPaused ? _scenes[PauseMenu] : _scenes![_initialSceneName!];
-        _currentScene!.LastScene = lastScene;
+
+        if (_currentScene.NextScene is not null) {
+            _currentScene = _currentScene.NextScene;
+            _currentScene!.LastScene = lastScene;
+            lastScene.NextScene = null;
+        }
 
         SceneEventArgs sea = new(_currentScene, lastScene);
-        
-        if(_currentScene != lastScene) {
+
+        if (_currentScene != lastScene) {
             lastScene.OnSceneLeave(this, sea);
             _currentScene.OnSceneEnter(this, sea);
         }
-        
+
         try {
             _currentScene.Update(e);
         }

@@ -6,16 +6,13 @@ using System.Threading.Tasks;
 using NLog;
 using SDL2;
 
-namespace TestGame.GameObjects
-{
+namespace TestGame.GameObjects {
     internal class SoundEffect : Audio {
         private static readonly Logger? Log = LogManager.GetCurrentClassLogger();
 
-        ~SoundEffect()
-        {
+        ~SoundEffect() {
             Mixer.FreeChunk(Pointer);
         }
-
 
         /// <inheritdoc />
         public SoundEffect(string name, string filename) {
@@ -23,12 +20,12 @@ namespace TestGame.GameObjects
             Filename = filename;
 
             OpenAudioDevice();
-            
+
             Pointer = Mixer.LoadWav(filename);
-            
-            if (Pointer == nint.Zero)
-            {
-                Log?.Error(new FileLoadException(nameof(filename)), $"Could not load Sound Effect \"{filename}\"; ${SDL.GetError()}");
+
+            if (Pointer == nint.Zero) {
+                Log?.Error(new FileLoadException(nameof(filename)),
+                    $"Could not load Sound Effect \"{filename}\"; ${SDL.GetError()}");
                 return;
             }
 
@@ -38,7 +35,7 @@ namespace TestGame.GameObjects
 
         private int GetChunkSize() {
             if (Filename is null) return 0;
-            
+
             using var br = new BinaryReader(File.OpenRead(Filename));
             br.BaseStream.Seek(40, SeekOrigin.Begin);
             uint dataSize = br.ReadUInt32();
@@ -52,8 +49,7 @@ namespace TestGame.GameObjects
             Play(0);
         }
 
-        public void Play(int loops)
-        {
+        public void Play(int loops) {
             SetVolume(PreviousVolume);
             Mixer.PlayChannel(-1, Pointer, loops);
             IsPlaying = true;

@@ -2,16 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <StartupObject></StartupObject>
     <PlatformTarget>x64</PlatformTarget>
-    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Analytics\CrashReporter.cs" />
     <Compile Remove="Scenes\BalatroScene.cs" />
   </ItemGroup>
 
@@ -20,17 +19,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Eto.Forms" Version="2.8.2" />
-    <PackageReference Include="eto.platform.windows" Version="2.8.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="nlog" Version="5.2.7" />
-    <PackageReference Include="Sentry" Version="3.41.3" />
-    <PackageReference Include="Sentry.Extensions.Logging" Version="3.41.3" />
+    <PackageReference Include="nlog" Version="5.4.0" />
+    <PackageReference Include="Sentry" Version="5.3.0" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="5.3.0" />
     <PackageReference Include="tiledcs" Version="3.3.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Blizzardo1\SharpSDL2\SharpSDL2.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +42,13 @@
     <None Update="SDL2_ttf.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="default.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Analytics\" />
   </ItemGroup>
 
 </Project>

@@ -150,10 +150,10 @@ public static class Colors {
     public static Color FromKnownColor(KnownColor knownColor) {
         // In ARGB format? Sheesh.... Should probably fix that...
         // Anywho......
-        byte a = (byte)((int)knownColor >> 24 & 0xFF);
-        byte r = (byte)((int)knownColor >> 16 & 0xFF);
-        byte g = (byte)((int)knownColor >> 8 & 0xFF);
-        byte b = (byte)((int)knownColor & 0xFF);
-        return new() { A = a, B = b, G = g, R = r };
+        byte a = (byte)( (int)knownColor >> 24 & 0xFF );
+        byte r = (byte)( (int)knownColor >> 16 & 0xFF );
+        byte g = (byte)( (int)knownColor >> 8 & 0xFF );
+        byte b = (byte)( (int)knownColor & 0xFF );
+        return new Color { A = a, B = b, G = g, R = r };
     }
 }

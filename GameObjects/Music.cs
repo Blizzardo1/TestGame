@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 using NLog;
 using SDL2;
 
-namespace TestGame.GameObjects
-{
-    internal class Music : Audio
-    {
+namespace TestGame.GameObjects {
+    internal class Music : Audio {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        ~Music()
-        {
+        ~Music() {
             Mixer.FreeMusic(Pointer);
         }
 
@@ -23,14 +20,14 @@ namespace TestGame.GameObjects
             // TODO: Does not load MP3 nor WAV? What other files don't load?
 
             Pointer = Mixer.LoadMusic(filename);
-            if (Pointer == nint.Zero)
-            {
-                Log.Error(new FileLoadException(nameof(filename)), $"Could not load audio file {filename}; ${SDL.GetError()}");
+            if (Pointer == nint.Zero) {
+                Log.Error(new FileLoadException(nameof(filename)),
+                    $"Could not load audio file {filename}; ${SDL.GetError()}");
                 return;
             }
 
             int devOpened = Mixer.QuerySpec(out FileSupported.Frequency, out FileSupported.Format, out int channels);
-            Log.Info($"{(devOpened == 1 ? "Audio Opened" : "Audio Closed")}");
+            Log.Info($"{( devOpened == 1 ? "Audio Opened" : "Audio Closed" )}");
             FileSupported.Channels = (byte)channels;
             Log.Info(
                 $"Loaded Audio: \"{filename}\"; Freq: {FileSupported.Frequency}; Format: {FileSupported.Format}; Channels: {FileSupported.Channels}");
