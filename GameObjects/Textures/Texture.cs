@@ -28,5 +28,9 @@ namespace TestGame.GameObjects.Textures {
         public override void Update(Event e) { }
 
         #endregion
+
+        public static implicit operator nint(Texture texture) {
+            return texture.TexturePtr;
+        }
     }
 }

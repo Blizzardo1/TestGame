@@ -39,7 +39,7 @@ public record GameConfig([property: JsonIgnore] string Path) {
                 return;
             }
 
-            Renderer.GetFont(font.Name, font.Font, 12);
+            Renderer.GetFontStatic(font.Name, font.Font, 12);
         });
 
         if (AudioDevices is null) return;

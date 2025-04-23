@@ -3,7 +3,7 @@ using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-internal class Clock : GameObject {
+public class Clock : GameObject {
     private const float Speed = 1.5f;
     private const int ShadowDivisor = 10;
 
@@ -42,7 +42,7 @@ internal class Clock : GameObject {
 
     Rect _rect;
 
-    public Clock(GameContext context, string font = @"C:\Windows\Fonts\Arial.ttf", bool animate = true,
+    public Clock(GameContext context, string font = @"default.ttf", bool animate = true,
         int fontSize = 72) {
         Initialize(context.RendererPtr, font, "clock", FontSize);
         Name = "object/clock";
@@ -53,7 +53,7 @@ internal class Clock : GameObject {
             H = context.Rect.H
         };
         ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
-        ForegroundColor = Core.GetRandomColor();
+        ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
         FontSize = fontSize;
         _ogForeColor = ForegroundColor;
         _colorSequence = _hitSequence;
@@ -92,7 +92,9 @@ internal class Clock : GameObject {
         RenderText(_time, FontSize, "clock", (int)X, (int)Y, ForegroundColor);
 
         Core.SetRenderColor(RendererPtr, KnownColor.Red.ToColor());
-        _ = SDL.RenderDrawRect(RendererPtr, ref _rect);
+        if (Core.IsDebugging) {
+            _ = SDL.RenderDrawRect(RendererPtr, ref _rect);
+        }
     }
 
     /// <inheritdoc />

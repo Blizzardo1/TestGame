@@ -53,7 +53,7 @@ internal partial class NativeMethods {
     #endif
 
     /// <summary>
-    /// 
+    /// Allocate a console
     /// </summary>
     public static void AllocConsole() {
         #if WINDOWS
@@ -62,7 +62,7 @@ internal partial class NativeMethods {
     }
 
     /// <summary>
-    /// 
+    /// Free Console
     /// </summary>
     public static void FreeConsole() {
         #if WINDOWS

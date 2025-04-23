@@ -11,6 +11,8 @@ namespace TestGame.Scenes {
         public event SceneEventHandler? SceneEnter;
         public event SceneEventHandler? SceneLeave;
 
+        protected bool Initialized { get; set; } = false;
+
         public Scene? LastScene { get; set; }
         public Scene? NextScene { get; set; }
 
@@ -20,6 +22,8 @@ namespace TestGame.Scenes {
         public Color BackgroundColor { get; set; }
 
         public string Name { get; }
+
+        public string? FontName { get; set; }
 
         private readonly List< IRenderer > _gameObjects;
         private readonly Logger _log;
@@ -37,6 +41,7 @@ namespace TestGame.Scenes {
             LastScene = null;
             BackgroundColor = context.Color;
             Name = name;
+            FontName = context.FontName;
             Initialize(context.RendererPtr);
         }
 

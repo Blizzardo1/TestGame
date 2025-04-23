@@ -4,7 +4,7 @@ using Version = SDL2.Version;
 
 namespace TestGame;
 
-internal static class Extensions {
+public static class Extensions {
     public static Color ToColor(this KnownColor color) {
         Color c = new();
         byte a = (byte)( (int)color >> 24 & 0xFF );

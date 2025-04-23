@@ -4,6 +4,9 @@ using TestGame.GameObjects;
 
 namespace TestGame.Scenes {
     public class SampleWorld(GameContext context, string name) : Scene(context, name) {
+
+        private readonly GameContext _context = context;
+
         private void SetColorBasedOnTime() {
             // Daytime/Nighttime Cycles
             SetColor(DateTime.Now.Hour switch {
@@ -20,7 +23,7 @@ namespace TestGame.Scenes {
             for (int y = 0; y < Height; y += 64) {
                 for (int x = 0; x < Width; x += 64) {
                     // if (y < 128 && x < 256) continue;
-                    AddGameObject(new Water(context, new(16, 16)) {
+                    AddGameObject(new WaterSprite(_context, new(16, 16)) {
                         X = x,
                         Y = y,
                         Z = 0,
@@ -30,7 +33,7 @@ namespace TestGame.Scenes {
                 }
             }
 
-            AddGameObject(new Clock(context));
+            AddGameObject(new Clock(_context));
         }
 
         public override void Cleanup() {

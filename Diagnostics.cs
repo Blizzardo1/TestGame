@@ -55,6 +55,7 @@ namespace TestGame {
             // Using List<T> it reallocates the larger it gets. Maybe use a fixed array?
             _diagnostics.Clear();
             _diagnostics.Add($"Current Scene: {currentScene.Name}");
+            _diagnostics.Add($"Paused? {(Core.IsPaused ? "Yes" : "No")}");
             _diagnostics.Add($"RAM: {SDL.GetSystemRAM()} MB");
             _diagnostics.Add($"Allocated: {_process.PrivateMemorySize64 / 1024 / 1024} MB");
             _diagnostics.Add($"Garbage Collector: {GC.GetTotalMemory(false) / 1024 / 1024} MB");

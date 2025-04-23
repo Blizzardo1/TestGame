@@ -125,13 +125,13 @@ public abstract class Window : Renderer, IRenderer {
         HandleEvents(e);
     }
 
-    protected void UpdatePosition(IntPtr window) {
+    public void UpdatePosition(nint window) {
         SDL.GetWindowPosition(window, out int x, out int y);
         X = x;
         Y = y;
     }
 
-    protected void UpdateSize(IntPtr window) {
+    public void UpdateSize(nint window) {
         SDL.GetWindowSize(window, out int w, out int h);
         Width = w;
         Height = h;

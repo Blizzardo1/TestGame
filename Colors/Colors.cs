@@ -147,6 +147,7 @@ public enum KnownColor {
 }
 
 public static class Colors {
+    public static Color Black => new() { A = 255, R = 0, G = 0, B = 0 };
     public static Color FromKnownColor(KnownColor knownColor) {
         // In ARGB format? Sheesh.... Should probably fix that...
         // Anywho......

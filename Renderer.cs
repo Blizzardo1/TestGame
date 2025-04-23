@@ -11,20 +11,8 @@ public abstract class Renderer {
 
     private static Dictionary< string, Font > LoadedFonts = [];
 
-    private const string FontName = 
-    #if WINDOWS
-    "consolas"
-    #else
-    "default"
-    #endif
-    ;
-    private const string FontPath =
-    #if WINDOWS
-    @"C:\Windows\Fonts\consola.ttf"
-    #else
-    "default.ttf"
-    #endif
-    ;
+    private const string FontName = "default";
+    private const string FontPath = "default.ttf";
 
     private const int FontSize = 18;
 
@@ -57,7 +45,7 @@ public abstract class Renderer {
         RendererPtr = renderer;
     }
 
-    public static Font GetFont(string fontName = FontName,
+    public static Font GetFontStatic(string fontName = FontName,
         string fontPath = FontPath,
         int size = FontSize) {
         string font = $"{fontName}-{size}";
@@ -74,7 +62,7 @@ public abstract class Renderer {
     }
 
     public Font GetFont(string fontName = FontName, int size = FontSize) =>
-        GetFont(fontName, _renderingFont, size);
+        GetFontStatic(fontName, _renderingFont, size);
 
     protected static void CloseFonts() {
         foreach (( var k, var v ) in LoadedFonts) {

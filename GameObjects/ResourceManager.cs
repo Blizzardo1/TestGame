@@ -5,7 +5,7 @@ namespace TestGame.GameObjects {
     /// <summary>
     /// The global Resource Pool
     /// </summary>
-    internal static class ResourceManager {
+    public static class ResourceManager {
         private static readonly SortedDictionary< string, IGameObject > Resources;
 
         private static readonly Logger Log;
@@ -70,6 +70,15 @@ namespace TestGame.GameObjects {
 
             Log.Error($"Resource with name {name} does not exist");
             return default;
+        }
+
+        public static bool TryGet<T>(string name, out T? resource) where T : IGameObject {
+            if (Resources.TryGetValue(name, out IGameObject? res)) {
+                resource = (T)res;
+                return true;
+            }
+            resource = default;
+            return false;
         }
 
         /// <summary>

@@ -50,13 +50,15 @@ public class Core : Window {
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
+    public static bool IsDebugging { get; private set; }
+    public static bool IsPausedDisabled { get; private set; } = true;
+
     private static Core? _instance;
     public static Core Instance => _instance!;
 
     public static Random Random { get; } = new();
 
     private bool _dead;
-    private bool _debug;
 
     private Dictionary< string, Scene >? _scenes;
 
@@ -89,8 +91,8 @@ public class Core : Window {
         IsRunning = false;
     }
 
-    public void ToggleDebug() {
-        _debug = !_debug;
+    public static void ToggleDebug() {
+        IsDebugging = !IsDebugging;
     }
 
     /// <summary>
@@ -102,7 +104,11 @@ public class Core : Window {
         _scenes.Add(scene.Name, scene);
     }
 
-    public void NextScene(Scene scene) {
+    public void NextScene(Scene? scene) {
+        if(scene is null) {
+            return;
+        }
+
         if (_currentScene is null) {
             Log?.Error("_currentScene is unset!");
             return;
@@ -110,6 +116,7 @@ public class Core : Window {
 
         scene.LastScene = _currentScene;
         _currentScene.NextScene = scene;
+        Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
     }
 
     /// <summary>
@@ -139,16 +146,32 @@ public class Core : Window {
     /// </summary>
     /// <param name="transparent">Allow Transparency</param>
     /// <returns>A completely random <see cref="Color"/></returns>
-    public static Color GetRandomColor(bool transparent = false) {
+    public static Color GetRandomColor(bool transparent = false, Color? backgroundColor = null) {
         byte[] bytes = new byte[4];
-        Random.NextBytes(bytes);
+        
+        if(backgroundColor is not null) {
+            Random.NextBytes(bytes);
+            Log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            int color = bytes[0] << 24
+                | bytes[1] << 16
+                | bytes[2] << 8
+                | (transparent ? bytes[3] : 255);
+            if(color < 0x7F7F7FFF) {
+                bytes[0] = (byte)~bytes[0];
+                bytes[1] = (byte)~bytes[1];
+                bytes[2] = (byte)~bytes[2];
+                Log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            }
+        } else {
+            Random.NextBytes(bytes);
+        }
 
         Color c = new() {
-            R = bytes[ 0 ],
-            G = bytes[ 1 ],
-            B = bytes[ 2 ],
-            A = transparent ? bytes[ 3 ] : (byte)255
-        };
+                R = bytes[0],
+                G = bytes[1],
+                B = bytes[2],
+                A = transparent ? bytes[3] : (byte)255
+            };
 
         return c;
     }
@@ -162,7 +185,7 @@ public class Core : Window {
             throw new NullReferenceException("Scene Engine needs to be initialized. Use AddScene or AddScenes");
         }
 
-        AttachListeners();
+        //AttachListeners();
 
         _dead = false;
         IsRunning = true;
@@ -174,30 +197,12 @@ public class Core : Window {
 
         // TODO: This needs to be moved away from the engine and processed per separate Application.
 
-        if(Engine.GameConfig.AudioTracks is not null) {
+        if(Engine.GameConfig?.AudioTracks is not null) {
             foreach(AudioConfig ac in Engine.GameConfig.AudioTracks) {
                 ResourceManager.Add(new SoundEffect(ac.Reference, ac.Path));
             }
         }
 
-        #if WINDOWS
-        // SoundEffect startup = new ("audio/startup", @"E:\Users\Adonis\Music\Youtube Stuff\98 Media\WO_START.WAV");
-        ResourceManager.Add(new SoundEffect("audio/startup",
-            @"E:\Users\Adonis\Music\OST\Yoshi's Island\01-NintendoMark.mp3"));
-        ResourceManager.Add(new SoundEffect("audio/shutdown",
-            @"E:\Users\Adonis\Music\Youtube Stuff\XP Media\tada.wav"));
-        ResourceManager.Add(new SoundEffect("audio/pause",
-            @"E:\Users\Adonis\Music\OST\Earthbound\170- Earthbound - OK _Ssuka_.mp3"));
-        // audio/bgm/overworld
-        // audio/bgm/dungeon
-        // audio/bgm/boss
-        // audio/sfx/kick
-        // audio/sfx/punch
-        // audio/sfx/sword
-        // npc/antagonist
-        // npc/village/priest
-        // npc/city/priest
-        #endif
         foreach (Scene s in _scenes!.Values) {
             s.Initialize();
         }
@@ -217,18 +222,6 @@ public class Core : Window {
     /// <returns>A <see cref="nint"/> Pointer to the Window</returns>
     public nint GetWindow() => WindowPtr;
 
-    private void AttachListeners() {
-        Log?.Info("Installing listeners");
-        FirstEvent += OnFirstEvent;
-        Quit += OnQuit;
-        MouseMove += OnMouseMove;
-        MouseDown += OnMouseDown;
-        MouseWheel += OnMouseWheel;
-        MouseUp += OnMouseUp;
-        WindowEvent += OnWindowEvent;
-        Log?.Info("Listeners installed.");
-    }
-
     /// <summary>
     /// Wrapper to set Render Draw Color more efficiently.
     /// </summary>
@@ -237,48 +230,6 @@ public class Core : Window {
     /// <returns>0 on success, negative error code on failure</returns>
     public static int SetRenderColor(nint rendererPtr, Color color) {
         return SDL.SetRenderDrawColor(rendererPtr, color.R, color.G, color.B, color.A);
-    }
-
-    private void OnWindowEvent(object? sender, WindowEvent e) {
-        try {
-            switch (e.Event) {
-                case WindowEventID.None:
-                case WindowEventID.Shown:
-                case WindowEventID.Hidden:
-                case WindowEventID.Exposed:
-                    break;
-                case WindowEventID.Moved:
-                    UpdatePosition(WindowPtr);
-                    break;
-                case WindowEventID.Minimized:
-                case WindowEventID.Restored:
-                    break;
-                case WindowEventID.Maximized:
-                case WindowEventID.Resized:
-                case WindowEventID.SizeChanged:
-                    UpdateSize(WindowPtr);
-                    break;
-                case WindowEventID.Enter:
-                case WindowEventID.Leave:
-                case WindowEventID.FocusGained:
-                case WindowEventID.FocusLost:
-                case WindowEventID.Close:
-                case WindowEventID.TakeFocus:
-                case WindowEventID.HitTest:
-                case WindowEventID.ICCProfileChanged:
-                case WindowEventID.DisplayChanged:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(e.Event.ToString());
-            }
-        }
-        catch (ArgumentOutOfRangeException exception) {
-            Debug.WriteLine(exception);
-        }
-    }
-
-    private void OnFirstEvent(object? sender, Event e) {
-        Log?.Info("Game Engine Fired away!");
     }
 
     /// <summary>
@@ -299,11 +250,56 @@ public class Core : Window {
         }
     }
 
+    public void UpdateDiagnostics<T>(T e) where T: struct {
+        if(_diagnostic is null) {
+            return;
+        }
+
+        switch (e) {
+            case MouseMotionEvent mme:
+                _diagnostic.MouseData = _diagnostic.MouseData with {
+                    Position = new System.Numerics.Vector2 { X = mme.X, Y = mme.Y }
+                };
+                break;
+            case MouseButtonEvent mbe:
+                // SDL_PRESSED = 1, SDL_RELEASED = 0
+                if (mbe.State == 1) {
+                    _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
+                } else if (mbe.State == 0) {
+                    _diagnostic.MouseData = _diagnostic.MouseData with { Button = 0 };
+                }
+                _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
+                break;
+            case MouseWheelEvent mwe:
+                _diagnostic.MouseData = _diagnostic.MouseData with { WheelDirection = mwe.Y };
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Toggles the Pause State
+    /// </summary>
+    /// <remarks>
+    /// Whether to disable the Pause State or not.
+    /// </remarks>
+    public void DisablePauseMenu(bool state = true) {
+        IsPausedDisabled = state;
+    }
+
     /// <summary>
     /// As it states, toggle the pause
     /// </summary>
     public void TogglePause() {
+        if(IsPausedDisabled) {
+            return;
+        }
+
         IsPaused = !IsPaused;
+        if (IsPaused) {
+            AudioManager.Instance.PlaySoundEffect("pause", 2);
+        } else {
+            AudioManager.Instance.PlaySoundEffect("shutdown", 2);
+        }
     }
 
     /// <summary>
@@ -338,7 +334,7 @@ public class Core : Window {
 
         _currentScene?.Draw();
 
-        if (_debug) {
+        if (IsDebugging) {
             _diagnostic?.Draw();
         }
 
@@ -350,7 +346,7 @@ public class Core : Window {
     /// <summary>
     /// Handles Quit Procedures
     /// </summary>
-    private void OnQuit(object? sender, QuitEvent e) {
+    public void Close() {
         CloseFonts();
         TTF.Quit();
 
@@ -358,33 +354,6 @@ public class Core : Window {
         SDL.DestroyWindow(WindowPtr);
         SDL.Quit();
         IsRunning = false;
-    }
-
-    /// <summary>
-    /// Handles Mouse Move Events
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OnMouseMove(object? sender, MouseMotionEvent e) {
-        if (_diagnostic is null) return;
-        _diagnostic.MouseData = _diagnostic.MouseData with {
-            Position = new System.Numerics.Vector2 { X = e.X, Y = e.Y }
-        };
-    }
-
-    private void OnMouseDown(object? sender, MouseButtonEvent e) {
-        if (_diagnostic is null) return;
-        _diagnostic.MouseData = _diagnostic.MouseData with { Button = e.Button };
-    }
-
-    private void OnMouseUp(object? sender, MouseButtonEvent e) {
-        if (_diagnostic is null) return;
-        _diagnostic.MouseData = _diagnostic.MouseData with { Button = 0 };
-    }
-
-    private void OnMouseWheel(object? sender, MouseWheelEvent e) {
-        if (_diagnostic is null) return;
-        _diagnostic.MouseData = _diagnostic.MouseData with { WheelDirection = e.Y };
     }
 
     #endregion
