@@ -19,7 +19,7 @@ namespace TestGame.GameObjects {
 
         private void AddDelay(int delay) {
             if (delay == 0) return;
-            
+
             Rect[] clone = new Rect[_sourceRects.Length];
             // Console.WriteLine($"Original Rect Length: {clone.Length}");
             Array.Copy(_sourceRects, clone, _sourceRects.Length);

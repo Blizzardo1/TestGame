@@ -6,62 +6,65 @@ namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer {
     #region Events
-    public event SDL2.EventHandler? AppDidEnterBackground;
-    public event SDL2.EventHandler? AppDidEnterForeground;
-    public event SDL2.EventHandler? AppLowMemory;
-    public event SDL2.EventHandler? AppTerminating;
-    public event SDL2.EventHandler? AppWillEnterBackground;
-    public event SDL2.EventHandler? AppWillEnterForeground;
-    public event SDL2.EventHandler< AudioDeviceEvent >? AudioDeviceAdded;
-    public event SDL2.EventHandler< AudioDeviceEvent >? AudioDeviceRemoved;
-    public event SDL2.EventHandler? ClipboardUpdate;
-    public event SDL2.EventHandler< ControllerAxisEvent >? ControllerAxisMotion;
-    public event SDL2.EventHandler< ControllerButtonEvent >? ControllerButtonDown;
-    public event SDL2.EventHandler< ControllerButtonEvent >? ControllerButtonUp;
-    public event SDL2.EventHandler< ControllerDeviceEvent >? ControllerDeviceAdded;
-    public event SDL2.EventHandler< ControllerDeviceEvent >? ControllerDeviceRemoved;
-    public event SDL2.EventHandler< ControllerDeviceEvent >? ControllerDeviceRemapped;
-    public event SDL2.EventHandler< DisplayEvent >? DisplayEvents;
-    public event SDL2.EventHandler< DollarGestureEvent >? DollarGesture;
-    public event SDL2.EventHandler< DollarGestureEvent >? DollarRecord;
-    public event SDL2.EventHandler< DropEvent >? DropBegin;
-    public event SDL2.EventHandler< DropEvent >? DropComplete;
-    public event SDL2.EventHandler< DropEvent >? DropFile;
-    public event SDL2.EventHandler< DropEvent >? DropText;
-    public event SDL2.EventHandler< TouchFingerEvent >? FingerDown;
-    public event SDL2.EventHandler< TouchFingerEvent >? FingerMotion;
-    public event SDL2.EventHandler< TouchFingerEvent >? FingerUp;
-    public event SDL2.EventHandler? FirstEvent;
-    public event SDL2.EventHandler? LastEvent;
-    public event SDL2.EventHandler< JoyAxisEvent >? JoyAxisMotion;
-    public event SDL2.EventHandler< JoyBallEvent >? JoyBallMotion;
-    public event SDL2.EventHandler< JoyButtonEvent >? JoyButtonDown;
-    public event SDL2.EventHandler< JoyButtonEvent >? JoyButtonUp;
-    public event SDL2.EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
-    public event SDL2.EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
-    public event SDL2.EventHandler< JoyHatEvent >? JoyHatMotion;
-    public event SDL2.EventHandler< KeyboardEvent >? KeymapChanged;
-    public event SDL2.EventHandler< KeyboardEvent >? KeyDown;
-    public event SDL2.EventHandler< KeyboardEvent >? KeyUp;
-    public event SDL2.EventHandler< MouseButtonEvent >? MouseDown;
-    public event SDL2.EventHandler< MouseButtonEvent >? MouseUp;
-    public event SDL2.EventHandler< MouseMotionEvent >? MouseMove;
-    public event SDL2.EventHandler< MouseWheelEvent >? MouseWheel;
-    public event SDL2.EventHandler< MultiGestureEvent >? MultiGesture;
-    public event SDL2.EventHandler< QuitEvent >? Quit;
-    public event SDL2.EventHandler? RenderDeviceReset;
-    public event SDL2.EventHandler? RenderTargetsReset;
-    public event SDL2.EventHandler< SensorEvent >? SensorUpdate;
-    public event SDL2.EventHandler< SysWMEvent >? SysWMEvent;
-    public event SDL2.EventHandler< TextEditingEvent >? TextEditing;
-    public event SDL2.EventHandler< TextInputEvent >? TextInput;
-    public event SDL2.EventHandler< UserEvent >? UserEvent;
-    public event SDL2.EventHandler< WindowEvent >? WindowEvent;
+
+    public event EventHandler? AppDidEnterBackground;
+    public event EventHandler? AppDidEnterForeground;
+    public event EventHandler? AppLowMemory;
+    public event EventHandler? AppTerminating;
+    public event EventHandler? AppWillEnterBackground;
+    public event EventHandler? AppWillEnterForeground;
+    public event EventHandler< AudioDeviceEvent >? AudioDeviceAdded;
+    public event EventHandler< AudioDeviceEvent >? AudioDeviceRemoved;
+    public event EventHandler? ClipboardUpdate;
+    public event EventHandler< ControllerAxisEvent >? ControllerAxisMotion;
+    public event EventHandler< ControllerButtonEvent >? ControllerButtonDown;
+    public event EventHandler< ControllerButtonEvent >? ControllerButtonUp;
+    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceAdded;
+    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceRemoved;
+    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceRemapped;
+    public event EventHandler< DisplayEvent >? DisplayEvents;
+    public event EventHandler< DollarGestureEvent >? DollarGesture;
+    public event EventHandler< DollarGestureEvent >? DollarRecord;
+    public event EventHandler< DropEvent >? DropBegin;
+    public event EventHandler< DropEvent >? DropComplete;
+    public event EventHandler< DropEvent >? DropFile;
+    public event EventHandler< DropEvent >? DropText;
+    public event EventHandler< TouchFingerEvent >? FingerDown;
+    public event EventHandler< TouchFingerEvent >? FingerMotion;
+    public event EventHandler< TouchFingerEvent >? FingerUp;
+    public event EventHandler? FirstEvent;
+    public event EventHandler? LastEvent;
+    public event EventHandler< JoyAxisEvent >? JoyAxisMotion;
+    public event EventHandler< JoyBallEvent >? JoyBallMotion;
+    public event EventHandler< JoyButtonEvent >? JoyButtonDown;
+    public event EventHandler< JoyButtonEvent >? JoyButtonUp;
+    public event EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
+    public event EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
+    public event EventHandler< JoyHatEvent >? JoyHatMotion;
+    public event EventHandler< KeyboardEvent >? KeymapChanged;
+    public event EventHandler< KeyboardEvent >? KeyDown;
+    public event EventHandler< KeyboardEvent >? KeyUp;
+    public event EventHandler< MouseButtonEvent >? MouseDown;
+    public event EventHandler< MouseButtonEvent >? MouseUp;
+    public event EventHandler< MouseMotionEvent >? MouseMove;
+    public event EventHandler< MouseWheelEvent >? MouseWheel;
+    public event EventHandler< MultiGestureEvent >? MultiGesture;
+    public event EventHandler< QuitEvent >? Quit;
+    public event EventHandler? RenderDeviceReset;
+    public event EventHandler? RenderTargetsReset;
+    public event EventHandler< SensorEvent >? SensorUpdate;
+    public event EventHandler< SysWMEvent >? SysWMEvent;
+    public event EventHandler< TextEditingEvent >? TextEditing;
+    public event EventHandler< TextInputEvent >? TextInput;
+    public event EventHandler< UserEvent >? UserEvent;
+    public event EventHandler< WindowEvent >? WindowEvent;
+    public event EventHandler? PollSentinel;
 
     #endregion
 
     protected IntPtr WindowPtr { get; }
-    private readonly Logger Log;
+
+    private readonly Logger? _log = LogManager.GetCurrentClassLogger();
 
     ~Window() {
         SDL.DestroyWindow(WindowPtr);
@@ -75,8 +78,6 @@ public abstract class Window : Renderer, IRenderer {
         Width = size.Width;
         Height = size.Height;
 
-        Log = LogManager.GetCurrentClassLogger();
-
         WindowPtr = SDL.CreateWindow(title,
             x == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : x,
             y == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : y,
@@ -85,13 +86,13 @@ public abstract class Window : Renderer, IRenderer {
             flags);
 
         if (WindowPtr == IntPtr.Zero) {
-            Log.Error($"Cannot create Window: {SDL.GetError()}");
+            _log.Error($"Cannot create Window: {SDL.GetError()}");
         }
 
         Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.PresentVSync));
 
         if (RendererPtr == IntPtr.Zero) {
-            Log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
+            _log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
         }
     }
 
@@ -124,77 +125,20 @@ public abstract class Window : Renderer, IRenderer {
         HandleEvents(e);
     }
 
-    protected void UpdatePosition(IntPtr window) {
+    public void UpdatePosition(nint window) {
         SDL.GetWindowPosition(window, out int x, out int y);
         X = x;
         Y = y;
     }
 
-    protected void UpdateSize(IntPtr window) {
+    public void UpdateSize(nint window) {
         SDL.GetWindowSize(window, out int w, out int h);
         Width = w;
         Height = h;
     }
 
     #region Event Handler
-    /*  A potential redo of the event System for speedy delivery.
-        I can't figure out if I need to do Dependency Injection or some other
-        Method to handle the many Unioned Events.
 
-       _hTable.Add(EventType.FirstEvent, OnFirstEvent);
-       _hTable.Add(EventType.Quit, OnQuit);
-       _hTable.Add(EventType.AppTerminating, OnAppTerminating);
-       _hTable.Add(EventType.AppLowMemory, OnAppLowMemory);
-       _hTable.Add(EventType.AppWillEnterBackground, OnAppWillEnterBackground);
-       _hTable.Add(EventType.AppDidEnterBackground, OnAppDidEnterBackground);
-       _hTable.Add(EventType.AppWillEnterForeground, OnAppWillEnterForeground);
-       _hTable.Add(EventType.AppDidEnterForeground, OnAppDidEnterForeground);
-       _hTable.Add(EventType.DisplayEvent, OnDisplayEvent); //e.Display
-       _hTable.Add(EventType.WindowEvent, OnWindowEvent); //e.Window
-       _hTable.Add(EventType.SyswmEvent, OnSysWmEvent); // e.Syswm
-       _hTable.Add(EventType.KeyDown, OnKeyDown); // e.Key
-       _hTable.Add(EventType.KeyUp, OnKeyUp); // e.Key
-       _hTable.Add(EventType.TextEditing, OnTextEditing); // e.Edit
-       _hTable.Add(EventType.TextInput, OnTextInput); // e.Text
-       _hTable.Add(EventType.KeymapChanged, OnKeymapChanged); // e.Key
-       _hTable.Add(EventType.MouseMotion, OnMouseMove); // e.Motion
-       _hTable.Add(EventType.MouseButtonDown, OnMouseDown); // e.Button
-       _hTable.Add(EventType.MouseButtonUp, OnMouseUp); // e.Button
-       _hTable.Add(EventType.MouseWheel, OnMouseWheel); // e.Wheel
-       _hTable.Add(EventType.JoyAxisMotion, OnJoyAxisMotion); // e.JAxis
-       _hTable.Add(EventType.JoyBallMotion, OnJoyBallMotion); // e.JBall
-       _hTable.Add(EventType.JoyHatMotion, OnJoyHatMotion); // e.JHat
-       _hTable.Add(EventType.JoyButtonDown, OnJoyButtonDown); // e.JButton
-       _hTable.Add(EventType.JoyButtonUp, OnJoyButtonUp); // e.JButton
-       _hTable.Add(EventType.JoyDeviceAdded, OnJoyDeviceAdded); // e.JDevice
-       _hTable.Add(EventType.JoyDeviceRemoved, OnJoyDeviceRemoved); // e.JDevice
-       _hTable.Add(EventType.ControllerAxisMotion, OnControllerAxisMotion); // e.CAxis
-       _hTable.Add(EventType.ControllerButtonDown, OnControllerButtonDown); // e.CButton
-       _hTable.Add(EventType.ControllerButtonUp, OnControllerButtonUp); // e.CButton
-       _hTable.Add(EventType.ControllerDeviceAdded, OnControllerDeviceAdded); // e.CDevice
-       _hTable.Add(EventType.ControllerDeviceRemoved, OnControllerDeviceRemoved); // e.CDevice
-       _hTable.Add(EventType.ControllerDeviceRemapped, OnControllerDeviceRemapped); // e.CDevice
-       _hTable.Add(EventType.FingerDown, OnFingerDown); // e.TFinger
-       _hTable.Add(EventType.FingerUp, OnFingerUp); // e.TFinger
-       _hTable.Add(EventType.FingerMotion, OnFingerMotion); // e.TFinger
-       _hTable.Add(EventType.DollarGesture, OnDollarGesture); // e.DGesture
-       _hTable.Add(EventType.DollarRecord, OnDollarRecord); // e.DGesture
-       _hTable.Add(EventType.MultiGesture, OnMultiGesture); // e.MGesture
-       _hTable.Add(EventType.ClipboardUpdate, OnClipboardUpdate);
-       _hTable.Add(EventType.DropFile, OnDropFile); // e.Drop
-       _hTable.Add(EventType.DropText, OnDropText); // e.Drop
-       _hTable.Add(EventType.DropBegin, OnDropBegin); // e.Drop
-       _hTable.Add(EventType.DropComplete, OnDropComplete); // e.Drop
-       _hTable.Add(EventType.AudioDeviceAdded, OnAudioDeviceAdded); // e.ADevice
-       _hTable.Add(EventType.AudioDeviceRemoved, OnAudioDeviceRemoved); // e.ADevice
-       _hTable.Add(EventType.SensorUpdate, OnSensorUpdate); // e.Sensor
-       _hTable.Add(EventType.RenderTargetsReset, OnRenderTargetsReset);
-       _hTable.Add(EventType.RenderDeviceReset, OnRenderDeviceReset);
-       _hTable.Add(EventType.UserEvent, OnUserEvent); // e.User
-       _hTable.Add(EventType.LastEvent, OnLastEvent);
-       _hTable.Add((EventType)32512, () => { });
-     *
-     */
     private void HandleEvents(Event e) {
         switch (e) {
             case { Type: EventType.FirstEvent }:
@@ -350,8 +294,8 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.LastEvent }:
                 OnLastEvent(e);
                 break;
-            case { Type: (EventType)32512 }:
-
+            case { Type: (EventType)32512 }: // SDL_POLLSENTINEL
+                OnPollSentinel(e);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(e), e.ToString());
@@ -560,6 +504,10 @@ public abstract class Window : Renderer, IRenderer {
 
     protected virtual void OnWindowEvent(WindowEvent eventWindow) {
         WindowEvent?.Invoke(this, eventWindow);
+    }
+
+    protected virtual void OnPollSentinel(Event @event) {
+        PollSentinel?.Invoke(this, @event);
     }
 
     #endregion

@@ -3,12 +3,14 @@ using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-internal class Clock : GameObject {
+public class Clock : GameObject {
     private const float Speed = 1.5f;
+    private const int ShadowDivisor = 10;
+
     private float _xSpeed;
     private float _ySpeed;
     private bool _animate;
-    
+
     /// <summary>
     /// The foreground color of the clock
     /// </summary>
@@ -18,6 +20,8 @@ internal class Clock : GameObject {
     /// The background color of the Clock
     /// </summary>
     public Color BackgroundColor { get; set; } = KnownColor.Black.ToColor();
+
+    public int FontSize { get; set; }
 
     private string _time = "";
 
@@ -36,58 +40,78 @@ internal class Clock : GameObject {
     private bool _bounce;
     private Color _ogForeColor;
 
-    public Clock(GameContext context, string font = @"C:\Windows\Fonts\Arial.ttf", bool animate = true) {
-        Initialize(context.RendererPtr, font, "clock", 72);
-        Name = "object/clock";
-        frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Rect.W, H = context.Rect.H };
-        ( Width, Height ) = MeasureString(GetFont("clock", 72), DateTime.Now.ToString("HH:mm:ss"));
-        ForegroundColor = Core.GetRandomColor();
+    Rect _rect;
 
+    public Clock(GameContext context, string font = @"default.ttf", bool animate = true,
+        int fontSize = 72) {
+        Initialize(context.RendererPtr, font, "clock", FontSize);
+        Name = "object/clock";
+        frect = new FRect {
+            X = context.Rect.X,
+            Y = context.Rect.Y,
+            W = context.Rect.W,
+            H = context.Rect.H
+        };
+        ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
+        ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
+        FontSize = fontSize;
         _ogForeColor = ForegroundColor;
         _colorSequence = _hitSequence;
         _animate = animate;
         _xSpeed = animate ? Speed : 0;
         _ySpeed = animate ? Speed : 0;
+        _rect = frect.ToRect();
     }
 
-    private Color CalculateShadow(float x, float y)
-    {
+    private Color CalculateShadow(float x, float y) {
         var c = KnownColor.Black.ToColor();
-        c.A = (byte)(255 - ( x + y ) * 2);
+        c.A = (byte)( 255 - ( x + y ) * 2 );
         return c;
     }
-    
-    // private float tXSpeed = Speed * 1.15f;
-    // private float tYSpeed = Speed * 1.15f;
-    private float tX = 6;
-    private float tY = 6;
 
     /// <inheritdoc />
     public override void Draw() {
-        // _ = SDL.SetRenderDrawColor(RendererPtr, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
-        // _ = SDL.RenderFillRectF(RendererPtr, ref _rect);
-
+        // If the object has bounced from an edge, and we're animating,
+        // then let's show off some flashing.
         if (_bounce && _animate) {
-            _hitFrames--;
-            if (_hitFrames <= 0) {
-                _hitFrames = HitFrames;
+            _hitFrames++;
+            if (_hitFrames >= HitFrames) {
+                _hitFrames = 0;
                 _bounce = false;
                 ForegroundColor = _ogForeColor;
             }
             else {
-                //Console.WriteLine(_hitFrames % _colorSequence.Length);
+                // "NPC" being "attacked"
                 ForegroundColor = _colorSequence[ _hitFrames % _colorSequence.Length ];
             }
         }
 
-        RenderText(_time, (int)( X + tX ), (int)( Y + tY ), CalculateShadow(tX, tY));
-        RenderText(_time, (int)X, (int)Y, ForegroundColor);
+        RenderText(_time, FontSize, "clock", (int)( X + FontSize / ShadowDivisor ),
+            (int)( Y + FontSize / ShadowDivisor ),
+            CalculateShadow(FontSize / ShadowDivisor, FontSize / ShadowDivisor));
+        RenderText(_time, FontSize, "clock", (int)X, (int)Y, ForegroundColor);
+
+        Core.SetRenderColor(RendererPtr, KnownColor.Red.ToColor());
+        if (Core.IsDebugging) {
+            _ = SDL.RenderDrawRect(RendererPtr, ref _rect);
+        }
     }
 
     /// <inheritdoc />
     public override void Update(Event e) {
+        // rx - right-most x or width
+        // by - bottom-most y or height
         _ = SDL.GetRendererOutputSize(RendererPtr, out int rx, out int by);
         _time = DateTime.Now.ToString("HH:mm:ss");
+        ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
+        _rect = frect.ToRect();
+        _rect.X += 8;
+        _rect.Y += 10;
+        _rect.W -= 8;
+        _rect.H -= 14;
+        Width = _rect.W;
+        Height = _rect.H;
+
         if (
             X <= 0 && Y <= 0 // Top left
             || X >= rx - Width && Y <= 0 // Top right
@@ -99,11 +123,13 @@ internal class Clock : GameObject {
             _ogForeColor = ForegroundColor;
         }
 
+        // X refers to the current location and Width is the Object Width
         if (X < 0 || X > rx - Width) {
             _xSpeed = -_xSpeed;
             _bounce = true;
         }
 
+        // Y refers to the current location and Height is the Object Height
         if (Y < 0 || Y > by - Height) {
             _ySpeed = -_ySpeed;
             _bounce = true;

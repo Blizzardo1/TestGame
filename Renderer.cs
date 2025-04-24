@@ -9,16 +9,17 @@ namespace TestGame;
 public abstract class Renderer {
     protected nint RendererPtr;
 
-    private static Dictionary<string, Font> LoadedFonts = [];
+    private static Dictionary< string, Font > LoadedFonts = [];
 
-    private const string FontName = "consolas";
-    private const string FontPath = @"C:\Windows\Fonts\consola.ttf";
+    private const string FontName = "default";
+    private const string FontPath = "default.ttf";
+
     private const int FontSize = 18;
 
     private string _renderingFont = "";
 
     private static Logger? _log = LogManager.GetCurrentClassLogger();
-    
+
     /// <summary>
     /// Initializes the Rendering Engine for a class
     /// </summary>
@@ -26,18 +27,16 @@ public abstract class Renderer {
     /// <param name="fontPath">The font file to load, else Consolas</param>
     /// <param name="fontName">The name of the font to load, else default</param>
     /// <param name="fontSize">A real number depicting the size of the font</param>
-    public void Initialize(nint renderer, string fontPath = FontPath, string fontName = FontName, int fontSize = FontSize) {
+    public void Initialize(nint renderer, string fontPath = FontPath, string fontName = FontName,
+        int fontSize = FontSize) {
         if (RendererPtr != nint.Zero) {
             _log?.Error("Renderer already initialized.");
             return;
         }
 
-        
         Font f = TTF.OpenFont(fontPath, fontSize);
 
-
-        if (f.Pointer == nint.Zero)
-        {
+        if (f.Pointer == nint.Zero) {
             _log?.Error($"Failed to load font: {SDL.GetError()}");
         }
 
@@ -46,7 +45,9 @@ public abstract class Renderer {
         RendererPtr = renderer;
     }
 
-    public static Font GetFont(string fontName = FontName, string fontPath = FontPath, int size = FontSize) {
+    public static Font GetFontStatic(string fontName = FontName,
+        string fontPath = FontPath,
+        int size = FontSize) {
         string font = $"{fontName}-{size}";
 
         if (LoadedFonts.TryGetValue(font, out Font value)) {
@@ -57,13 +58,14 @@ public abstract class Renderer {
 
         LoadedFonts.Add(font, f);
         _log?.Info($"Loaded font: {font}:{fontPath}");
-        return LoadedFonts[font];
+        return LoadedFonts[ font ];
     }
 
-    public Font GetFont(string fontName = FontName, int size = FontSize) => GetFont(fontName, _renderingFont, size);
+    public Font GetFont(string fontName = FontName, int size = FontSize) =>
+        GetFontStatic(fontName, _renderingFont, size);
 
     protected static void CloseFonts() {
-        foreach ((var k, var v) in LoadedFonts) {
+        foreach (( var k, var v ) in LoadedFonts) {
             TTF.CloseFont(v);
             LoadedFonts.Remove(k);
         }
@@ -71,6 +73,10 @@ public abstract class Renderer {
 
     private void RenderText(string? text, int x, int y, Color color, Font font) {
         // _log.Debug($"Rendering text: {text}");
+        if (text is null) {
+            return;
+        }
+
         nint surface = TTF.RenderTextSolid(font, text, color);
         if (surface == nint.Zero) {
             _log?.Error($"Error rendering text: {SDL.GetError()}");

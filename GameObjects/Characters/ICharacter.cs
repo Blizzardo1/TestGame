@@ -1,7 +1,7 @@
 ﻿namespace TestGame.GameObjects.Characters {
     // TODO: Split this up, we're freaking OOP, not Procedural...
     // I'm super tired, I don't know what the I'm thinking right now....
-    public interface ICharacter : IRenderer {
+    public interface ICharacter : IEntity, IRenderer {
         /// <summary>
         /// An offensive item that allows the character to attack.
         /// </summary>

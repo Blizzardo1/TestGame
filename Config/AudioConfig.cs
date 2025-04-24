@@ -13,12 +13,10 @@ namespace TestGame.Config {
         /// <example>audio/bgm/overworld</example>
         [JsonProperty("reference")]
         public string Reference { get; } = reference;
-        
+
         [JsonProperty("path")]
         public string Path { get; } = audioPath;
 
-        
         public override string ToString() => Reference;
-
     }
 }

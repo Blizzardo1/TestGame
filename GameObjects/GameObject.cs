@@ -3,21 +3,22 @@ using SDL2.TTF;
 
 namespace TestGame.GameObjects;
 
-public abstract class GameObject : Renderer, IRenderer
-{
+public abstract class GameObject : Renderer, IRenderer {
     protected FRect frect;
     private Font _font;
 
     #region Implementation of IRenderable
 
     /// <inheritdoc />
-    public float X {
-        get => frect.X; 
+    public float X
+    {
+        get => frect.X;
         set => frect.X = value;
     }
 
     /// <inheritdoc />
-    public float Y {
+    public float Y
+    {
         get => frect.Y;
         set => frect.Y = value;
     }
@@ -39,11 +40,12 @@ public abstract class GameObject : Renderer, IRenderer
         set => frect.H = value;
     }
 
-    public Font Font {
+    public Font Font
+    {
         get => _font;
         set => _font = value;
     }
-    
+
     /// <inheritdoc />
     public string? Name { get; protected init; }
 
@@ -53,13 +55,12 @@ public abstract class GameObject : Renderer, IRenderer
     /// <inheritdoc />
     public abstract void Update(Event e);
 
-
-    public bool Collides(IRenderer other)
-    {
+    public bool Collides(IRenderer other) {
         return X < other.X + other.Width &&
                X + Width > other.X &&
                Y < other.Y + other.Height &&
                Y + Height > other.Y;
     }
+
     #endregion
 }

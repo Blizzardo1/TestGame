@@ -4,77 +4,109 @@ using TestGame.Win32Menu;
 namespace TestGame;
 
 internal partial class NativeMethods {
+    #if WINDOWS
     private const string User32 = "User32.dll";
     private const string Kernel32 = "Kernel32.dll";
     private const string Gdi32 = "Gdi32.dll";
 
-    [DllImport(Kernel32)]
-    public static extern void AllocConsole();
+    [DllImport(Kernel32, EntryPoint="AllocConsole")]
+    private static extern void INTERNAL_AllocConsole();
 
-    [DllImport(Kernel32)]
-    public static extern void FreeConsole();
+    [DllImport(Kernel32, EntryPoint="FreeConsole")]
+    private static extern void INTERNAL_FreeConsole();
 
-    [LibraryImport(Gdi32)]
-    public static partial nint CreateSolidBrush(uint color);
+    [LibraryImport(Gdi32, EntryPoint="CreateSolidBrush")]
+    private static partial nint INTERNAL_CreateSolidBrush(uint color);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <returns></returns>
-    [LibraryImport(User32)]
-    public static partial nint GetMenu(nint hWnd);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <param name="bRevert"></param>
-    /// <returns></returns>
-    [LibraryImport(User32)]
-    public static partial nint GetSystemMenu(nint hWnd, [MarshalAs(UnmanagedType.Bool)] bool bRevert);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hMenu"></param>
-    /// <param name="uIDEnableItem"></param>
-    /// <param name="uEnable"></param>
-    /// <returns></returns>
-    [LibraryImport(User32)]
+    [LibraryImport(User32, EntryPoint="GetMenu")]
+    public static partial nint INTERNAL_GetMenu(nint hWnd);
+    
+    [LibraryImport(User32, EntryPoint="DeleteMenu")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool EnableMenuItem(nint hMenu, uint uIDEnableItem, uint uEnable);
+    public static partial bool INTERNAL_DeleteMenu(nint hMenu, uint uPosition, uint uFlags);
+
+    [LibraryImport(User32, EntryPoint="SetMenu")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool INTERNAL_SetMenu(nint hWnd, nint hMenu);
+
+    [LibraryImport(User32, EntryPoint="CreateMenu")]
+    public static partial nint INTERNAL_CreateMenu();
+
+    [LibraryImport(User32, EntryPoint="CreatePopupMenu")]
+    public static partial nint INTERNAL_CreatePopupMenu();
+
+    [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf16, EntryPoint="AppendMenu")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool INTERNAL_AppendMenu(nint hMenu, uint uFlags, uint uIDNewItem, string lpNewItem);
+
+    [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf16, EntryPoint = "InsertMenuA")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool INTERNAL_InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIDNewItem, string lpNewItem);
+
+    [DllImport(User32, CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "InsertMenuItemA")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool INTERNAL_InsertMenuItem(nint hMenu, uint uItem, [MarshalAs(UnmanagedType.Bool)] bool fByPosition,
+        ref MenuItemInfo lpmii);
+
+    [DllImport(User32, SetLastError = true, EntryPoint="SetMenuInfo")]
+    public static extern bool INTERNAL_SetMenuInfo(IntPtr hMenu, [In] ref MenuInfo lpcmi);
+    #endif
+
+    /// <summary>
+    /// Allocate a console
+    /// </summary>
+    public static void AllocConsole() {
+        #if WINDOWS
+        INTERNAL_AllocConsole();
+        #endif
+    }
+
+    /// <summary>
+    /// Free Console
+    /// </summary>
+    public static void FreeConsole() {
+        #if WINDOWS
+        INTERNAL_FreeConsole();
+        #endif
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="color"></param>
+    public static void CreateBrush(uint color) {
+        #if WINDOWS
+        INTERNAL_CreateSolidBrush(color);
+        #endif
+    }
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="hWnd"></param>
     /// <returns></returns>
-    [LibraryImport(User32)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool DrawMenuBar(nint hWnd);
+    public static nint GetMenu(nint hWnd){
+        #if WINDOWS
+        return INTERNAL_GetMenu(hWnd);
+        #else
+        return 0;
+        #endif
+    }
 
-    /// <summary>
+/// <summary>
     /// 
     /// </summary>
     /// <param name="hMenu"></param>
     /// <param name="uPosition"></param>
     /// <param name="uFlags"></param>
     /// <returns></returns>
-    [LibraryImport(User32)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool RemoveMenu(nint hMenu, uint uPosition, uint uFlags);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hMenu"></param>
-    /// <param name="uPosition"></param>
-    /// <param name="uFlags"></param>
-    /// <returns></returns>
-    [LibraryImport(User32)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool DeleteMenu(nint hMenu, uint uPosition, uint uFlags);
+    public static bool DeleteMenu(nint hMenu, uint uPosition, uint uFlags) {
+        #if WINDOWS
+        return INTERNAL_DeleteMenu(hMenu, uPosition, uFlags);
+        #else
+        return false;
+        #endif
+    }
 
     /// <summary>
     /// 
@@ -82,9 +114,13 @@ internal partial class NativeMethods {
     /// <param name="hWnd"></param>
     /// <param name="hMenu"></param>
     /// <returns></returns>
-    [LibraryImport(User32)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool SetMenu(nint hWnd, nint hMenu);
+    public static bool SetMenu(nint hWnd, nint hMenu) {
+        #if WINDOWS
+        return INTERNAL_SetMenu(hWnd, hMenu);
+        #else
+        return false;
+        #endif
+    }
 
     /// <summary>
     /// Creates a menu. The menu is initially empty, but it can be filled with menu items by using the InsertMenuItem, AppendMenu, and InsertMenu functions.
@@ -95,15 +131,23 @@ internal partial class NativeMethods {
     /// 
     ///     If the function fails, the return value is NULL. To get extended error information, call GetLastError.
     /// </returns>
-    [LibraryImport(User32)]
-    public static partial nint CreateMenu();
+    public static nint CreateMenu() {
+        #if WINDOWS
+        return INTERNAL_CreateMenu();
+        #else
+        return nint.Zero;
+        #endif
+    }
 
-    /// <summary>
-    /// Creates a drop-down menu, submenu, or shortcut menu for the specified menu.
-    /// </summary>
-    /// <returns></returns>
-    [LibraryImport(User32)]
-    public static partial nint CreatePopupMenu();
+
+
+    public static nint CreatePopupMenu() {
+        #if WINDOWS
+        return INTERNAL_CreatePopupMenu();
+        #else
+        return nint.Zero;
+        #endif
+    }
 
     /// <summary>
     /// 
@@ -113,9 +157,13 @@ internal partial class NativeMethods {
     /// <param name="uIDNewItem"></param>
     /// <param name="lpNewItem"></param>
     /// <returns></returns>
-    [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf16)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool AppendMenu(nint hMenu, uint uFlags, uint uIDNewItem, string lpNewItem);
+    public static bool AppendMenu(nint hMenu, uint uFlags, uint uIDNewItem, string lpNewItem) {
+        #if WINDOWS
+        return INTERNAL_AppendMenu(hMenu, uFlags, uIDNewItem, lpNewItem);
+        #else
+        return false;
+        #endif
+    }
 
     /// <summary>
     /// 
@@ -126,9 +174,13 @@ internal partial class NativeMethods {
     /// <param name="uIDNewItem"></param>
     /// <param name="lpNewItem"></param>
     /// <returns></returns>
-    [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf16, EntryPoint = "InsertMenuA")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIDNewItem, string lpNewItem);
+    public static bool InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIDNewItem, string lpNewItem) {
+        #if WINDOWS
+        return INTERNAL_InsertMenu(hMenu, uPosition, uFlags, uIDNewItem, lpNewItem);
+        #else
+        return false;
+        #endif
+    }
 
     /// <summary>
     /// 
@@ -138,10 +190,13 @@ internal partial class NativeMethods {
     /// <param name="fByPosition"></param>
     /// <param name="lpmii"></param>
     /// <returns></returns>
-    [DllImport(User32, CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "InsertMenuItemA")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool InsertMenuItem(nint hMenu, uint uItem, [MarshalAs(UnmanagedType.Bool)] bool fByPosition,
-        ref MenuItemInfo lpmii);
+    public static bool InsertMenuItem(nint hMenu, uint uItem, bool fByPosition, ref MenuItemInfo lpmii) {
+        #if WINDOWS
+        return INTERNAL_InsertMenuItem(hMenu, uItem, fByPosition, ref lpmii);
+        #else
+        return false;
+        #endif
+    }
 
     /// <summary>
     /// Sets information about a menu.
@@ -149,8 +204,15 @@ internal partial class NativeMethods {
     /// <param name="hMenu">A handle to the menu for which to set information.</param>
     /// <param name="lpcmi">A pointer to a <see cref="MenuInfo"/> structure.</param>
     /// <returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero.</returns>
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool SetMenuInfo(IntPtr hMenu, [In] ref MenuInfo lpcmi);
+    public static bool SetMenuInfo(nint hMenu, ref MenuInfo lpcmi) {
+        #if WINDOWS
+        return INTERNAL_SetMenuInfo(hMenu, ref lpcmi);
+        #else
+        return false;
+        #endif
+    }
+
+
 
     [Flags]
     public enum MenuFlags : uint {

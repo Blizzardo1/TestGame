@@ -5,16 +5,17 @@ using TestGame.GameObjects;
 using TestGame.Scenes.EventArgs;
 
 namespace TestGame.Scenes {
-    
     public delegate void SceneEventHandler(object? sender, SceneEventArgs sea);
-    
-    public abstract class Scene : Renderer {
 
+    public abstract class Scene : Renderer {
         public event SceneEventHandler? SceneEnter;
         public event SceneEventHandler? SceneLeave;
 
+        protected bool Initialized { get; set; } = false;
+
         public Scene? LastScene { get; set; }
-        
+        public Scene? NextScene { get; set; }
+
         public int Width { get; protected set; }
         public int Height { get; protected set; }
 
@@ -22,13 +23,15 @@ namespace TestGame.Scenes {
 
         public string Name { get; }
 
+        public string? FontName { get; set; }
+
         private readonly List< IRenderer > _gameObjects;
         private readonly Logger _log;
 
         public ReadOnlyCollection< IRenderer > GameObjects => _gameObjects.AsReadOnly();
 
-        private List<IRenderer> GameObjectsToAdd { get; } = [];
-        private List<IRenderer> GameObjectsToRemove { get; } = [];
+        private List< IRenderer > GameObjectsToAdd { get; } = [];
+        private List< IRenderer > GameObjectsToRemove { get; } = [];
 
         public Scene(GameContext context, string name) {
             _log = LogManager.GetCurrentClassLogger();
@@ -38,6 +41,7 @@ namespace TestGame.Scenes {
             LastScene = null;
             BackgroundColor = context.Color;
             Name = name;
+            FontName = context.FontName;
             Initialize(context.RendererPtr);
         }
 
@@ -74,7 +78,7 @@ namespace TestGame.Scenes {
                 gameObject.Draw();
             }
         }
-         
+
         public virtual void Update(Event e) {
             foreach (IRenderer gameObject in _gameObjects) {
                 gameObject.Update(e);
@@ -84,7 +88,6 @@ namespace TestGame.Scenes {
                 _gameObjects.Add(gameObject);
                 _log.Trace($"Added game object {gameObject.Name}");
                 // TODO: Add Spawn Animation Function for _gameObjects
-                
             }
 
             foreach (IRenderer gameObject in GameObjectsToRemove.Where(_gameObjects.Remove)) {
@@ -92,7 +95,8 @@ namespace TestGame.Scenes {
             }
 
             if (GameObjectsToRemove.Count > 0) {
-                _log.Error($"Cannot remove {GameObjectsToRemove.Count} {(GameObjectsToRemove.Count != 1 ? "objects" : "object")} at this time.");
+                _log.Error(
+                    $"Cannot remove {GameObjectsToRemove.Count} {( GameObjectsToRemove.Count != 1 ? "objects" : "object" )} at this time.");
             }
 
             GameObjectsToAdd.Clear();

@@ -2,14 +2,12 @@
 
 namespace TestGame.GameObjects.Textures {
     public abstract class Texture : GameObject {
-        
-
         protected FRect Rect => frect;
 
         public nint TexturePtr { get; protected set; }
 
         #region Implementation of IRenderable
-        
+
         ~Texture() {
             SDL.DestroyTexture(TexturePtr);
         }
@@ -30,5 +28,9 @@ namespace TestGame.GameObjects.Textures {
         public override void Update(Event e) { }
 
         #endregion
+
+        public static implicit operator nint(Texture texture) {
+            return texture.TexturePtr;
+        }
     }
 }
