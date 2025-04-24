@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace TestGame.GameObjects.Textures; 
 public class TileTexture : Texture {
-    public TileTexture(nint rendererPtr, nint texture, int width, int height)
+    public uint Id { get; private set; }
+    public TileTexture(uint id, nint rendererPtr, nint texture, int width, int height)
         : base(rendererPtr, width, height) {
         TexturePtr = texture;
+        Id = id;
     }
 }
