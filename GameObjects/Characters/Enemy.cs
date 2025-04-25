@@ -6,79 +6,81 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TestGame.GameObjects.Characters {
-    public class Enemy : ICharacter {
+    public class Enemy : Entity {
         private int _hp;
-        public IWeapon Weapon => throw new NotImplementedException();
+        public override IWeapon Weapon { get; set; }
 
-        public IDefensive Defense => throw new NotImplementedException();
+        public override IDefensive Defense { get; set; }
 
-        public bool CanSwim => true;
+        public override bool CanSwim { get; set; } = true;
 
-        public bool CanAttack => true;
+        public override bool CanAttack { get; set; } = true;
 
-        public bool CanDefend => true;
+        public override bool CanDefend { get; set; } = true;
 
-        public bool CanDie => true;
+        public override bool CanClimb { get; set; } = true;
 
-        public bool CanClimb => true;
+        public override bool CanMove { get; set; } = true;
 
-        public string EntityType => "Enemy";
+        public override bool CanJump { get; set; } = true;
 
-        public float X { get; set; }
+        public override bool IsOverWater { get; set; }
 
-        public float Y { get; set; }
+        public override bool IsOverGround { get; set; }
 
-        public float Z { get; set; }
+        public override bool IsInvincible { get; set; }
 
-        public int Width => 32;
+        public override AnimatedSprite32? Sprite { get; set; }
 
-        public int Height => 64;
+        public override string EntityType => "Enemy";
 
-        public string? Name => "Judge";
+        public override float X { get; set; }
 
-        public void Attack() {
+        public override float Y { get; set; }
+
+        public override float Z { get; set; }
+
+        public override int Width => 24;
+
+        public override int Height => 48;
+
+        public override string? Name { get; protected set; } = "Judge";
+
+        private Rect _rect;
+
+        public Enemy(nint rendererPtr) {
+            RendererPtr = rendererPtr;
+        }
+
+        public override void Initialize() {
 
         }
 
-        public void Defend() {
+        public override void Attack() {
 
         }
 
-        public void Die() {
-            if (_hp < 0) _hp = 0;
-            // Death animation
-        }
-
-        public void Draw() {
+        public override void Defend() {
 
         }
 
-        public void Duck() {
-
+        public override void Draw() {
+            Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
+            _ = SDL.RenderFillRect(RendererPtr, ref _rect);
+            Core.SetRenderColor(RendererPtr, Colors.Colors.White);
+            Rect r = HitBox;
+            _ = SDL.RenderDrawRect(RendererPtr, ref r);
         }
 
-        public void Heal(int hp) {
-            _hp += hp;
-        }
-
-        public bool IsClimbing() {
-            return false;
-        }
-
-        public bool IsSwimming() {
-            return false;
-        }
-
-        public void Jump() {
-
-        }
-
-        public void TakeDamage(int damage) {
-            _hp -= damage;
-        }
-
-        public void Update(Event e) {
-
+        public override void Update(Event e) {
+            _rect = new() {
+                X = (int)X,
+                Y = (int)Y,
+                W = Width,
+                H = Height
+            };
+            Z = Y;
+            HitBox = _rect with { H = Height / 2 };
         }
     }
 }

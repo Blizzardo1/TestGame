@@ -116,7 +116,7 @@ public class Core : Window {
 
         scene.LastScene = _currentScene;
         _currentScene.NextScene = scene;
-        Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
+        // Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
     }
 
     /// <summary>

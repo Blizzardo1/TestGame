@@ -30,14 +30,29 @@
         bool CanDefend { get; }
 
         /// <summary>
-        /// Check whether the character can die
-        /// </summary>
-        bool CanDie { get; }
-
-        /// <summary>
         /// Check whether the character can climb
         /// </summary>
         bool CanClimb { get; }
+
+        /// <summary>
+        /// Check whether the character can move
+        /// </summary>
+        bool CanMove { get; }
+
+        /// <summary>
+        /// Check whether the character can jump
+        /// </summary>
+        bool CanJump { get; }
+
+        /// <summary>
+        /// Check whether the character is invincible
+        /// </summary>
+        bool IsInvincible { get; }
+
+        /// <summary>
+        /// The Sprite of the entity
+        /// </summary>
+        AnimatedSprite32 Sprite { get; set; }
 
         /// <summary>
         /// Check whether the character is over water

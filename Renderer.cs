@@ -57,7 +57,7 @@ public abstract class Renderer {
         Font f = TTF.OpenFont(fontPath, size);
 
         LoadedFonts.Add(font, f);
-        _log?.Info($"Loaded font: {font}:{fontPath}");
+        _log?.Debug($"Loaded font: {font}:{fontPath}");
         return LoadedFonts[ font ];
     }
 

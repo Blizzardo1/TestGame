@@ -56,13 +56,13 @@ public static class Engine {
 
         for (int i = 0; i < outputCount; i++) {
             string devName = SDL.GetAudioDeviceName(i, 0);
-            _log?.Info($"Output Device {i}: {devName}");
+            _log?.Debug($"Output Device {i}: {devName}");
             lst.Add($"output/{i}/{devName}");
         }
 
         for (int i = 0; i < inputCount; i++) {
             string devName = SDL.GetAudioDeviceName(i, 1);
-            _log?.Info($"Input Device {i}: {devName}");
+            _log?.Debug($"Input Device {i}: {devName}");
             lst.Add($"input/{i}/{devName}");
         }
 
@@ -155,9 +155,11 @@ public static class Engine {
 
         _game.InitializeComponents();
         _thread.Start();
+
         while (_game.IsRunning) {
             uint start = SDL.GetTicks();
             _ = SDL.PollEvent(out Event e);
+
             _game.Update(e);
             _game.Draw();
             uint stop = SDL.GetTicks();

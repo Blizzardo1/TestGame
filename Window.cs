@@ -41,6 +41,7 @@ public abstract class Window : Renderer, IRenderer {
     public event EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
     public event EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
     public event EventHandler< JoyHatEvent >? JoyHatMotion;
+    public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
     public event EventHandler< KeyboardEvent >? KeymapChanged;
     public event EventHandler< KeyboardEvent >? KeyDown;
     public event EventHandler< KeyboardEvent >? KeyUp;
@@ -222,6 +223,9 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.JoyDeviceRemoved }:
                 OnJoyDeviceRemoved(e.JDevice);
                 break;
+            case { Type: (EventType)0x607 }: // SDL_JOYBATTERYUPDATED
+
+                break;
             case { Type: EventType.ControllerAxisMotion }:
                 OnControllerAxisMotion(e.CAxis);
                 break;
@@ -294,11 +298,12 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.LastEvent }:
                 OnLastEvent(e);
                 break;
-            case { Type: (EventType)32512 }: // SDL_POLLSENTINEL
+            case { Type: (EventType)0x7F00 }: // SDL_POLLSENTINEL
                 OnPollSentinel(e);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(e), e.ToString());
+                _log?.Error($"Unhandled event type: {e.Type}");
+                break;
         }
     }
 
@@ -430,6 +435,9 @@ public abstract class Window : Renderer, IRenderer {
         JoyDeviceRemoved?.Invoke(this, eventJDevice);
     }
 
+    protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
+        JoyBatteryUpdated?.Invoke(this, eventJBattery);
+    }
     protected virtual void OnJoyHatMotion(JoyHatEvent eventJHat) {
         JoyHatMotion?.Invoke(this, eventJHat);
     }

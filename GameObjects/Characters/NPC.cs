@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TestGame.GameObjects.Characters {
-    public class Player : Entity {
+    public class NPC : Entity {
         private int _hp;
         public override IWeapon Weapon { get; set; }
 
@@ -18,10 +18,11 @@ namespace TestGame.GameObjects.Characters {
 
         public override bool CanDefend { get; set; } = true;
 
+
         public override bool CanClimb { get; set; } = true;
         
         public override bool CanMove { get; set; } = true;
-       
+        
         public override bool CanJump { get; set; } = true;
 
         public override bool IsOverWater { get; set; }
@@ -33,7 +34,7 @@ namespace TestGame.GameObjects.Characters {
 
         public override AnimatedSprite32? Sprite { get; set; }
 
-        public override string EntityType => "Player";
+        public override string EntityType => "NPC";
 
         public override float X { get; set; }
 
@@ -45,11 +46,11 @@ namespace TestGame.GameObjects.Characters {
 
         public override int Height => 48;
 
-        public override string? Name { get; protected set; } = "Player";
+        public override string? Name { get; protected set; } = "NPC";
 
         private Rect _rect;
 
-        public Player(nint rendererPtr) {
+        public NPC(nint rendererPtr) {
             RendererPtr = rendererPtr;
         }
 
@@ -66,11 +67,8 @@ namespace TestGame.GameObjects.Characters {
         }
 
         public override void Draw() {
-            Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
+            Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
             _ = SDL.RenderFillRect(RendererPtr, ref _rect);
-            Rect r = HitBox;
-            Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-            _ = SDL.RenderDrawRect(RendererPtr, ref r);
         }
 
         public override void Update(Event e) {
@@ -80,8 +78,6 @@ namespace TestGame.GameObjects.Characters {
                 W = Width,
                 H = Height
             };
-            Z = Y;
-            HitBox = _rect with { H = Height / 2 };
         }
     }
 }

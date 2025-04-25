@@ -43,7 +43,7 @@ namespace TestGame.GameObjects {
                     $"Could not load Sound Effect \"{filename}\"; ${SDL.GetError()}");
                 return;
             }
-            Log?.Info($"Loaded Audio \"{Filename}\" on Device {AudioManager.Instance.DeviceId}");
+            Log?.Debug($"Loaded Audio \"{Filename}\" on Device {AudioManager.Instance.DeviceId}");
             _loaded = true;
         }
 
@@ -80,7 +80,7 @@ namespace TestGame.GameObjects {
                 return;
             }
 
-            Log?.Info($"Playing Sound Effect \"{Filename}\"");
+            Log?.Debug($"Playing Sound Effect \"{Filename}\"");
             IsPlaying = true;
         }
 
