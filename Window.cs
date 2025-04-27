@@ -1,10 +1,10 @@
-﻿using NLog;
-using SDL2;
+﻿using SDL2;
 using TestGame.GameObjects;
 
 namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer {
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
     #region Events
 
     public event EventHandler? AppDidEnterBackground;
@@ -63,9 +63,8 @@ public abstract class Window : Renderer, IRenderer {
 
     #endregion
 
-    protected IntPtr WindowPtr { get; }
+    protected nint WindowPtr { get; }
 
-    private readonly Logger? _log = LogManager.GetCurrentClassLogger();
 
     ~Window() {
         SDL.DestroyWindow(WindowPtr);
@@ -86,14 +85,14 @@ public abstract class Window : Renderer, IRenderer {
             Height,
             flags);
 
-        if (WindowPtr == IntPtr.Zero) {
-            _log.Error($"Cannot create Window: {SDL.GetError()}");
+        if (WindowPtr == nint.Zero) {
+            _log?.Error($"Cannot create Window: {SDL.GetError()}");
         }
 
-        Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.PresentVSync));
+        Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.TargetTexture));
 
-        if (RendererPtr == IntPtr.Zero) {
-            _log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
+        if (RendererPtr == nint.Zero) {
+            _log?.Error($"Cannot create RendererPtr: {SDL.GetError()}");
         }
     }
 

@@ -1,87 +1,94 @@
 ﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TestGame.GameObjects.Items;
 
-namespace TestGame.GameObjects.Characters {
-    public class Player : Entity {
-        private int _hp;
-        public override IWeapon Weapon { get; set; }
+namespace TestGame.GameObjects.Characters; 
+public class Player : Entity {
+    public override IWeapon Weapon { get; set; }
 
-        public override IDefensive Defense { get; set; }
+    public override IDefensive Defense { get; set; }
+    public override int AttackPower { get; set; } = 1;
 
-        public override bool CanSwim { get; set; } = true;
+    public override bool CanSwim { get; set; } = true;
 
-        public override bool CanAttack { get; set; } = true;
+    public override bool CanAttack { get; set; } = true;
 
-        public override bool CanDefend { get; set; } = true;
+    public override bool CanDefend { get; set; } = true;
 
-        public override bool CanClimb { get; set; } = true;
-        
-        public override bool CanMove { get; set; } = true;
-       
-        public override bool CanJump { get; set; } = true;
+    public override bool CanClimb { get; set; } = true;
+    
+    public override bool CanMove { get; set; } = true;
+   
+    public override bool CanJump { get; set; } = true;
 
-        public override bool IsOverWater { get; set; }
+    public override bool IsOverWater { get; set; }
 
-        public override bool IsOverGround { get; set; }
+    public override bool IsOverGround { get; set; }
 
-        public override bool IsInvincible { get; set; }
+    public override bool IsInvincible { get; set; }
 
 
-        public override AnimatedSprite32? Sprite { get; set; }
+    public override AnimatedSprite32? Sprite { get; set; }
 
-        public override string EntityType => "Player";
+    public override string EntityType => "Player";
 
-        public override float X { get; set; }
+    public override float X { get; set; }
 
-        public override float Y { get; set; }
+    public override float Y { get; set; }
 
-        public override float Z { get; set; }
+    public override float Z { get; set; }
 
-        public override int Width => 24;
+    public override int Width => 24;
 
-        public override int Height => 48;
+    public override int Height => 48;
 
-        public override string? Name { get; protected set; } = "Player";
+    public Rect HealthRect => new() {
+        X = (int)X,
+        Y = (int)Y,
+        W = 100,
+        H = 16
+    };
 
-        private Rect _rect;
+    public override string? Name { get; protected set; } = "Player";
 
-        public Player(nint rendererPtr) {
-            RendererPtr = rendererPtr;
-        }
+    private Rect _rect;
 
-        public override void Initialize() {
+    public Player(string? name, nint rendererPtr) {
+        Name = name;
+        RendererPtr = rendererPtr;
+        Weapon = Weapons.None;
+        Defense = Defenses.None;
+        MaxHP = 100;
+        Heal(100);
+    }
 
-        }
+    public override void Initialize() {
 
-        public override void Attack() {
+    }
 
-        }
+    public override void Attack() {
 
-        public override void Defend() {
+    }
 
-        }
+    public override void Defend() {
 
-        public override void Draw() {
-            Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-            _ = SDL.RenderFillRect(RendererPtr, ref _rect);
-            Rect r = HitBox;
-            Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-            _ = SDL.RenderDrawRect(RendererPtr, ref r);
-        }
+    }
 
-        public override void Update(Event e) {
-            _rect = new() {
-                X = (int)X,
-                Y = (int)Y,
-                W = Width,
-                H = Height
-            };
-            Z = Y;
-            HitBox = _rect with { H = Height / 2 };
-        }
+    public override void Draw() {
+        Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
+        _ = SDL.RenderFillRect(RendererPtr, ref _rect);
+        Rect r = HitBox;
+        Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
+        _ = SDL.RenderDrawRect(RendererPtr, ref r);
+    }
+
+    public override void Update(Event e) {
+        _rect = new() {
+            X = (int)X,
+            Y = (int)Y,
+            W = Width,
+            H = Height
+        };
+        Z = Y;
+        HitBox = _rect with { H = Height / 2 };
     }
 }

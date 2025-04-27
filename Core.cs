@@ -5,7 +5,6 @@
 #endregion
 
 using System.Diagnostics;
-using NLog;
 using SDL2;
 using SDL2.TTF;
 using TestGame.Colors;
@@ -47,6 +46,7 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
@@ -65,8 +65,6 @@ public class Core : Window {
     private Scene? _currentScene;
 
     private Diagnostics? _diagnostic;
-
-    private static readonly Logger? Log = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// Creates a new Game
@@ -110,7 +108,7 @@ public class Core : Window {
         }
 
         if (_currentScene is null) {
-            Log?.Error("_currentScene is unset!");
+            _log?.Error("_currentScene is unset!");
             return;
         }
 
@@ -151,7 +149,7 @@ public class Core : Window {
         
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
-            Log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            _log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             int color = bytes[0] << 24
                 | bytes[1] << 16
                 | bytes[2] << 8
@@ -160,7 +158,7 @@ public class Core : Window {
                 bytes[0] = (byte)~bytes[0];
                 bytes[1] = (byte)~bytes[1];
                 bytes[2] = (byte)~bytes[2];
-                Log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+                _log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             }
         } else {
             Random.NextBytes(bytes);

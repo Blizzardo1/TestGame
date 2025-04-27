@@ -1,32 +1,28 @@
-﻿using NLog;
-using SDL2;
-using System.Runtime.InteropServices;
-using TestGame.Config;
+﻿using SDL2;
 
-namespace TestGame.GameObjects {
+namespace TestGame.GameObjects; 
 
-    public abstract class Audio : IGameObject {
+public abstract class Audio : IGameObject {
 
-        protected nint Pointer = nint.Zero;
+    protected nint Pointer = nint.Zero;
 
-        protected int PreviousVolume = 0;
+    protected int PreviousVolume = 0;
 
-        protected string? Filename { get; init; }
-        public string? Name { get; protected init; }
+    protected string? Filename { get; init; }
+    public string? Name { get; protected init; }
 
-        public bool IsPlaying { get; protected set; }
-        ~Audio() {
-            Mixer.FreeChunk(Pointer);
-        }
-
-        public abstract void Play();
-
-        public abstract void SetVolume(int volume);
-
-        public abstract int GetVolume();
-
-        public abstract void Resume();
-        public abstract void Pause();
-        public abstract void Stop();
+    public bool IsPlaying { get; protected set; }
+    ~Audio() {
+        Mixer.FreeChunk(Pointer);
     }
+
+    public abstract void Play();
+
+    public abstract void SetVolume(int volume);
+
+    public abstract int GetVolume();
+
+    public abstract void Resume();
+    public abstract void Pause();
+    public abstract void Stop();
 }
