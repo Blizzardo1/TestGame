@@ -5,12 +5,6 @@ VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestGame", "TestGame.csproj", "{7AA05AC7-A3DE-49EC-AA1E-D3907C19422B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bred", "..\Bread\Bred.csproj", "{10C9EDCA-E6D6-4167-ADEF-74C6A711814D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spirograph", "..\Spirograph\Spirograph.csproj", "{CE7B8987-91E6-4C4A-B81F-758385291A4C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bazinga", "..\Bazinga\Bazinga.csproj", "{AC4B5E96-C8CB-4C68-8262-EC69AE413C53}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
