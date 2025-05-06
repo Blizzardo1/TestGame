@@ -1,84 +1,87 @@
 ﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TestGame.GameObjects.Items;
 
-namespace TestGame.GameObjects.Characters {
-    internal class Player : ICharacter {
-        private int _hp;
-        public IWeapon Weapon => throw new NotImplementedException();
+namespace TestGame.GameObjects.Characters; 
+public class Player : Entity {
+    public override IWeapon Weapon { get; set; }
 
-        public IDefensive Defense => throw new NotImplementedException();
+    public override IDefensive Defense { get; set; }
+    public override int AttackPower { get; set; } = 1;
 
-        public bool CanSwim => true;
+    public override bool CanSwim { get; set; } = true;
 
-        public bool CanAttack => true;
+    public override bool CanAttack { get; set; } = true;
 
-        public bool CanDefend => true;
+    public override bool CanDefend { get; set; } = true;
 
-        public bool CanDie => true;
+    public override bool CanClimb { get; set; } = true;
+    
+    public override bool CanMove { get; set; } = true;
+   
+    public override bool CanJump { get; set; } = true;
 
-        public bool CanClimb => true;
+    public override bool IsOverWater { get; set; }
 
-        public string EntityType => "Player";
+    public override bool IsOverGround { get; set; }
 
-        public float X { get; set; }
+    public override bool IsInvincible { get; set; }
 
-        public float Y { get; set; }
 
-        public float Z { get; set; }
+    public override AnimatedSprite32? Sprite { get; set; }
 
-        public int Width => 32;
+    public override string EntityType => "Player";
 
-        public int Height => 64;
+    public override float X { get; set; }
 
-        public string? Name => "Player";
+    public override float Y { get; set; }
 
-        public void Attack() {
-            
-        }
+    public override float Z { get; set; }
 
-        public void Defend() {
-            
-        }
+    public override int Width => 24;
 
-        public void Die() {
-            if(_hp < 0) _hp = 0;
-            // Death animation
-        }
+    public override int Height => 48;
 
-        public void Draw() {
+    public Rect HealthRect => new() {
+        X = (int)X,
+        Y = (int)Y,
+        W = 100,
+        H = 16
+    };
 
-        }
+    public override string? Name { get; protected set; } = "Player";
 
-        public void Duck() {
+    public Player(string? name, nint rendererPtr) {
+        Name = name;
+        RendererPtr = rendererPtr;
+        Weapon = Weapons.None;
+        Defense = Defenses.None;
+        MaxHP = 100;
+        Heal(100);
+    }
 
-        }
+    public override void Initialize() {
 
-        public void Heal(int hp) {
-            _hp += hp;
-        }
+    }
 
-        public bool IsClimbing() {
-            return false;
-        }
+    public override void Attack() {
 
-        public bool IsSwimming() {
-            return false;
-        }
+    }
 
-        public void Jump() {
-            
-        }
+    public override void Defend() {
 
-        public void TakeDamage(int damage) {
-            _hp -= damage;
-        }
+    }
 
-        public void Update(Event e) {
+    public override void Draw() {
+        Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
+        _ = SDL.RenderFillRect(RendererPtr, ref _body);
+        Rect r = HitBox;
+        Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
+        _ = SDL.RenderDrawRect(RendererPtr, ref r);
+    }
 
-        }
+    public override void Update(Event e) {
+        base.Update(e);
+        Z = Y;
+        HitBox = _body with { H = Height / 2 };
     }
 }

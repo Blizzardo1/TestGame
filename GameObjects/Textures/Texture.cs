@@ -1,36 +1,42 @@
 ﻿using SDL2;
 
-namespace TestGame.GameObjects.Textures {
-    public abstract class Texture : GameObject {
-        protected FRect Rect => frect;
+namespace TestGame.GameObjects.Textures; 
+public abstract class Texture : GameObject {
+    protected FRect Rect => frect;
 
-        public nint TexturePtr { get; protected set; }
+    public nint TexturePtr { get; protected set; }
 
-        #region Implementation of IRenderable
+    #region Implementation of IRenderable
 
-        ~Texture() {
-            SDL.DestroyTexture(TexturePtr);
-        }
+    ~Texture() {
+        SDL.DestroyTexture(TexturePtr);
+    }
 
-        public Texture(nint rendererPtr, int width, int height) {
-            RendererPtr = rendererPtr;
-            Name = "Texture";
-            Width = width;
-            Height = height;
-        }
+    public Texture(nint rendererPtr, int width, int height) {
+        RendererPtr = rendererPtr;
+        Name = "Texture";
+        Width = width;
+        Height = height;
+    }
 
-        /// <inheritdoc />
-        public override void Draw() {
-            _ = SDL.RenderCopyF(RendererPtr, TexturePtr, nint.Zero, ref frect);
-        }
+    public Texture(nint rendererPtr, float width, float height) {
+        RendererPtr = rendererPtr;
+        Name = "Texture";
+        Width = (int)width;
+        Height = (int)height;
+    }
 
-        /// <inheritdoc />
-        public override void Update(Event e) { }
+    /// <inheritdoc />
+    public override void Draw() {
+        _ = SDL.RenderCopyF(RendererPtr, TexturePtr, nint.Zero, ref frect);
+    }
 
-        #endregion
+    /// <inheritdoc />
+    public override void Update(Event e) { }
 
-        public static implicit operator nint(Texture texture) {
-            return texture.TexturePtr;
-        }
+    #endregion
+
+    public static implicit operator nint(Texture texture) {
+        return texture.TexturePtr;
     }
 }

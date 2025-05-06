@@ -3,9 +3,20 @@ using TestGame.GameObjects;
 
 namespace TestGame;
 
-public class Menu : GameObject {
+public class Menu(GameContext context) : GameObject {
     private List< MenuItem > menuItems;
     private GameContext _context;
+
+    public override void Initialize() {
+        RendererPtr = context.RendererPtr;
+        _context = context;
+        menuItems = [];
+        _ = SDL.GetRendererOutputSize(context.RendererPtr, out int w, out _);
+        Width = w;
+        Height = 24;
+        frect = new FRect { X = 0, Y = 0, W = Width, H = Height };
+        Initialize(RendererPtr);
+    }
 
     /// <inheritdoc />
     public override void Draw() {
@@ -28,19 +39,8 @@ public class Menu : GameObject {
         menuItems.ForEach(mi => mi.Update(e));
     }
 
-    public Menu(GameContext context) {
-        RendererPtr = context.RendererPtr;
-        _context = context;
-        menuItems = [];
-        _ = SDL.GetRendererOutputSize(context.RendererPtr, out int w, out _);
-        Width = w;
-        Height = 24;
-        frect = new FRect { X = 0, Y = 0, W = Width, H = Height };
-        Initialize(RendererPtr);
-    }
-
     public void AddMenuItem(string text, int id, Action action) {
-        int w = MeasureString(GetFont("fonts/arial", 12), text).Width + 8;
+        int w = MeasureString(GetFont("default", 12), text).Width + 8;
         float x = menuItems.Count > 0 ? menuItems[ ^1 ].X + menuItems[ ^1 ].Width + 2 : 0;
         Console.WriteLine($"MenuItem::{text} X: {x}, Width: {w}");
         menuItems.Add(new MenuItem(id, text, action, _context)

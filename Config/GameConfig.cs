@@ -1,33 +1,33 @@
 ﻿using Newtonsoft.Json;
-using NLog;
+using SDL2;
+using TestGame.GameObjects.Map;
 
 namespace TestGame.Config;
 
-public record GameConfig([property: JsonIgnore] string Path) {
-    [property: JsonProperty("maps")]
+public record GameConfig(string Path) {
+    private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+
+    [JsonProperty("maps")]
     public List< MapConfig >? Maps { get; set; }
 
-    [property: JsonProperty("audio")]
+    [JsonProperty("audio")]
     public List< AudioConfig >? AudioTracks { get; set; }
 
-    [property: JsonProperty("audio-devices")]
+    [JsonProperty("audio-devices")]
     public List< AudioDeviceConfig >? AudioDevices { get; set; }
 
-    [property: JsonProperty("fonts")]
+    [JsonProperty("fonts")]
     public List< FontConfig >? Fonts { get; set; }
 
-    [property: JsonProperty("selected-audio-output")]
+    [JsonProperty("selected-audio-output")]
     public string? AudioDeviceOutput { get; set; }
 
-    [property: JsonProperty("selected-audio-input")]
+    [JsonProperty("selected-audio-input")]
     public string? AudioDeviceInput { get; set; }
 
-    private static readonly Logger? Log =
-#if DEBUG
-        LogManager.GetCurrentClassLogger();
-#else
-            null;
-#endif
+    [JsonProperty("worlds")]
+    public List<World>? Worlds { get; set; }
+
 
     // Can't do Scenes or Maps in this function as there's
     // no real way to add them as a resource. They are not GameObjects.
@@ -35,7 +35,7 @@ public record GameConfig([property: JsonIgnore] string Path) {
         //AudioTracks.ForEach(audio => ResourceManager.Add(new SoundEffect(audio.Reference, Program.AudioConfigPath)));
         Fonts?.ForEach(font => {
             if (font.Name is null || font.Font is null || font.Name.IsEmpty() || font.Font.IsEmpty()) {
-                Log?.Error("Font name or path is empty.");
+                _log?.Error("Font name or path is empty.");
                 return;
             }
 
@@ -44,21 +44,19 @@ public record GameConfig([property: JsonIgnore] string Path) {
 
         if (AudioDevices is null) return;
         if (AudioDevices.Count is 0) {
-            Log?.Warn(
-                "No audio devices are found in the config. The Engine should initialize and save all audio configs.");
+            _log?.Warn("No audio devices are found in the config. The Engine should initialize and save all audio configs.");
         }
 
         AudioDevices.ForEach(adc => {
             if (adc.DeviceName is null || adc.DeviceIndex < 0 || adc.DeviceType is null) {
-                Log?.Error(
-                    "Audio Devices are not configured properly! Please check config and remove null or broken entries.");
+                _log?.Error("Audio Devices are not configured properly! Please check config and remove null or broken entries.");
             }
         });
     }
 
     public static GameConfig Load(string path) {
         if (!File.Exists(path)) {
-            Log?.Error($"Could not find GameConfig at {path}");
+            _log?.Error(new FileNotFoundException(), $"Could not find GameConfig at {path}");
             var g = new GameConfig(path);
             g.Save();
             return g;
@@ -68,7 +66,7 @@ public record GameConfig([property: JsonIgnore] string Path) {
         string json = reader.ReadToEnd();
         var gc = JsonConvert.DeserializeObject< GameConfig >(json);
         if (gc == null) {
-            Log?.Error("Failed to load GameConfig");
+            _log?.Error("Failed to load GameConfig");
             return new GameConfig(path);
         }
 

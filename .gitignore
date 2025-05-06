@@ -40,4 +40,5 @@ bin/Release/net8.0/publish/TestGame.dll
 bin/Release/net8.0/publish/TestGame.dll.config
 bin/Release/net8.0/publish/TestGame.pdb
 bin/Release/net8.0/publish/TiledCS.dll
-Maps/TestGame.tiled-project
+Maps/
+TestGame.sln

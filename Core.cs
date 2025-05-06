@@ -5,7 +5,6 @@
 #endregion
 
 using System.Diagnostics;
-using NLog;
 using SDL2;
 using SDL2.TTF;
 using TestGame.Colors;
@@ -47,6 +46,8 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
@@ -58,15 +59,11 @@ public class Core : Window {
 
     public static Random Random { get; } = new();
 
-    private bool _dead;
-
     private Dictionary< string, Scene >? _scenes;
 
     private Scene? _currentScene;
 
     private Diagnostics? _diagnostic;
-
-    private static readonly Logger? Log = LogManager.GetCurrentClassLogger();
 
     /// <summary>
     /// Creates a new Game
@@ -86,13 +83,10 @@ public class Core : Window {
         _instance = this;
     }
 
-    public void Die() {
-        _dead = true;
-        IsRunning = false;
-    }
-
     public static void ToggleDebug() {
         IsDebugging = !IsDebugging;
+        _instance!._diagnostic!.Shown = IsDebugging;
+        
     }
 
     /// <summary>
@@ -110,13 +104,13 @@ public class Core : Window {
         }
 
         if (_currentScene is null) {
-            Log?.Error("_currentScene is unset!");
+            _log?.Error("_currentScene is unset!");
             return;
         }
 
         scene.LastScene = _currentScene;
         _currentScene.NextScene = scene;
-        Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
+        // Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
     }
 
     /// <summary>
@@ -151,7 +145,7 @@ public class Core : Window {
         
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
-            Log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            _log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             int color = bytes[0] << 24
                 | bytes[1] << 16
                 | bytes[2] << 8
@@ -160,7 +154,7 @@ public class Core : Window {
                 bytes[0] = (byte)~bytes[0];
                 bytes[1] = (byte)~bytes[1];
                 bytes[2] = (byte)~bytes[2];
-                Log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+                _log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             }
         } else {
             Random.NextBytes(bytes);
@@ -185,9 +179,6 @@ public class Core : Window {
             throw new NullReferenceException("Scene Engine needs to be initialized. Use AddScene or AddScenes");
         }
 
-        //AttachListeners();
-
-        _dead = false;
         IsRunning = true;
         IsPaused = false;
 
@@ -195,7 +186,7 @@ public class Core : Window {
 
         _diagnostic = new Diagnostics(RendererPtr, 256, 256);
 
-        // TODO: This needs to be moved away from the engine and processed per separate Application.
+        // #TODO: This needs to be moved away from the engine and processed per separate Application.
 
         if(Engine.GameConfig?.AudioTracks is not null) {
             foreach(AudioConfig ac in Engine.GameConfig.AudioTracks) {
@@ -276,20 +267,22 @@ public class Core : Window {
         }
     }
 
+    
+
     /// <summary>
     /// Toggles the Pause State
     /// </summary>
     /// <remarks>
     /// Whether to disable the Pause State or not.
     /// </remarks>
-    public void DisablePauseMenu(bool state = true) {
+    public static void DisablePauseMenu(bool state = true) {
         IsPausedDisabled = state;
     }
 
     /// <summary>
     /// As it states, toggle the pause
     /// </summary>
-    public void TogglePause() {
+    public static void TogglePause() {
         if(IsPausedDisabled) {
             return;
         }
@@ -334,8 +327,8 @@ public class Core : Window {
 
         _currentScene?.Draw();
 
-        if (IsDebugging) {
-            _diagnostic?.Draw();
+        if (_diagnostic!.Shown) {
+            _diagnostic.Draw();
         }
 
         SDL.RenderPresent(RendererPtr);
@@ -360,11 +353,7 @@ public class Core : Window {
 
     /// <inheritdoc />
     public override void Update(Event e) {
-        if (_currentScene == null) {
-            return;
-        }
-
-        if (_dead) {
+        if (_currentScene == null || !IsRunning) {
             return;
         }
 

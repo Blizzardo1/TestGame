@@ -12,8 +12,7 @@
           "Newtonsoft.Json": "13.0.3",
           "Sentry": "5.3.0",
           "Sentry.Extensions.Logging": "5.3.0",
-          "Doxygen": "1.8.14",
-          "NLog": "5.4.0"
+          "Doxygen": "1.8.14"
         },
         "runtime": {
           "TestGame.dll": {}
@@ -208,14 +207,6 @@
           }
         }
       },
-      "NLog/5.4.0": {
-        "runtime": {
-          "lib/netstandard2.0/NLog.dll": {
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.4.0.3182"
-          }
-        }
-      },
       "Sentry/5.3.0": {
         "runtime": {
           "lib/net8.0/Sentry.dll": {
@@ -365,13 +356,6 @@
       "sha512": "sha512-HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
       "path": "newtonsoft.json/13.0.3",
       "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
-    },
-    "NLog/5.4.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-LwMcGSW3soF3/SL68rlJN3Eh3ktrAPycC3zZR/07OYBPraZUu0bygEC7kIN10lUQgMXT4s84Fi1chglGdGrQEg==",
-      "path": "nlog/5.4.0",
-      "hashPath": "nlog.5.4.0.nupkg.sha512"
     },
     "Sentry/5.3.0": {
       "type": "package",

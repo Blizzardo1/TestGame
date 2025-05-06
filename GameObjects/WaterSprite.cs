@@ -1,9 +1,7 @@
 ﻿namespace TestGame.GameObjects; 
 /// <inheritdoc />
-public class WaterSprite(GameContext context, Size spriteSize) : AnimatedSprite(context.RendererPtr,
-    context.Rect.W,
-    context.Rect.H,
-    Path.Combine(Engine.StartupPath, "Water.bmp"),
+public class WaterSprite(GameContext context, Size spriteSize)
+    : AnimatedSprite(context, Path.Combine(Engine.StartupPath, "Water.bmp"),
     [
         new() {
             W = spriteSize.Width,

@@ -2,12 +2,13 @@
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
-public class Enemy : Entity {
+public class NPC : Entity {
+    private int _hp;
     public override IWeapon Weapon { get; set; }
 
     public override IDefensive Defense { get; set; }
 
-    public override int AttackPower { get; set; } = 1;
+    public override int AttackPower { get; set; } = 0;
 
     public override bool CanSwim { get; set; } = true;
 
@@ -15,10 +16,11 @@ public class Enemy : Entity {
 
     public override bool CanDefend { get; set; } = true;
 
+
     public override bool CanClimb { get; set; } = true;
-
+    
     public override bool CanMove { get; set; } = true;
-
+    
     public override bool CanJump { get; set; } = true;
 
     public override bool IsOverWater { get; set; }
@@ -27,9 +29,10 @@ public class Enemy : Entity {
 
     public override bool IsInvincible { get; set; }
 
+
     public override AnimatedSprite32? Sprite { get; set; }
 
-    public override string EntityType => "Enemy";
+    public override string EntityType => "NPC";
 
     public override float X { get; set; }
 
@@ -41,9 +44,9 @@ public class Enemy : Entity {
 
     public override int Height => 48;
 
-    public override string? Name { get; protected set; } = "Judge";
+    public override string? Name { get; protected set; } = "NPC";
 
-    public Enemy(string? name, nint rendererPtr) {
+    public NPC(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
@@ -63,16 +66,11 @@ public class Enemy : Entity {
     }
 
     public override void Draw() {
-        Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
+        Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
         _ = SDL.RenderFillRect(RendererPtr, ref _body);
-        Core.SetRenderColor(RendererPtr, Colors.Colors.White);
-        Rect r = HitBox;
-        _ = SDL.RenderDrawRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {
         base.Update(e);
-        Z = Y;
-        HitBox = _body with { H = Height / 2 };
     }
 }

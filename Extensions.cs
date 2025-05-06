@@ -1,10 +1,13 @@
 ﻿using SDL2;
 using TestGame.Colors;
+using TestGame.GameObjects.Characters;
 using Version = SDL2.Version;
 
 namespace TestGame;
 
 public static class Extensions {
+
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
     public static Color ToColor(this KnownColor color) {
         Color c = new();
         byte a = (byte)( (int)color >> 24 & 0xFF );
@@ -41,6 +44,85 @@ public static class Extensions {
 
     public static bool Intersects(this FRect rect, float x, float y) {
         return x >= rect.X || x <= rect.X + rect.W && y >= rect.Y || y <= rect.Y + rect.H;
+    }
+
+    public static bool Intersects(this Rect rect, Rect other) {
+        return rect.X <= other.X + other.W
+            && rect.X + rect.W >= other.X
+            && rect.Y <= other.Y + other.H
+            && rect.Y + rect.H >= other.Y;
+    }
+
+    public static bool Intersects(this FRect rect, FRect other) {
+        return rect.X <= other.X + other.W
+            && rect.X + rect.W >= other.X
+            && rect.Y <= other.Y + other.H
+            && rect.Y + other.H >= other.Y;
+    }
+
+    public static Intersection GetIntersect(this Entity a, Entity b) {
+        Intersection intersection = new() {
+            Type = Intersection.IntersectionType.None,
+            Direction = Intersection.Directional.None
+        };
+        if (!a.HitBox.Intersects(b.HitBox)) {
+            return intersection;
+        }
+
+        intersection.Type = Intersection.IntersectionType.Rectangle;
+
+        float distX = (b.X - a.X);
+        float distY = (b.Y - a.Y);
+        float timeX = Math.Abs(distX) / a.VelocityX;
+        float timeY = Math.Abs(distY) / a.VelocityY;
+
+        _log?.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
+
+        if (distX < 0 && a.Direction.HasFlag(Direction.Left) && timeX > timeY) {
+            // _log?.ConditionalDebug($"Left: {distX} {a.Direction}");
+            intersection.Direction |= Intersection.Directional.Left;
+            return intersection;
+        } else if (distX > 0 && a.Direction.HasFlag(Direction.Right) && timeX > timeY) {
+            //_log?.ConditionalDebug($"Right: {distX} {a.Direction}");
+            intersection.Direction |= Intersection.Directional.Right;
+            return intersection;
+        }
+
+        if (distY < 0 && a.Direction.HasFlag(Direction.Up) && timeY > timeX) {
+            //_log?.ConditionalDebug($"Up: {distY} {a.Direction}");
+            intersection.Direction |= Intersection.Directional.Up;
+        } else if (distY > 0 && a.Direction.HasFlag(Direction.Down) && timeY > timeX) {
+            // _log?.ConditionalDebug($"Down: {distY} {a.Direction}");
+            intersection.Direction |= Intersection.Directional.Down;
+        }
+
+        return intersection;
+    }
+
+    public static Intersection GetIntersect(this FRect rect, FRect other) {
+        Intersection intersection = new() {
+            Type = Intersection.IntersectionType.None,
+            Direction = Intersection.Directional.None
+        };
+        if (!rect.Intersects(other)) {
+            return intersection;
+        }
+
+        intersection.Type = Intersection.IntersectionType.Rectangle;
+
+        if (rect.X < other.X) {
+            intersection.Direction |= Intersection.Directional.Left;
+        } else if (rect.X > other.X) {
+            intersection.Direction |= Intersection.Directional.Right;
+        }
+
+        if (rect.Y < other.Y) {
+            intersection.Direction |= Intersection.Directional.Up;
+        } else if (rect.Y > other.Y) {
+            intersection.Direction |= Intersection.Directional.Down;
+        }
+
+        return intersection;
     }
 
     /// <summary>

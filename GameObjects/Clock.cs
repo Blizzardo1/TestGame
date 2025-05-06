@@ -3,7 +3,8 @@ using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-public class Clock : GameObject {
+public class Clock(GameContext context, string font = @"default.ttf", bool animate = true,
+    int fontSize = 72) : GameObject {
     private const float Speed = 1.5f;
     private const int ShadowDivisor = 10;
 
@@ -33,7 +34,7 @@ public class Clock : GameObject {
         new() { R = 80, G = 112, B = 200, A = 255 } // Royale
     };
 
-    private readonly Color[] _colorSequence;
+    private Color[]? _colorSequence;
 
     private const int HitFrames = 30;
     private int _hitFrames = HitFrames;
@@ -42,17 +43,16 @@ public class Clock : GameObject {
 
     Rect _rect;
 
-    public Clock(GameContext context, string font = @"default.ttf", bool animate = true,
-        int fontSize = 72) {
+    public override void Initialize() {
         Initialize(context.RendererPtr, font, "clock", FontSize);
         Name = "object/clock";
         frect = new FRect {
             X = context.Rect.X,
             Y = context.Rect.Y,
-            W = context.Rect.W,
-            H = context.Rect.H
+            W = context.Width,
+            H = context.Height
         };
-        ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
+        (Width, Height) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
         ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
         FontSize = fontSize;
         _ogForeColor = ForegroundColor;
@@ -63,7 +63,7 @@ public class Clock : GameObject {
         _rect = frect.ToRect();
     }
 
-    private Color CalculateShadow(float x, float y) {
+    private static Color CalculateShadow(float x, float y) {
         var c = KnownColor.Black.ToColor();
         c.A = (byte)( 255 - ( x + y ) * 2 );
         return c;

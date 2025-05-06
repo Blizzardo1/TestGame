@@ -1,10 +1,10 @@
-﻿using NLog;
-using SDL2;
+﻿using SDL2;
 using TestGame.GameObjects;
 
 namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer {
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
     #region Events
 
     public event EventHandler? AppDidEnterBackground;
@@ -41,6 +41,7 @@ public abstract class Window : Renderer, IRenderer {
     public event EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
     public event EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
     public event EventHandler< JoyHatEvent >? JoyHatMotion;
+    public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
     public event EventHandler< KeyboardEvent >? KeymapChanged;
     public event EventHandler< KeyboardEvent >? KeyDown;
     public event EventHandler< KeyboardEvent >? KeyUp;
@@ -62,9 +63,8 @@ public abstract class Window : Renderer, IRenderer {
 
     #endregion
 
-    protected IntPtr WindowPtr { get; }
+    protected nint WindowPtr { get; }
 
-    private readonly Logger? _log = LogManager.GetCurrentClassLogger();
 
     ~Window() {
         SDL.DestroyWindow(WindowPtr);
@@ -85,14 +85,14 @@ public abstract class Window : Renderer, IRenderer {
             Height,
             flags);
 
-        if (WindowPtr == IntPtr.Zero) {
-            _log.Error($"Cannot create Window: {SDL.GetError()}");
+        if (WindowPtr == nint.Zero) {
+            _log?.Error($"Cannot create Window: {SDL.GetError()}");
         }
 
-        Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.PresentVSync));
+        Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.TargetTexture));
 
-        if (RendererPtr == IntPtr.Zero) {
-            _log.Error($"Cannot create RendererPtr: {SDL.GetError()}");
+        if (RendererPtr == nint.Zero) {
+            _log?.Error($"Cannot create RendererPtr: {SDL.GetError()}");
         }
     }
 
@@ -222,6 +222,9 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.JoyDeviceRemoved }:
                 OnJoyDeviceRemoved(e.JDevice);
                 break;
+            case { Type: (EventType)0x607 }: // SDL_JOYBATTERYUPDATED
+
+                break;
             case { Type: EventType.ControllerAxisMotion }:
                 OnControllerAxisMotion(e.CAxis);
                 break;
@@ -294,11 +297,12 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.LastEvent }:
                 OnLastEvent(e);
                 break;
-            case { Type: (EventType)32512 }: // SDL_POLLSENTINEL
+            case { Type: (EventType)0x7F00 }: // SDL_POLLSENTINEL
                 OnPollSentinel(e);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(e), e.ToString());
+                _log?.Error($"Unhandled event type: {e.Type}");
+                break;
         }
     }
 
@@ -430,6 +434,9 @@ public abstract class Window : Renderer, IRenderer {
         JoyDeviceRemoved?.Invoke(this, eventJDevice);
     }
 
+    protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
+        JoyBatteryUpdated?.Invoke(this, eventJBattery);
+    }
     protected virtual void OnJoyHatMotion(JoyHatEvent eventJHat) {
         JoyHatMotion?.Invoke(this, eventJHat);
     }

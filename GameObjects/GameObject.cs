@@ -47,7 +47,9 @@ public abstract class GameObject : Renderer, IRenderer {
     }
 
     /// <inheritdoc />
-    public string? Name { get; protected init; }
+    public string? Name { get; protected set; }
+
+    public abstract void Initialize();
 
     /// <inheritdoc />
     public abstract void Draw();
