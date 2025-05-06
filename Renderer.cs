@@ -36,7 +36,6 @@ public abstract class Renderer {
     public void Initialize(nint renderer, string fontPath = FontPath, string fontName = FontName,
         int fontSize = FontSize) {
         if (RendererPtr != nint.Zero) {
-            _log?.Error("Renderer already initialized.");
             return;
         }
 
@@ -121,7 +120,7 @@ public abstract class Renderer {
     /// <param name="y">Absolute Y Coordinate</param>
     /// <param name="color">The BackgroundColor to use</param>
     public void RenderText(string? text, int x, int y, Color color) {
-        // TODO: Might break if either no font is loaded, or the wrong font is loaded first.
+        // #TODO: Might break if either no font is loaded, or the wrong font is loaded first.
         RenderText(text, x, y, color, GetFont(FontName, 12));
     }
 
@@ -133,7 +132,7 @@ public abstract class Renderer {
         RenderText(text, x, y, c, GetFont(fontName, size));
     }
 
-    protected Size MeasureString(Font font, string text) {
+    protected static Size MeasureString(Font font, string text) {
         _ = TTF.SizeText(font, text, out int width, out int height);
         return new Size { Width = width, Height = height };
     }

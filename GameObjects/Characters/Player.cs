@@ -50,8 +50,6 @@ public class Player : Entity {
 
     public override string? Name { get; protected set; } = "Player";
 
-    private Rect _rect;
-
     public Player(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
@@ -75,20 +73,15 @@ public class Player : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-        _ = SDL.RenderFillRect(RendererPtr, ref _rect);
+        _ = SDL.RenderFillRect(RendererPtr, ref _body);
         Rect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
         _ = SDL.RenderDrawRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {
-        _rect = new() {
-            X = (int)X,
-            Y = (int)Y,
-            W = Width,
-            H = Height
-        };
+        base.Update(e);
         Z = Y;
-        HitBox = _rect with { H = Height / 2 };
+        HitBox = _body with { H = Height / 2 };
     }
 }

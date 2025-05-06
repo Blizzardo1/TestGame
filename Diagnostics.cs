@@ -39,6 +39,9 @@ internal class Diagnostics : Renderer, IRenderer {
 
     private double _lastTime;
 
+    private bool _shown = false;
+    public bool Shown { get => _shown; set => _shown = value; }
+
     public Diagnostics(nint rendererPtr, int width, int height) {
         Initialize(rendererPtr);
         Width = width;
@@ -48,10 +51,16 @@ internal class Diagnostics : Renderer, IRenderer {
     }
 
     public void UpdateDiagnostics(Scene currentScene) {
-        // TODO: Add more diagnostics, and be better at reserving space for them.
+        _diagnostics.Clear();
+        if (!_shown) {
+            return;
+        }
+
+        // #TODO: Add more diagnostics, and be better at reserving space for them.
         // Using List<T> it reallocates the larger it gets. Maybe use a fixed array?
         int rendererInfoRes = SDL.GetRendererInfo(RendererPtr, out RendererInfo info);
-        _diagnostics.Clear();
+        
+        _diagnostics.Add($"FPS: {Engine.CurrentFPS}");
         _diagnostics.Add($"Current Scene: {currentScene.Name}");
         _diagnostics.Add($"Paused? {(Core.IsPaused ? "Yes" : "No")}");
         switch(rendererInfoRes) {

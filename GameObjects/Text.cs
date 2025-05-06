@@ -1,11 +1,11 @@
 ﻿using SDL2;
 
 namespace TestGame.GameObjects; 
-internal class Text : GameObject {
-    private string _text;
+internal class Text(GameContext context, string fontFile, int size, string text) : GameObject {
+    private string? _text;
     private Color _color;
 
-    public Text(GameContext context, string fontFile, int size, string text) {
+    public override void Initialize() {
         RendererPtr = context.RendererPtr;
 
         GetFont(fontFile, size);

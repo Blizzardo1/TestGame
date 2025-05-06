@@ -43,8 +43,6 @@ public class Enemy : Entity {
 
     public override string? Name { get; protected set; } = "Judge";
 
-    private Rect _rect;
-
     public Enemy(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
@@ -66,20 +64,15 @@ public class Enemy : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = SDL.RenderFillRect(RendererPtr, ref _rect);
+        _ = SDL.RenderFillRect(RendererPtr, ref _body);
         Core.SetRenderColor(RendererPtr, Colors.Colors.White);
         Rect r = HitBox;
         _ = SDL.RenderDrawRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {
-        _rect = new() {
-            X = (int)X,
-            Y = (int)Y,
-            W = Width,
-            H = Height
-        };
+        base.Update(e);
         Z = Y;
-        HitBox = _rect with { H = Height / 2 };
+        HitBox = _body with { H = Height / 2 };
     }
 }

@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿using Newtonsoft.Json.Bson;
+using SDL2;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -110,9 +111,7 @@ namespace TestGame {
 
         public static Logger GetCurrentClassLogger(LogCategory category, string customCategory = "") {
             Logger logger = new();
-            StackTrace stackTrace = new();
-            StackFrame stackFrame = stackTrace.GetFrames().Skip(1).FirstOrDefault()!;
-            MethodBase methodBase = stackFrame.GetMethod()!;
+            (_, MethodBase methodBase) = GetStackFrame();
             logger._class = methodBase.ReflectedType!.FullName!;
             logger._category = category;
             if(category == LogCategory.Custom) {
@@ -121,13 +120,93 @@ namespace TestGame {
             return logger;
         }
 
+        private static (StackFrame, MethodBase) GetStackFrame() {
+            StackTrace stackTrace = new();
+            StackFrame stackFrame = stackTrace.GetFrames().Skip(2).FirstOrDefault()!;
+            MethodBase methodBase = stackFrame.GetMethod()!;
+            return (stackFrame, methodBase);
+        }
+
         private static void SetCurrentClassInfo(string className, string customCategory) {
             _currentClass = className;
             currentCusomCategoryStr = customCategory;
         }
 
-        public void Debug(string message) {
+        private static string AggregateConstructorInfo(ConstructorInfo constructorInfo) {
+            StringBuilder sb = new();
+            sb.Append(constructorInfo.DeclaringType!.Name);
+            sb.Append('(');
+            ParameterInfo[] parameters = constructorInfo.GetParameters();
+            for (int i = 0; i < parameters.Length; i++) {
+                sb.Append(parameters[i].ParameterType.Name);
+                sb.Append(' ');
+                sb.Append(parameters[i].Name);
+                if (i < parameters.Length - 1) {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        private static string AggregateTypes(Type[] types) {
+            StringBuilder sb = new();
+            for (int i = 0; i < types.Length; i++) {
+                sb.Append(types[i].Name);
+                if (i < types.Length - 1) {
+                    sb.Append(", ");
+                }
+            }
+            return sb.ToString();
+        }
+
+        private static string AggregateMethodInfo(MethodBase methodBase) {
+            StringBuilder sb = new();
+            MethodInfo mi = (MethodInfo)methodBase;
+            switch(mi.ReturnType.Name) {
+                case "List`1":
+                    sb.Append($"List<{AggregateTypes(mi.ReturnTypeCustomAttributes.GetType().GenericTypeArguments)}>");
+                    break;
+                default:
+                    sb.Append(mi.ReturnType.Name);
+                    break;
+            }
+            sb.Append(' ');
+            sb.Append(methodBase.Name);
+            sb.Append('(');
+            ParameterInfo[] parameters = methodBase.GetParameters();
+            for (int i = 0; i < parameters.Length; i++) {
+                sb.Append(parameters[i].ParameterType.Name);
+                sb.Append(' ');
+                sb.Append(parameters[i].Name);
+                if (i < parameters.Length - 1) {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(')');
+            return sb.ToString();
+        }
+
+        public bool Assert(bool condition, string message) {
             SetCurrentClassInfo(_class, _customCategoryStr);
+            if (condition) {
+                return true;
+            }
+            SDL.LogError(LogCategory.Error, message);
+            return false;
+        }
+
+        public void Debug(string message, bool includeStack = true) {
+            SetCurrentClassInfo(_class, _customCategoryStr);
+            (StackFrame stackFrame, MethodBase methodBase) = GetStackFrame();
+            if (includeStack) {
+                message = methodBase switch {
+                    ConstructorInfo constructorInfo => $"({AggregateConstructorInfo(constructorInfo)}) {message} : {stackFrame.GetFileName()} -> {stackFrame.GetFileLineNumber()}",
+                    _ => $"({AggregateMethodInfo(methodBase)}) {message}",
+                };
+                // MethodInfo mi = (MethodInfo)methodBase;
+                // message = $"({mi.ReturnType.Name} {mi.Name}) {message} : {stackFrame.GetFileName()} -> {stackFrame.GetFileLineNumber()}";
+            }
             SDL.LogDebug(_category, message);
         }
         public void Info(string message) {

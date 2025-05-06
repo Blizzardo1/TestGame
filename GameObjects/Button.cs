@@ -1,9 +1,14 @@
-﻿using SDL2;
+﻿using Newtonsoft.Json.Linq;
+using SDL2;
 using TestGame.GameObjects.Textures;
 
 namespace TestGame.GameObjects;
 
-public class Button : GameObject {
+/// <summary>
+/// Creates a new Button
+/// </summary>
+/// <param name="context">A <see cref="GameContext"/> record containing information about what to do with <see cref="Button"/></param>
+public class Button(GameContext context) : GameObject {
     public event EventHandler< MouseButtonEvent >? Click;
     public event EventHandler< MouseButtonEvent >? RightClick;
     public event EventHandler< MouseButtonEvent >? DoubleClick;
@@ -51,25 +56,24 @@ public class Button : GameObject {
     public Color DisabledColor { get; set; } = new() { R = 100, G = 100, B = 100, A = 255 };
     public Color ClickedColor { get; set; } = new() { R = 32, G = 75, B = 128, A = 255 };
 
-    /// <summary>
-    /// Creates a new Button
-    /// </summary>
-    /// <param name="context">A <see cref="GameContext"/> record containing information about what to do with <see cref="Button"/></param>
-    public Button(GameContext context) {
+    public override void Initialize() {
         Initialize(context.RendererPtr);
         Name = "Button";
-        // TODO: This is a horrible hack and exists elsewhere around the code. I need to fix this.
+        // #TODO: This is a horrible hack and exists elsewhere around the code. I need to fix this.
         // Essentially just use FRect unless you need to use Rect.
-        frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Rect.W, H = context.Rect.H };
-        Width = context.Rect.W;
-        Height = context.Rect.H;
+        frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Width, H = context.Height };
+        Width = (int)context.Width;
+        Height = (int)context.Height;
         _inverse = false;
         // Cheap hacky way to preserve original background color
         _selectedColor = BackgroundColor;
         _previousState = ButtonState.Default;
         State = _previousState;
-        _text = "Text";
-        Font = GetFont("font/consola", 12);
+        TextPosition = new() {
+            X = (Width / 2) - (MeasureString(Font, _text).Width / 2),
+            Y = (Height / 2) - 4
+        };
+        Font = GetFont("default", 12);
         ForegroundColor = ForegroundColor.SetInverseBasedOn(_selectedColor);
     }
 

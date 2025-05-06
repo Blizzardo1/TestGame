@@ -46,8 +46,6 @@ public class NPC : Entity {
 
     public override string? Name { get; protected set; } = "NPC";
 
-    private Rect _rect;
-
     public NPC(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
@@ -69,15 +67,10 @@ public class NPC : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
-        _ = SDL.RenderFillRect(RendererPtr, ref _rect);
+        _ = SDL.RenderFillRect(RendererPtr, ref _body);
     }
 
     public override void Update(Event e) {
-        _rect = new() {
-            X = (int)X,
-            Y = (int)Y,
-            W = Width,
-            H = Height
-        };
+        base.Update(e);
     }
 }

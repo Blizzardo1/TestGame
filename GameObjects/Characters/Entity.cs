@@ -50,6 +50,10 @@ public abstract class Entity : Renderer, ICharacter {
 
     public abstract string? Name { get; protected set; }
 
+    protected Rect _body;
+
+    public Rect Body => _body;
+
     public Direction Direction { get; set; } = Direction.None;
 
     public abstract void Initialize();
@@ -136,5 +140,12 @@ public abstract class Entity : Renderer, ICharacter {
 
         HP -= damage;
     }
-    public abstract void Update(Event e);
+    public virtual void Update(Event e) {
+        _body = _body with {
+            X = (int)X,
+            Y = (int)Y,
+            W = Width,
+            H = Height
+        };
+    }
 }

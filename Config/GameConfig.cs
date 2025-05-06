@@ -1,28 +1,32 @@
 ﻿using Newtonsoft.Json;
 using SDL2;
+using TestGame.GameObjects.Map;
 
 namespace TestGame.Config;
 
-public record GameConfig([property: JsonIgnore] string Path) {
+public record GameConfig(string Path) {
     private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
 
-    [property: JsonProperty("maps")]
+    [JsonProperty("maps")]
     public List< MapConfig >? Maps { get; set; }
 
-    [property: JsonProperty("audio")]
+    [JsonProperty("audio")]
     public List< AudioConfig >? AudioTracks { get; set; }
 
-    [property: JsonProperty("audio-devices")]
+    [JsonProperty("audio-devices")]
     public List< AudioDeviceConfig >? AudioDevices { get; set; }
 
-    [property: JsonProperty("fonts")]
+    [JsonProperty("fonts")]
     public List< FontConfig >? Fonts { get; set; }
 
-    [property: JsonProperty("selected-audio-output")]
+    [JsonProperty("selected-audio-output")]
     public string? AudioDeviceOutput { get; set; }
 
-    [property: JsonProperty("selected-audio-input")]
+    [JsonProperty("selected-audio-input")]
     public string? AudioDeviceInput { get; set; }
+
+    [JsonProperty("worlds")]
+    public List<World>? Worlds { get; set; }
 
 
     // Can't do Scenes or Maps in this function as there's

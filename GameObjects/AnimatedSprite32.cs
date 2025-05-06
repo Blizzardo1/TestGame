@@ -9,8 +9,8 @@ public class AnimatedSprite32 : Sprite32 {
     private Rect _currentFrame;
 
     /// <inheritdoc />
-    public AnimatedSprite32(IntPtr rendererPtr, int width, int height, string imagePath, Rect[] frames, int delay = 0)
-        : base(rendererPtr, width, height, imagePath) {
+    public AnimatedSprite32(GameContext context, string imagePath, Rect[] frames, int delay = 0)
+        : base(context, imagePath: imagePath) {
         _frame = 0;
         _sourceRects = frames;
         _currentFrame = _sourceRects[_frame];

@@ -8,7 +8,7 @@ using Version = SDL2.Version;
 namespace TestGame;
 
 public static class Engine {
-    public const int FramesPerSecond = 30;
+    public const int FramesPerSecond = 60;
     public static readonly string StartupPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     public static readonly string LogPath = Path.Combine(StartupPath, "Logs");
     public static readonly string ConfigPath = Path.Combine(StartupPath, "Config");
@@ -21,7 +21,15 @@ public static class Engine {
     private static Thread? _thread;
     private static Core? _game;
 
+    public static uint CurrentFPS { get; private set; } = 0;
+
+    private static FpsTimer _fps;
+
     public static Core? Game => _game;
+
+    static Engine() {
+        _fps = new FpsTimer();
+    }
 
     public static GameConfig? GameConfig { get; private set; }
     internal static string? OutputDevice { get; private set; }
@@ -128,23 +136,23 @@ public static class Engine {
             return;
         }
 
+        _fps = new FpsTimer();
         _thread = new Thread(_game.Start);
 
         _game.InitializeComponents();
         _thread.Start();
 
         while (_game.IsRunning) {
-            uint start = SDL.GetTicks();
+            _fps.Start();
             _ = SDL.PollEvent(out Event e);
 
             _game.Update(e);
             _game.Draw();
-            uint stop = SDL.GetTicks();
-            uint delta = stop - start;
-
+            uint delta = _fps.GetTicks();
             if (delta < 1000 / FramesPerSecond) {
-                //Thread.Sleep(TimeSpan.FromTicks(1000 / FramesPerSecond - delta));
+                SDL.Delay((1000 / FramesPerSecond) - delta);
             }
+            CurrentFPS = delta;
         }
 
         Mixer.CloseAudio();

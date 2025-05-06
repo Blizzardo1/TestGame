@@ -24,7 +24,7 @@ public class AudioManager : IDisposable {
         OpenAudioDevice();
     }
 
-    //TODO: Audio not working properly......
+    //#TODO: Audio not working properly......
     private void OpenAudioDevice() {
         FileSupported.Frequency = 48000;
         FileSupported.Format = (int)AudioFormat.Signed16MostSignedBit;

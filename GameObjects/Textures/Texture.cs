@@ -19,6 +19,13 @@ public abstract class Texture : GameObject {
         Height = height;
     }
 
+    public Texture(nint rendererPtr, float width, float height) {
+        RendererPtr = rendererPtr;
+        Name = "Texture";
+        Width = (int)width;
+        Height = (int)height;
+    }
+
     /// <inheritdoc />
     public override void Draw() {
         _ = SDL.RenderCopyF(RendererPtr, TexturePtr, nint.Zero, ref frect);

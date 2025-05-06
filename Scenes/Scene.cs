@@ -25,17 +25,17 @@ public abstract class Scene : Renderer {
 
     public string? FontName { get; set; }
 
-    private readonly List< IRenderer > _gameObjects;
+    private readonly List< GameObject > _gameObjects;
 
-    public ReadOnlyCollection< IRenderer > GameObjects => _gameObjects.AsReadOnly();
+    public ReadOnlyCollection< GameObject > GameObjects => _gameObjects.AsReadOnly();
 
-    private List< IRenderer > GameObjectsToAdd { get; } = [];
-    private List< IRenderer > GameObjectsToRemove { get; } = [];
+    private List< GameObject > GameObjectsToAdd { get; } = [];
+    private List< GameObject > GameObjectsToRemove { get; } = [];
 
     public Scene(GameContext context, string name) {
         _gameObjects = [];
-        Width = context.Rect.W;
-        Height = context.Rect.H;
+        Width = (int)context.Width;
+        Height = (int)context.Height;
         LastScene = null;
         BackgroundColor = context.Color;
         Name = name;
@@ -63,12 +63,13 @@ public abstract class Scene : Renderer {
         }
     }
 
-    public void AddGameObject(IRenderer renderer) {
-        GameObjectsToAdd.Add(renderer);
+    public void AddGameObject(GameObject gameObject) {
+        gameObject.Initialize();
+        GameObjectsToAdd.Add(gameObject);
     }
 
-    public void RemoveGameObject(IRenderer renderer) {
-        GameObjectsToRemove.Add(renderer);
+    public void RemoveGameObject(GameObject gameObject) {
+        GameObjectsToRemove.Add(gameObject);
     }
 
     public virtual void Draw() {
@@ -78,17 +79,17 @@ public abstract class Scene : Renderer {
     }
 
     public virtual void Update(Event e) {
-        foreach (IRenderer gameObject in _gameObjects) {
+        foreach (GameObject gameObject in _gameObjects) {
             gameObject.Update(e);
         }
 
-        foreach (IRenderer gameObject in GameObjectsToAdd) {
+        foreach (GameObject gameObject in GameObjectsToAdd) {
             _gameObjects.Add(gameObject);
             _log?.Debug($"Added game object {gameObject.Name}");
-            // TODO: Add Spawn Animation Function for _gameObjects
+            // #TODO: Add Spawn Animation Function for _gameObjects
         }
 
-        foreach (IRenderer gameObject in GameObjectsToRemove.Where(_gameObjects.Remove)) {
+        foreach (GameObject gameObject in GameObjectsToRemove.Where(_gameObjects.Remove)) {
             _log?.Debug($"Removed game object {gameObject.Name}");
         }
 

@@ -6,4 +6,8 @@ public class TileTexture : Texture {
         TexturePtr = texture;
         Id = id;
     }
+
+    public override void Initialize() {
+        // No initialization needed for TileTexture
+    }
 }

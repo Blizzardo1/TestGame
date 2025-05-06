@@ -47,6 +47,7 @@ public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e)
 
 public class Core : Window {
     private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
@@ -57,8 +58,6 @@ public class Core : Window {
     public static Core Instance => _instance!;
 
     public static Random Random { get; } = new();
-
-    private bool _dead;
 
     private Dictionary< string, Scene >? _scenes;
 
@@ -84,13 +83,10 @@ public class Core : Window {
         _instance = this;
     }
 
-    public void Die() {
-        _dead = true;
-        IsRunning = false;
-    }
-
     public static void ToggleDebug() {
         IsDebugging = !IsDebugging;
+        _instance!._diagnostic!.Shown = IsDebugging;
+        
     }
 
     /// <summary>
@@ -183,9 +179,6 @@ public class Core : Window {
             throw new NullReferenceException("Scene Engine needs to be initialized. Use AddScene or AddScenes");
         }
 
-        //AttachListeners();
-
-        _dead = false;
         IsRunning = true;
         IsPaused = false;
 
@@ -193,7 +186,7 @@ public class Core : Window {
 
         _diagnostic = new Diagnostics(RendererPtr, 256, 256);
 
-        // TODO: This needs to be moved away from the engine and processed per separate Application.
+        // #TODO: This needs to be moved away from the engine and processed per separate Application.
 
         if(Engine.GameConfig?.AudioTracks is not null) {
             foreach(AudioConfig ac in Engine.GameConfig.AudioTracks) {
@@ -274,20 +267,22 @@ public class Core : Window {
         }
     }
 
+    
+
     /// <summary>
     /// Toggles the Pause State
     /// </summary>
     /// <remarks>
     /// Whether to disable the Pause State or not.
     /// </remarks>
-    public void DisablePauseMenu(bool state = true) {
+    public static void DisablePauseMenu(bool state = true) {
         IsPausedDisabled = state;
     }
 
     /// <summary>
     /// As it states, toggle the pause
     /// </summary>
-    public void TogglePause() {
+    public static void TogglePause() {
         if(IsPausedDisabled) {
             return;
         }
@@ -332,8 +327,8 @@ public class Core : Window {
 
         _currentScene?.Draw();
 
-        if (IsDebugging) {
-            _diagnostic?.Draw();
+        if (_diagnostic!.Shown) {
+            _diagnostic.Draw();
         }
 
         SDL.RenderPresent(RendererPtr);
@@ -358,11 +353,7 @@ public class Core : Window {
 
     /// <inheritdoc />
     public override void Update(Event e) {
-        if (_currentScene == null) {
-            return;
-        }
-
-        if (_dead) {
+        if (_currentScene == null || !IsRunning) {
             return;
         }
 
