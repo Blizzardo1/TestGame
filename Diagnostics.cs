@@ -39,8 +39,7 @@ internal class Diagnostics : Renderer, IRenderer {
 
     private double _lastTime;
 
-    private bool _shown = false;
-    public bool Shown { get => _shown; set => _shown = value; }
+    public bool Shown { get; set; }
 
     public Diagnostics(nint rendererPtr, int width, int height) {
         Initialize(rendererPtr);
@@ -52,7 +51,7 @@ internal class Diagnostics : Renderer, IRenderer {
 
     public void UpdateDiagnostics(Scene currentScene) {
         _diagnostics.Clear();
-        if (!_shown) {
+        if (!Shown) {
             return;
         }
 

@@ -12,14 +12,14 @@ public abstract class Texture : GameObject {
         SDL.DestroyTexture(TexturePtr);
     }
 
-    public Texture(nint rendererPtr, int width, int height) {
+    protected Texture(nint rendererPtr, int width, int height) {
         RendererPtr = rendererPtr;
         Name = "Texture";
         Width = width;
         Height = height;
     }
 
-    public Texture(nint rendererPtr, float width, float height) {
+    protected Texture(nint rendererPtr, float width, float height) {
         RendererPtr = rendererPtr;
         Name = "Texture";
         Width = (int)width;
