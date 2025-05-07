@@ -54,9 +54,6 @@ public class Core : Window {
     public static bool IsDebugging { get; private set; }
     public static bool IsPausedDisabled { get; private set; } = true;
 
-    private static Core? _instance;
-    public static Core Instance => _instance!;
-
     public static Random Random { get; } = new();
 
     private Dictionary< string, Scene >? _scenes;
@@ -64,6 +61,10 @@ public class Core : Window {
     private Scene? _currentScene;
 
     private Diagnostics? _diagnostic;
+
+    static Core() {
+        
+    }
 
     /// <summary>
     /// Creates a new Game
@@ -80,13 +81,10 @@ public class Core : Window {
         WindowId = SDL.GetWindowID(WindowPtr);
         Width = width;
         Height = height;
-        _instance = this;
     }
 
     public static void ToggleDebug() {
         IsDebugging = !IsDebugging;
-        _instance!._diagnostic!.Shown = IsDebugging;
-        
     }
 
     /// <summary>
@@ -110,7 +108,6 @@ public class Core : Window {
 
         scene.LastScene = _currentScene;
         _currentScene.NextScene = scene;
-        // Log?.Debug($"Next Scene: {scene.Name}; Last Scene: {scene.LastScene.Name}");
     }
 
     /// <summary>
@@ -176,7 +173,7 @@ public class Core : Window {
     /// <exception cref="Exception">Failure to create the Window and Renderer</exception>
     public void InitializeComponents() {
         if (_scenes is null) {
-            throw new NullReferenceException("Scene Engine needs to be initialized. Use AddScene or AddScenes");
+            throw new ArgumentNullException("Scene Engine needs to be initialized. Use AddScene or AddScenes", new Exception());
         }
 
         IsRunning = true;

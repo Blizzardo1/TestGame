@@ -67,7 +67,7 @@ public class World(nint rendererPtr, string map) : GameObject {
                 case Enemy:
                     _entities.Add((Enemy)e);
                     break;
-                case NPC:
+                case Npc:
                     // Not Implemented yet
                     break;
             }

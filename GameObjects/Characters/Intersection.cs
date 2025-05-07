@@ -1,6 +1,6 @@
 ﻿namespace TestGame.GameObjects.Characters; 
 public class Intersection {
-    public enum IntersectionType {
+    public enum IntersectionTypes { // Renamed to match the required naming convention  
         None,
         Point,
         Line,
@@ -8,15 +8,15 @@ public class Intersection {
         Circle
     }
 
-    public enum Directional {
-        None,
-        Up,
-        Down,
-        Left,
-        Right
+    [Flags]
+    public enum Directionals { // Renamed to match the required naming convention  
+        None = 0,
+        Up = 1,
+        Down = 2,
+        Left = 4,
+        Right = 8
     }
 
-    public IntersectionType Type { get; set; } = IntersectionType.None;
-    public Directional Direction { get; set; } = Directional.None;
-
+    public IntersectionTypes Type { get; set; } = IntersectionTypes.None;
+    public Directionals Direction { get; set; } = Directionals.None;
 }

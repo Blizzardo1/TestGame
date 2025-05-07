@@ -62,14 +62,14 @@ public static class Extensions {
 
     public static Intersection GetIntersect(this Entity a, Entity b) {
         Intersection intersection = new() {
-            Type = Intersection.IntersectionType.None,
-            Direction = Intersection.Directional.None
+            Type = Intersection.IntersectionTypes.None,
+            Direction = Intersection.Directionals.None
         };
         if (!a.HitBox.Intersects(b.HitBox)) {
             return intersection;
         }
 
-        intersection.Type = Intersection.IntersectionType.Rectangle;
+        intersection.Type = Intersection.IntersectionTypes.Rectangle;
 
         float distX = (b.X - a.X);
         float distY = (b.Y - a.Y);
@@ -79,21 +79,17 @@ public static class Extensions {
         _log?.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
 
         if (distX < 0 && a.Direction.HasFlag(Direction.Left) && timeX > timeY) {
-            // _log?.ConditionalDebug($"Left: {distX} {a.Direction}");
-            intersection.Direction |= Intersection.Directional.Left;
+            intersection.Direction |= Intersection.Directionals.Left;
             return intersection;
         } else if (distX > 0 && a.Direction.HasFlag(Direction.Right) && timeX > timeY) {
-            //_log?.ConditionalDebug($"Right: {distX} {a.Direction}");
-            intersection.Direction |= Intersection.Directional.Right;
+            intersection.Direction |= Intersection.Directionals.Right;
             return intersection;
         }
 
         if (distY < 0 && a.Direction.HasFlag(Direction.Up) && timeY > timeX) {
-            //_log?.ConditionalDebug($"Up: {distY} {a.Direction}");
-            intersection.Direction |= Intersection.Directional.Up;
+            intersection.Direction |= Intersection.Directionals.Up;
         } else if (distY > 0 && a.Direction.HasFlag(Direction.Down) && timeY > timeX) {
-            // _log?.ConditionalDebug($"Down: {distY} {a.Direction}");
-            intersection.Direction |= Intersection.Directional.Down;
+            intersection.Direction |= Intersection.Directionals.Down;
         }
 
         return intersection;
@@ -101,25 +97,25 @@ public static class Extensions {
 
     public static Intersection GetIntersect(this FRect rect, FRect other) {
         Intersection intersection = new() {
-            Type = Intersection.IntersectionType.None,
-            Direction = Intersection.Directional.None
+            Type = Intersection.IntersectionTypes.None,
+            Direction = Intersection.Directionals.None
         };
         if (!rect.Intersects(other)) {
             return intersection;
         }
 
-        intersection.Type = Intersection.IntersectionType.Rectangle;
+        intersection.Type = Intersection.IntersectionTypes.Rectangle;
 
         if (rect.X < other.X) {
-            intersection.Direction |= Intersection.Directional.Left;
+            intersection.Direction |= Intersection.Directionals.Left;
         } else if (rect.X > other.X) {
-            intersection.Direction |= Intersection.Directional.Right;
+            intersection.Direction |= Intersection.Directionals.Right;
         }
 
         if (rect.Y < other.Y) {
-            intersection.Direction |= Intersection.Directional.Up;
+            intersection.Direction |= Intersection.Directionals.Up;
         } else if (rect.Y > other.Y) {
-            intersection.Direction |= Intersection.Directional.Down;
+            intersection.Direction |= Intersection.Directionals.Down;
         }
 
         return intersection;
@@ -166,12 +162,6 @@ public static class Extensions {
         return source;
     }
 
-    public static Color SetInverseBasedOn(this Color color, Color other) {
-        double lum = other.CalculateLuminance();
-
-        return lum > 0.5 ? KnownColor.Black.ToColor() : KnownColor.White.ToColor();
-    }
-
     public static double CalculateLuminance(this Color color) {
         return ( 0.299 * color.R + 0.587 * color.G + 0.114 * color.B ) / 255.0;
     }
@@ -186,6 +176,18 @@ public static class Extensions {
         }
 
         return list[ index ].Text;
+    }
+
+
+    /// <summary>
+    /// Floating point Equality function to see if the two 64-bit numbers are almost equal to each other
+    /// </summary>
+    /// <param name="a">First number</param>
+    /// <param name="b">Second number</param>
+    /// <param name="precision">How precice the equality to be calculating against</param>
+    /// <returns>Truw if the two numbers are similar by precision</returns>
+    public static bool AlmostEquals(this double a, double b, double precision = 0.000000001d) {
+        return Math.Abs(a - b) <= precision;
     }
 
     public static bool IsEmpty(this string s) => string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s);

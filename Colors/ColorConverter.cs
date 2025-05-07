@@ -1,5 +1,20 @@
-﻿namespace TestGame.Colors; 
+﻿using SDL2;
+
+namespace TestGame.Colors;
+
 public static class ColorConverter {
+
+    /// <summary>
+    /// Determines whether to use Black or White depending on the luminance of the color
+    /// </summary>
+    /// <param name="color">The <see cref="Color"/> to determine</param>
+    /// <returns>Black or White depending on the luminance</returns>
+    public static Color SetInverseBasedOn(Color color) {
+        double lum = color.CalculateLuminance();
+
+        return lum > 0.5 ? KnownColor.Black.ToColor() : KnownColor.White.ToColor();
+    }
+
     /// <summary>
     /// Converts an HSV value to an RGB value
     /// </summary>
@@ -16,7 +31,7 @@ public static class ColorConverter {
         out byte r,
         out byte g,
         out byte b) {
-        if (s == 0) {
+        if (s.AlmostEquals(0)) {
             // Achromatic (gray)
             r = g = b = (byte)( l * 255.0 );
         }
