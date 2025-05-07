@@ -41,7 +41,7 @@ public abstract class Window : Renderer, IRenderer {
     public event EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
     public event EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
     public event EventHandler< JoyHatEvent >? JoyHatMotion;
-    public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
+    //public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
     public event EventHandler< KeyboardEvent >? KeymapChanged;
     public event EventHandler< KeyboardEvent >? KeyDown;
     public event EventHandler< KeyboardEvent >? KeyUp;
@@ -434,9 +434,9 @@ public abstract class Window : Renderer, IRenderer {
         JoyDeviceRemoved?.Invoke(this, eventJDevice);
     }
 
-    protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
-        JoyBatteryUpdated?.Invoke(this, eventJBattery);
-    }
+    //protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
+        //JoyBatteryUpdated?.Invoke(this, eventJBattery);
+    //}
     protected virtual void OnJoyHatMotion(JoyHatEvent eventJHat) {
         JoyHatMotion?.Invoke(this, eventJHat);
     }
