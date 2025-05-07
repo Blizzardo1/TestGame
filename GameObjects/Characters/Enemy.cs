@@ -27,7 +27,7 @@ public class Enemy : Entity {
 
     public override bool IsInvincible { get; set; }
 
-    public override AnimatedSprite32? Sprite { get; set; }
+    public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "Enemy";
 
@@ -41,13 +41,14 @@ public class Enemy : Entity {
 
     public override int Height => 48;
 
-    public override string? Name { get; protected set; } = "Judge";
+    public override string? Name { get; protected set; }
 
     public Enemy(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
         Defense = Defenses.None;
+        Sprite = AnimatedSprite32.BlankSprite;
     }
 
     public override void Initialize() {

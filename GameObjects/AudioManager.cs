@@ -7,7 +7,9 @@ public class AudioManager : IDisposable {
     private bool _initialized;
     private AudioSpec FileSupported;
 
-    private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Audio);
+
+    private bool _disposed;
 
     public bool DeviceOpened { get; private set; }
     public uint DeviceId { get; private set; }
@@ -21,6 +23,7 @@ public class AudioManager : IDisposable {
     }
 
     private AudioManager() {
+        _disposed = false;
         OpenAudioDevice();
     }
 
@@ -28,9 +31,12 @@ public class AudioManager : IDisposable {
     private void OpenAudioDevice() {
         FileSupported.Frequency = 48000;
         FileSupported.Format = (int)AudioFormat.Signed16MostSignedBit;
-        //FileSupported.Callback = new AudioCallback(ProcessAudio);
         if (DeviceOpened) {
-            int devopened = Mixer.QuerySpec(out FileSupported.Frequency, out FileSupported.Format, out int channels);
+            bool devopened = Mixer.QuerySpec(out FileSupported.Frequency, out FileSupported.Format, out int channels) == 1;
+            if(!devopened) {
+                _log?.Error("Device not opened");
+                return;
+            }
             FileSupported.Channels = (byte)channels;
             _log?.Debug($"Device Opened; Desired Audio: {FileSupported.Frequency}Hz; Channels: {FileSupported.Channels}; Samples: {FileSupported.Samples}; Size: {FileSupported.Size}; {FileSupported.Samples * 1000 / FileSupported.Frequency} bytes");
             return;
@@ -75,7 +81,7 @@ public class AudioManager : IDisposable {
     /// <param name="channel">Channel to play the sound effect on. -1 for any available channel.</param>
     /// <param name="loops">How many times we want to loop.</param>
     public void PlaySoundEffect(string effectName, int channel = -1, int loops = 0) {
-        Task.Run(async () => {
+        Task.Run(() => {
             if (!_initialized) {
                 _log?.Error("AudioManager is not initialized.");
                 return;
@@ -90,8 +96,24 @@ public class AudioManager : IDisposable {
     }
 
     public void Dispose() {
-        Mixer.CloseAudio();
-        _initialized = false;
+        Dispose(true);
         GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing) {
+        if (_disposed) return;
+
+        if (disposing) {
+            // Dispose managed resources here
+            Mixer.CloseAudio();
+            _initialized = false;
+            _disposed = true;
+        }
+    }
+
+    public override bool Equals(object? obj) => obj is AudioManager && obj == this;
+
+    public override int GetHashCode() { 
+        return HashCode.Combine(typeof(AudioManager).FullName);
     }
 }

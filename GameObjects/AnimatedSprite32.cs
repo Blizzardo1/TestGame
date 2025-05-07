@@ -17,6 +17,14 @@ public class AnimatedSprite32 : Sprite32 {
         AddDelay(delay);
     }
 
+    public static AnimatedSprite32 BlankSprite => new(
+        new GameContext(nint.Zero,
+            new(),
+            Colors.Colors.Transparent,
+            Engine.Game ?? throw new ArgumentNullException("No Game instance found", new Exception())),
+            "",
+            new Rect[1]);
+
     private void AddDelay(int delay) {
         if (delay == 0) return;
 

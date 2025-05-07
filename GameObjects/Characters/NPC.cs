@@ -2,8 +2,7 @@
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
-public class NPC : Entity {
-    private int _hp;
+public class Npc : Entity {
     public override IWeapon Weapon { get; set; }
 
     public override IDefensive Defense { get; set; }
@@ -16,11 +15,10 @@ public class NPC : Entity {
 
     public override bool CanDefend { get; set; } = true;
 
-
     public override bool CanClimb { get; set; } = true;
-    
+
     public override bool CanMove { get; set; } = true;
-    
+
     public override bool CanJump { get; set; } = true;
 
     public override bool IsOverWater { get; set; }
@@ -29,8 +27,7 @@ public class NPC : Entity {
 
     public override bool IsInvincible { get; set; }
 
-
-    public override AnimatedSprite32? Sprite { get; set; }
+    public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "NPC";
 
@@ -44,13 +41,14 @@ public class NPC : Entity {
 
     public override int Height => 48;
 
-    public override string? Name { get; protected set; } = "NPC";
+    public override string? Name { get; protected set; }
 
-    public NPC(string? name, nint rendererPtr) {
+    public Npc(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
         Defense = Defenses.None;
+        Sprite = AnimatedSprite32.BlankSprite; // Initialize the non-nullable property
     }
 
     public override void Initialize() {
@@ -68,9 +66,5 @@ public class NPC : Entity {
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
         _ = SDL.RenderFillRect(RendererPtr, ref _body);
-    }
-
-    public override void Update(Event e) {
-        base.Update(e);
     }
 }

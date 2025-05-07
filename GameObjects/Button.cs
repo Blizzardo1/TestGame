@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using SDL2;
+﻿using SDL2;
+using TestGame.Colors;
 using TestGame.GameObjects.Textures;
 
 namespace TestGame.GameObjects;
@@ -17,7 +17,7 @@ public class Button(GameContext context) : GameObject {
     public event EventHandler< MouseMotionEvent >? MouseLeave;
 
     private bool _inverse;
-    private string _text;
+    private string? _text;
 
     public ButtonState State { get; set; }
 
@@ -33,7 +33,7 @@ public class Button(GameContext context) : GameObject {
 
     public string Text
     {
-        get => _text;
+        get => _text ?? "";
         set
         {
             _text = value;
@@ -70,11 +70,11 @@ public class Button(GameContext context) : GameObject {
         _previousState = ButtonState.Default;
         State = _previousState;
         TextPosition = new() {
-            X = (Width / 2) - (MeasureString(Font, _text).Width / 2),
+            X = (Width / 2) - (MeasureString(Font, _text ?? "").Width / 2),
             Y = (Height / 2) - 4
         };
         Font = GetFont("default", 12);
-        ForegroundColor = ForegroundColor.SetInverseBasedOn(_selectedColor);
+        ForegroundColor = ColorConverter.SetInverseBasedOn(_selectedColor);
     }
 
     public virtual void OnClick(object? sender, MouseButtonEvent e) {
@@ -219,10 +219,10 @@ public class Button(GameContext context) : GameObject {
             ButtonState.Default => BackgroundColor,
             ButtonState.Highlighted => HighlightColor,
             ButtonState.Clicked => ClickedColor,
-            _ => throw new ArgumentOutOfRangeException(nameof(_selectedColor))
+            _ => throw new ArgumentOutOfRangeException("ButtonState out of range!", new Exception())
         };
 
-        ForegroundColor = ForegroundColor.SetInverseBasedOn(_selectedColor);
+        ForegroundColor = ColorConverter.SetInverseBasedOn(_selectedColor);
 
         if (e.Button is { Type: EventType.MouseButtonUp }) {
             State = _previousState;

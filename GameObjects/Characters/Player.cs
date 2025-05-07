@@ -27,7 +27,7 @@ public class Player : Entity {
     public override bool IsInvincible { get; set; }
 
 
-    public override AnimatedSprite32? Sprite { get; set; }
+    public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "Player";
 
@@ -48,7 +48,7 @@ public class Player : Entity {
         H = 16
     };
 
-    public override string? Name { get; protected set; } = "Player";
+    public override string? Name { get; protected set; }
 
     public Player(string? name, nint rendererPtr) {
         Name = name;
@@ -57,6 +57,7 @@ public class Player : Entity {
         Defense = Defenses.None;
         MaxHP = 100;
         Heal(100);
+        Sprite = AnimatedSprite32.BlankSprite;
     }
 
     public override void Initialize() {

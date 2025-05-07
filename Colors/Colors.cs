@@ -24,7 +24,7 @@ public enum KnownColor {
     CornflowerBlue = unchecked((int)0xFF6495ED),
     Cornsilk = unchecked((int)0xFFFFF8DC),
     Crimson = unchecked((int)0xFFDC143C),
-    Cyan = unchecked((int)0xFF00FFFF),
+    Cyan = unchecked((int)0xFF00A0FF),
     DarkBlue = unchecked((int)0xFF00008B),
     DarkCyan = unchecked((int)0xFF008B8B),
     DarkGoldenrod = unchecked((int)0xFFB8860B),
@@ -49,7 +49,6 @@ public enum KnownColor {
     Firebrick = unchecked((int)0xFFB22222),
     FloralWhite = unchecked((int)0xFFFFFAF0),
     ForestGreen = unchecked((int)0xFF228B22),
-    Fuchsia = unchecked((int)0xFFFF00FF),
     Gainsboro = unchecked((int)0xFFDCDCDC),
     GhostWhite = unchecked((int)0xFFF8F8FF),
     Gold = unchecked((int)0xFFFFD700),
@@ -258,7 +257,6 @@ public static class Colors {
     public static Color LightGoldenrodYellow => FromKnownColor(KnownColor.LightGoldenrodYellow);
     public static Color OldLace => FromKnownColor(KnownColor.OldLace);
     public static Color Red => FromKnownColor(KnownColor.Red);
-    public static Color Fuchsia => FromKnownColor(KnownColor.Fuchsia);
     public static Color Magenta => FromKnownColor(KnownColor.Magenta);
     public static Color DeepPink => FromKnownColor(KnownColor.DeepPink);
     public static Color OrangeRed => FromKnownColor(KnownColor.OrangeRed);

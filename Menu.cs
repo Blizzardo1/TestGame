@@ -4,14 +4,13 @@ using TestGame.GameObjects;
 namespace TestGame;
 
 public class Menu(GameContext context) : GameObject {
-    private List< MenuItem > menuItems;
-    private GameContext _context;
+    private List< MenuItem > menuItems = [];
+    private readonly GameContext _context = context;
 
     public override void Initialize() {
-        RendererPtr = context.RendererPtr;
-        _context = context;
+        RendererPtr = _context.RendererPtr;
         menuItems = [];
-        _ = SDL.GetRendererOutputSize(context.RendererPtr, out int w, out _);
+        _ = SDL.GetRendererOutputSize(_context.RendererPtr, out int w, out _);
         Width = w;
         Height = 24;
         frect = new FRect { X = 0, Y = 0, W = Width, H = Height };

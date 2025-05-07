@@ -34,8 +34,6 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
         new() { R = 80, G = 112, B = 200, A = 255 } // Royale
     };
 
-    private Color[]? _colorSequence;
-
     private const int HitFrames = 30;
     private int _hitFrames = HitFrames;
     private bool _bounce;
@@ -56,7 +54,6 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
         ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
         FontSize = fontSize;
         _ogForeColor = ForegroundColor;
-        _colorSequence = _hitSequence;
         _animate = animate;
         _xSpeed = animate ? Speed : 0;
         _ySpeed = animate ? Speed : 0;
@@ -82,7 +79,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             }
             else {
                 // "NPC" being "attacked"
-                ForegroundColor = _colorSequence[ _hitFrames % _colorSequence.Length ];
+                ForegroundColor = _hitSequence[ _hitFrames % _hitSequence.Length ];
             }
         }
 
