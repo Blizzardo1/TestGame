@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TestGame {
-    public class Logger {
+    public class Logger : IDisposable {
         private static bool _setup = false;
         private static bool _outputDebug = false;
         private static string _currentClass = "";
@@ -19,6 +19,12 @@ namespace TestGame {
         private static string currentCusomCategoryStr = "";
         private string _customCategoryStr = "";
         private static FileStream? _logOut = null;
+
+        private bool _disposed;
+
+        private Logger() {
+            _disposed = false;
+        }
 
         public static void Setup(bool fileOutput = false, bool outputDebug = false) {
             if(_setup) {
@@ -204,8 +210,6 @@ namespace TestGame {
                     ConstructorInfo constructorInfo => $"({AggregateConstructorInfo(constructorInfo)}) {message} : {stackFrame.GetFileName()} -> {stackFrame.GetFileLineNumber()}",
                     _ => $"({AggregateMethodInfo(methodBase)}) {message}",
                 };
-                // MethodInfo mi = (MethodInfo)methodBase;
-                // message = $"({mi.ReturnType.Name} {mi.Name}) {message} : {stackFrame.GetFileName()} -> {stackFrame.GetFileLineNumber()}";
             }
             SDL.LogDebug(_category, message);
         }
@@ -244,6 +248,22 @@ namespace TestGame {
         public void SetPriority(LogPriority priority) {
             SetCurrentClassInfo(_class, _customCategoryStr);
             SDL.LogSetPriority(_category, priority);
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed) {
+                return;
+            }
+
+            if (disposing) {
+                _logOut?.Dispose();
+            }
+            _disposed = true;
         }
     }
 }

@@ -32,7 +32,7 @@ public abstract class Scene : Renderer {
     private List< GameObject > GameObjectsToAdd { get; } = [];
     private List< GameObject > GameObjectsToRemove { get; } = [];
 
-    public Scene(GameContext context, string name) {
+    protected Scene(GameContext context, string name) {
         _gameObjects = [];
         Width = (int)context.Width;
         Height = (int)context.Height;
