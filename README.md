@@ -3,7 +3,7 @@
 
 [![Build](https://github.com/Blizzardo1/TestGame/actions/workflows/build.yml/badge.svg)](https://github.com/Blizzardo1/TestGame/actions/workflows/build.yml)
 
-Originally, this engine had no name, until today, 6 May, 2025. Also, this was supposed to also be a game itself until I remembered that the logic should remain separate from the front-end application (game). The game will hook into the library and utilize most if not all components to deliver a final product.
+Originally, this engine had no name, until 6 May, 2025. Also, this was supposed to also be a game itself until I remembered that the logic should remain separate from the front-end application (game). The game will hook into the library and utilize most if not all components to deliver a final product.
 
 
 ---
