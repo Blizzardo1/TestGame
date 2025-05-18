@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
@@ -37,9 +38,9 @@ public class Npc : Entity {
 
     public override float Z { get; set; }
 
-    public override int Width => 24;
+    public override float Width => 24;
 
-    public override int Height => 48;
+    public override float Height => 48;
 
     public override string? Name { get; protected set; }
 
@@ -65,6 +66,6 @@ public class Npc : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
-        _ = SDL.RenderFillRect(RendererPtr, ref _body);
+        _ = Render.RenderFillRect(RendererPtr, ref _body);
     }
 }

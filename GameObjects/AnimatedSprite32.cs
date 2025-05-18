@@ -1,15 +1,16 @@
-﻿using SDL2;
+﻿using SharpSDL3;
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Textures;
 
 namespace TestGame.GameObjects; 
 public class AnimatedSprite32 : Sprite32 {
     private int _frame;
 
-    private Rect[] _sourceRects;
-    private Rect _currentFrame;
+    private FRect[] _sourceRects;
+    private FRect _currentFrame;
 
     /// <inheritdoc />
-    public AnimatedSprite32(GameContext context, string imagePath, Rect[] frames, int delay = 0)
+    public AnimatedSprite32(GameContext context, string imagePath, FRect[] frames, int delay = 0)
         : base(context, imagePath: imagePath) {
         _frame = 0;
         _sourceRects = frames;
@@ -18,17 +19,17 @@ public class AnimatedSprite32 : Sprite32 {
     }
 
     public static AnimatedSprite32 BlankSprite => new(
-        new GameContext(nint.Zero,
+        new GameContext(Engine.Game!.GetWindow(), Engine.Game.GetRenderer(),
             new(),
             Colors.Colors.Transparent,
             Engine.Game ?? throw new ArgumentNullException("No Game instance found", new Exception())),
             "",
-            new Rect[1]);
+            new FRect[1]);
 
     private void AddDelay(int delay) {
         if (delay == 0) return;
 
-        Rect[] clone = new Rect[_sourceRects.Length];
+        FRect[] clone = new FRect[_sourceRects.Length];
         
         Array.Copy(_sourceRects, clone, _sourceRects.Length);
         Array.Resize(ref _sourceRects, delay * _sourceRects.Length);
@@ -44,9 +45,9 @@ public class AnimatedSprite32 : Sprite32 {
 
     /// <inheritdoc />
     public override void Draw() {
-        var rect = Rect.ToRect();
+        var rect = Rect;
 
-        _ = SDL.RenderCopy(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
+        _ = Render.RenderTexture(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
     }
 
     /// <inheritdoc />

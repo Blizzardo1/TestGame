@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿
+using SharpSDL3.Structs;
 using TestGame.GameObjects;
 
 namespace TestGame;
@@ -26,9 +27,9 @@ public class MenuItem : Button {
         Id = id;
         Text = text;
         Action = action;
-        Children = new List< MenuItem >();
+        Children = [];
         Flat = true;
-        TextPosition = new Point { X = 1, Y = 1 };
+        TextPosition = new FPoint { X = 1, Y = 1 };
     }
 }
 /*
@@ -108,8 +109,8 @@ internal class MenuItem : Button
        if (Children.Count <= 0 && !_visible) return;
        var rect = new FRect { X = X + 8, Y = Y + Height, W = MeasureString(Children.LongestString()).Width, H = Height };
 
-       _ = SDL.SetRenderDrawColor(RendererPtr, _currColor.R, _currColor.G, _currColor.B, _currColor.A);
-       _ = SDL.RenderDrawRectF(RendererPtr, ref rect);
+       _ = Sdl.SetRenderDrawColor(RendererPtr, _currColor.R, _currColor.G, _currColor.B, _currColor.A);
+       _ = Sdl.RenderDrawRectF(RendererPtr, ref rect);
        RenderText(Text, (int)rect.X + 4, (int)rect.Y, ForegroundColor);
        foreach (MenuItem menuItem in Children)
        {

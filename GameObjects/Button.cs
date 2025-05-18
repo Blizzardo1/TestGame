@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.Colors;
 using TestGame.GameObjects.Textures;
 
@@ -38,13 +40,13 @@ public class Button(GameContext context) : GameObject {
         {
             _text = value;
             TextPosition = new() {
-                X = ( Width / 2 ) - ( MeasureString(Font, value).Width / 2 ),
+                X = ( Width / 2 ) - ( MeasureString(context.RendererPtr, Font, value).Width / 2 ),
                 Y = ( Height / 2 ) - 4
             };
         }
     }
 
-    public Point TextPosition { get; set; } = new() { X = 10, Y = 6 };
+    public FPoint TextPosition { get; set; } = new() { X = 10, Y = 6 };
 
     private Color _selectedColor;
 
@@ -57,7 +59,7 @@ public class Button(GameContext context) : GameObject {
     public Color ClickedColor { get; set; } = new() { R = 32, G = 75, B = 128, A = 255 };
 
     public override void Initialize() {
-        Initialize(context.RendererPtr);
+        Initialize(context.WindowPtr, context.RendererPtr);
         Name = "Button";
         // #TODO: This is a horrible hack and exists elsewhere around the code. I need to fix this.
         // Essentially just use FRect unless you need to use Rect.
@@ -70,7 +72,7 @@ public class Button(GameContext context) : GameObject {
         _previousState = ButtonState.Default;
         State = _previousState;
         TextPosition = new() {
-            X = (Width / 2) - (MeasureString(Font, _text ?? "").Width / 2),
+            X = (Width / 2) - (MeasureString(RendererPtr, Font, _text ?? "").Width / 2),
             Y = (Height / 2) - 4
         };
         Font = GetFont("default", 12);
@@ -139,16 +141,16 @@ public class Button(GameContext context) : GameObject {
         // If shadow is enabled, draw the shadow
         // DUH! kekw
         if (ShadowEnabled) {
-            _ = SDL.SetRenderDrawColor(RendererPtr,
+            _ = Render.SetRenderDrawColor(RendererPtr,
                 ShadowColor.R,
                 ShadowColor.G,
                 ShadowColor.B,
                 ShadowColor.A
             );
-            _ = SDL.RenderFillRectF(RendererPtr, ref sfRect);
+            _ = Render.RenderFillRect(RendererPtr, ref sfRect);
         }
 
-        _ = SDL.SetRenderDrawColor(
+        _ = Render.SetRenderDrawColor(
             RendererPtr,
             _selectedColor.R,
             _selectedColor.G,
@@ -159,10 +161,9 @@ public class Button(GameContext context) : GameObject {
         // If shadow is enabled and our depth is more than 0
         if (ShadowEnabled && ShadowDepth > 0 && State == ButtonState.Clicked) {
             // We "move" the button to the depth of the shadow.
-            _ = SDL.RenderFillRectF(RendererPtr, ref sfRect);
+            _ = Render.RenderFillRect(RendererPtr, ref sfRect);
             if (Image is not null) {
-                Rect rect = sfRect.ToRect();
-                _ = SDL.RenderCopy(RendererPtr, Image.TexturePtr, ref rect, ref rect);
+                _ = Render.RenderTexture(RendererPtr, Image.TexturePtr, ref sfRect, ref sfRect);
             }
 
             DrawText(ref sfRect);
@@ -172,26 +173,25 @@ public class Button(GameContext context) : GameObject {
         }
 
         // Draw Untouched Square
-        _ = SDL.RenderFillRectF(RendererPtr, ref frect);
-        _ = SDL.SetRenderDrawColor(RendererPtr, 255, 255, 255, 16);
+        _ = Render.RenderFillRect(RendererPtr, ref frect);
+        _ = Render.SetRenderDrawColor(RendererPtr, 255, 255, 255, 16);
         if (!Flat) {
             if (_inverse) {
-                _ = SDL.RenderDrawLineF(
+                _ = Render.RenderLine(
                     RendererPtr, X + Width, Y + Height, X, Y + Height);
-                _ = SDL.RenderDrawLineF(
+                _ = Render.RenderLine(
                     RendererPtr, X + Width, Y, X + Width, Y + Height);
             }
             else {
-                _ = SDL.RenderDrawLineF(
+                _ = Render.RenderLine(
                     RendererPtr, X, Y, X + Width, Y);
-                _ = SDL.RenderDrawLineF(
+                _ = Render.RenderLine(
                     RendererPtr, X, Y, X, Y + Height);
             }
         }
 
         if (Image is not null) {
-            Rect rect = frect.ToRect();
-            _ = SDL.RenderCopy(RendererPtr, Image.TexturePtr, ref rect, ref rect);
+            _ = Render.RenderTexture(RendererPtr, Image.TexturePtr, ref frect, ref frect);
         }
 
         DrawText(ref frect);
@@ -199,7 +199,7 @@ public class Button(GameContext context) : GameObject {
 
     private void DrawText(ref FRect fr) {
         if (Text is null || Text == string.Empty) return;
-        RenderText(Text, (int)fr.X + TextPosition.X, (int)fr.Y + TextPosition.Y, ForegroundColor);
+        RenderText(Text, fr.X + TextPosition.X, fr.Y + TextPosition.Y, ForegroundColor);
     }
 
     private bool InRange(MouseMotionEvent mme) {

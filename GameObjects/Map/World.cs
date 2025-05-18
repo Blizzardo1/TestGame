@@ -1,29 +1,26 @@
 ﻿using Newtonsoft.Json;
-using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using DotTiled;
 using DotTiled.Serialization;
 using TestGame.GameObjects.Textures;
 using System.Collections.Concurrent;
 using TestGame.GameObjects.Characters;
-using System.Reflection.Emit;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using SharpSDL3.Structs;
+using SharpSDL3.Enums;
+using SharpSDL3;
+
+using Tex = SharpSDL3.Textures;
 
 namespace TestGame.GameObjects.Map; 
 
-public record TextureData(Texture Texture, Rect Rect);
+public record TextureData(Textures.Texture Texture, Rect Rect);
 
 public class World(nint rendererPtr, string map) : GameObject {
 
-    private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
-    private Rect sourceRect;
-    private Rect destinationRect;
+    private FRect sourceRect;
+    private FRect destinationRect;
 
     private Dictionary<uint, TextureData> _textures = [];
     private DotTiled.Map? _map;
@@ -41,14 +38,14 @@ public class World(nint rendererPtr, string map) : GameObject {
 
     private void CreateEntities(ObjectLayer objectLayer ) {
         foreach (DotTiled.Object obj in objectLayer.Objects) {
-            SDL.LogDebug(LogCategory.Application, $"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
+            Logger.LogDebug(LogCategory.Application, $"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
             if (obj is null) {
-                SDL.LogError(LogCategory.Application, $"Object in layer {objectLayer.Name} is null");
+                Logger.LogError(LogCategory.Application, $"Object in layer {objectLayer.Name} is null");
                 continue;
             }
 
             if (!obj.TryGetProperty("EntityType", out IProperty<string> entityType)) {
-                SDL.LogInfo(LogCategory.Input, $"Object in layer {objectLayer} has no EntityType");
+                Logger.LogInfo(LogCategory.Input, $"Object in layer {objectLayer} has no EntityType");
                 continue;
             }
 
@@ -75,14 +72,15 @@ public class World(nint rendererPtr, string map) : GameObject {
         _log?.Info("Entities Added");
     }
 
-    private void LoadTilesets(Tileset tileset, string mapPath) {
+    private  void LoadTilesets(Tileset tileset, string mapPath) {
         if (tileset.Image is null) {
             _log?.Error($"Tileset {tileset.Name} has no image");
             return;
         }
-        nint texture = SDL2.Image.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
+        
+        nint texture = (nint)Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
         if (texture == nint.Zero) {
-            _log?.Error($"Failed to load texture for tileset {tileset.Source}: {SDL.GetError()}");
+            _log?.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
             return;
         }
 
@@ -103,7 +101,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             uint rId = tileset.FirstGID + (uint)c;
 
             if (!_textures.ContainsKey(rId)) {
-                Texture text = new TileTexture(rId, RendererPtr, texture, tileImage.W, tileImage.H) {
+                Textures.Texture text = new TileTexture(rId, RendererPtr, texture, tileImage.W, tileImage.H) {
                     X = tileImage.X,
                     Y = tileImage.Y
                 };
@@ -117,7 +115,7 @@ public class World(nint rendererPtr, string map) : GameObject {
     private void BuildLayers(TileLayer tileLayer, DotTiled.Map map, string mapPath) {
         uint[] ids = tileLayer.Data.Value.GlobalTileIDs.Value;
         if (ids.Length == 0) {
-            SDL.LogError(LogCategory.Application, $"No tiles found in layer {tileLayer.Name}");
+            Logger.LogError(LogCategory.Application, $"No tiles found in layer {tileLayer.Name}");
             return;
         }
 
@@ -196,7 +194,7 @@ public class World(nint rendererPtr, string map) : GameObject {
         }
 
         foreach (TextureData texture in _textures!.Values) {
-            SDL.DestroyTexture(texture.Texture);
+            Sdl.Free(texture.Texture);
         }
         _textures.Clear();
     }
@@ -212,6 +210,11 @@ public class World(nint rendererPtr, string map) : GameObject {
 
         Initialized = true;
     }
+
+    // Fix for CS1510: A ref or out value must be an assignable variable
+    // The issue is that the sixth argument in the `Render.RenderTextureRotated` method call
+    // requires a `ref` keyword, but `nint.Zero` is not an assignable variable.
+    // To fix this, we need to declare a variable of type `FPoint` and pass it by reference.
 
     private void RenderLayer(TileLayer layer) {
         int x = 0, y = 0;
@@ -252,9 +255,13 @@ public class World(nint rendererPtr, string map) : GameObject {
             };
             // - End Rant
 
-            int res = SDL.RenderCopyEx(RendererPtr, td.Texture, ref sourceRect, ref destinationRect, 0, nint.Zero, RendererFlip.None);
-            if (res != 0) {
-                _log?.Error($"Error rendering tile: {SDL.GetError()}");
+            // Declare a variable of type FPoint to pass as a ref argument
+            FPoint center = new FPoint { X = 0, Y = 0 };
+
+            bool res = Render.RenderTextureRotated(RendererPtr, td.Texture, ref sourceRect, ref destinationRect,
+                0, ref center, FlipMode.None);
+            if (!res) {
+                _log?.Error($"Error rendering tile: {Sdl.GetError()}");
                 return;
             }
             x++;

@@ -5,9 +5,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowBlocks>true</AllowBlocks>
     <PlatformTarget>x64</PlatformTarget>
     <Configurations>Debug;Release;Debug-Windows</Configurations>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Windows|AnyCPU'">
@@ -37,22 +38,31 @@
     <None Update="SDL2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SDL2_image.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="SDL2_mixer.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SDL2_ttf.dll">
+    <None Update="default.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="default.ttf">
+    <None Update="SDL3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SDL3_image.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SDL3_ttf.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Analytics\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SharpSDL3">
+      <HintPath>..\SDL3-CS\SDL3\bin\Debug\net9.0\SharpSDL3.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

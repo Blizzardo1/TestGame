@@ -1,30 +1,30 @@
-﻿using SDL2;
+﻿using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.GameObjects;
 
 namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer {
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Video);
     #region Events
 
-    public event EventHandler? AppDidEnterBackground;
-    public event EventHandler? AppDidEnterForeground;
-    public event EventHandler? AppLowMemory;
-    public event EventHandler? AppTerminating;
-    public event EventHandler? AppWillEnterBackground;
-    public event EventHandler? AppWillEnterForeground;
+    public event EventHandler? DidEnterBackground;
+    public event EventHandler? DidEnterForeground;
+    public event EventHandler? LowMemory;
+    public event EventHandler? Terminating;
+    public event EventHandler? WillEnterBackground;
+    public event EventHandler? WillEnterForeground;
     public event EventHandler< AudioDeviceEvent >? AudioDeviceAdded;
     public event EventHandler< AudioDeviceEvent >? AudioDeviceRemoved;
     public event EventHandler? ClipboardUpdate;
-    public event EventHandler< ControllerAxisEvent >? ControllerAxisMotion;
-    public event EventHandler< ControllerButtonEvent >? ControllerButtonDown;
-    public event EventHandler< ControllerButtonEvent >? ControllerButtonUp;
-    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceAdded;
-    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceRemoved;
-    public event EventHandler< ControllerDeviceEvent >? ControllerDeviceRemapped;
+    public event EventHandler< GamepadAxisEvent >? ControllerAxisMotion;
+    public event EventHandler< GamepadButtonEvent >? ControllerButtonDown;
+    public event EventHandler< GamepadButtonEvent >? ControllerButtonUp;
+    public event EventHandler< GamepadDeviceEvent >? ControllerDeviceAdded;
+    public event EventHandler< GamepadDeviceEvent >? ControllerDeviceRemoved;
+    public event EventHandler< GamepadDeviceEvent >? ControllerDeviceRemed;
     public event EventHandler< DisplayEvent >? DisplayEvents;
-    public event EventHandler< DollarGestureEvent >? DollarGesture;
-    public event EventHandler< DollarGestureEvent >? DollarRecord;
     public event EventHandler< DropEvent >? DropBegin;
     public event EventHandler< DropEvent >? DropComplete;
     public event EventHandler< DropEvent >? DropFile;
@@ -41,7 +41,7 @@ public abstract class Window : Renderer, IRenderer {
     public event EventHandler< JoyDeviceEvent >? JoyDeviceAdded;
     public event EventHandler< JoyDeviceEvent >? JoyDeviceRemoved;
     public event EventHandler< JoyHatEvent >? JoyHatMotion;
-    //public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
+    public event EventHandler< JoyBatteryEvent >? JoyBatteryUpdated;
     public event EventHandler< KeyboardEvent >? KeymapChanged;
     public event EventHandler< KeyboardEvent >? KeyDown;
     public event EventHandler< KeyboardEvent >? KeyUp;
@@ -49,12 +49,10 @@ public abstract class Window : Renderer, IRenderer {
     public event EventHandler< MouseButtonEvent >? MouseUp;
     public event EventHandler< MouseMotionEvent >? MouseMove;
     public event EventHandler< MouseWheelEvent >? MouseWheel;
-    public event EventHandler< MultiGestureEvent >? MultiGesture;
     public event EventHandler< QuitEvent >? Quit;
     public event EventHandler? RenderDeviceReset;
     public event EventHandler? RenderTargetsReset;
     public event EventHandler< SensorEvent >? SensorUpdate;
-    public event EventHandler< SysWMEvent >? SysWMEvent;
     public event EventHandler< TextEditingEvent >? TextEditing;
     public event EventHandler< TextInputEvent >? TextInput;
     public event EventHandler< UserEvent >? UserEvent;
@@ -67,32 +65,32 @@ public abstract class Window : Renderer, IRenderer {
 
 
     ~Window() {
-        SDL.DestroyWindow(WindowPtr);
+        Sdl.DestroyWindow(WindowPtr);
     }
 
     protected Window(string title, Point location, Size size, WindowFlags flags) {
-        int x, y;
-        X = x = location.X;
-        Y = y = location.Y;
+        X = location.X;
+        Y = location.Y;
 
         Width = size.Width;
         Height = size.Height;
 
-        WindowPtr = SDL.CreateWindow(title,
-            x == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : x,
-            y == 0x7FFFFFFF ? SDL.WINDOWPOS_CENTERED : y,
-            Width,
-            Height,
+        WindowPtr = Sdl.CreateWindow(title,
+            (int)Width,
+            (int)Height,
             flags);
 
         if (WindowPtr == nint.Zero) {
-            _log?.Error($"Cannot create Window: {SDL.GetError()}");
+            _log?.Error($"Cannot create Window: {Sdl.GetError()}");
+            return;
         }
 
-        Initialize(SDL.CreateRenderer(WindowPtr, -1, RendererFlags.Accelerated | RendererFlags.TargetTexture));
+        Logger.LogInfo(LogCategory.Application, $"Window Created: 0x{WindowPtr:X}");
+
+        Initialize(WindowPtr, Render.CreateRenderer(WindowPtr, null));
 
         if (RendererPtr == nint.Zero) {
-            _log?.Error($"Cannot create RendererPtr: {SDL.GetError()}");
+            _log?.Error($"Cannot create RendererPtr: {Sdl.GetError()}");
         }
     }
 
@@ -106,10 +104,10 @@ public abstract class Window : Renderer, IRenderer {
     public float Z { get; } = float.MaxValue;
 
     /// <inheritdoc />
-    public int Width { get; protected set; }
+    public float Width { get; protected set; }
 
     /// <inheritdoc />
-    public int Height { get; protected set; }
+    public float Height { get; protected set; }
 
     /// <inheritdoc />
     public abstract string Name { get; }
@@ -126,13 +124,13 @@ public abstract class Window : Renderer, IRenderer {
     }
 
     public void UpdatePosition(nint window) {
-        SDL.GetWindowPosition(window, out int x, out int y);
+        Sdl.GetWindowPosition(window, out int x, out int y);
         X = x;
         Y = y;
     }
 
     public void UpdateSize(nint window) {
-        SDL.GetWindowSize(window, out int w, out int h);
+        Sdl.GetWindowSize(window, out int w, out int h);
         Width = w;
         Height = h;
     }
@@ -141,38 +139,35 @@ public abstract class Window : Renderer, IRenderer {
 
     private void HandleEvents(Event e) {
         switch (e) {
-            case { Type: EventType.FirstEvent }:
+            case { Type: EventType.First }:
                 OnFirstEvent(e);
                 break;
             case { Type: EventType.Quit }:
                 OnQuit(e.Quit);
                 break;
-            case { Type: EventType.AppTerminating }:
-                OnAppTerminating(e);
+            case { Type: EventType.Terminating }:
+                OnTerminating(e);
                 break;
-            case { Type: EventType.AppLowMemory }:
-                OnAppLowMemory(e);
+            case { Type: EventType.LowMemory }:
+                OnLowMemory(e);
                 break;
-            case { Type: EventType.AppWillEnterBackground }:
-                OnAppWillEnterBackground(e);
+            case { Type: EventType.WillEnterBackground }:
+                OnWillEnterBackground(e);
                 break;
-            case { Type: EventType.AppDidEnterBackground }:
-                OnAppDidEnterBackground(e);
+            case { Type: EventType.DidEnterBackground }:
+                OnDidEnterBackground(e);
                 break;
-            case { Type: EventType.AppWillEnterForeground }:
-                OnAppWillEnterForeground(e);
+            case { Type: EventType.WillEnterForeground }:
+                OnWillEnterForeground(e);
                 break;
-            case { Type: EventType.AppDidEnterForeground }:
-                OnAppDidEnterForeground(e);
+            case { Type: EventType.DidEnterForeground }:
+                OnDidEnterForeground(e);
                 break;
-            case { Type: EventType.DisplayEvent }:
+            case { Type: EventType.DisplayAdded }:
                 OnDisplayEvent(e.Display);
                 break;
-            case { Type: EventType.WindowEvent }:
+            case { Type: EventType.WindowFirst }:
                 OnWindowEvent(e.Window);
-                break;
-            case { Type: EventType.SyswmEvent }:
-                OnSysWmEvent(e.Syswm);
                 break;
             case { Type: EventType.KeyDown }:
                 OnKeyDown(e.Key);
@@ -201,47 +196,47 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.MouseWheel }:
                 OnMouseWheel(e.Wheel);
                 break;
-            case { Type: EventType.JoyAxisMotion }:
+            case { Type: EventType.JoystickAxisMotion }:
                 OnJoyAxisMotion(e.JAxis);
                 break;
-            case { Type: EventType.JoyBallMotion }:
+            case { Type: EventType.JoystickBallMotion }:
                 OnJoyBallMotion(e.JBall);
                 break;
-            case { Type: EventType.JoyHatMotion }:
+            case { Type: EventType.JoystickHatMotion }:
                 OnJoyHatMotion(e.JHat);
                 break;
-            case { Type: EventType.JoyButtonDown }:
+            case { Type: EventType.JoystickButtonDown }:
                 OnJoyButtonDown(e.JButton);
                 break;
-            case { Type: EventType.JoyButtonUp }:
+            case { Type: EventType.JoystickButtonUp }:
                 OnJoyButtonUp(e.JButton);
                 break;
-            case { Type: EventType.JoyDeviceAdded }:
+            case { Type: EventType.JoystickAdded }:
                 OnJoyDeviceAdded(e.JDevice);
                 break;
-            case { Type: EventType.JoyDeviceRemoved }:
+            case { Type: EventType.JoystickRemoved }:
                 OnJoyDeviceRemoved(e.JDevice);
                 break;
-            case { Type: (EventType)0x607 }: // SDL_JOYBATTERYUPDATED
-
+            case { Type: EventType.JoystickBatteryUpdated }:
+                OnJoyBatteryUpdated(e.JBattery);
                 break;
-            case { Type: EventType.ControllerAxisMotion }:
-                OnControllerAxisMotion(e.CAxis);
+            case { Type: EventType.GamepadAxisMotion }:
+                OnControllerAxisMotion(e.GAxis);
                 break;
-            case { Type: EventType.ControllerButtonDown }:
-                OnControllerButtonDown(e.CButton);
+            case { Type: EventType.GamepadButtonDown }:
+                OnControllerButtonDown(e.GButton);
                 break;
-            case { Type: EventType.ControllerButtonUp }:
-                OnControllerButtonUp(e.CButton);
+            case { Type: EventType.GamepadButtonUp }:
+                OnControllerButtonUp(e.GButton);
                 break;
-            case { Type: EventType.ControllerDeviceAdded }:
-                OnControllerDeviceAdded(e.CDevice);
+            case { Type: EventType.GamepadAdded }:
+                OnControllerDeviceAdded(e.GDevice);
                 break;
-            case { Type: EventType.ControllerDeviceRemoved }:
-                OnControllerDeviceRemoved(e.CDevice);
+            case { Type: EventType.GamepadRemoved }:
+                OnControllerDeviceRemoved(e.GDevice);
                 break;
-            case { Type: EventType.ControllerDeviceRemapped }:
-                OnControllerDeviceRemapped(e.CDevice);
+            case { Type: EventType.GamepadRemapped }:
+                OnControllerDeviceRemed(e.GDevice);
                 break;
             case { Type: EventType.FingerDown }:
                 OnFingerDown(e.TFinger);
@@ -251,15 +246,6 @@ public abstract class Window : Renderer, IRenderer {
                 break;
             case { Type: EventType.FingerMotion }:
                 OnFingerMotion(e.TFinger);
-                break;
-            case { Type: EventType.DollarGesture }:
-                OnDollarGesture(e.DGesture);
-                break;
-            case { Type: EventType.DollarRecord }:
-                OnDollarRecord(e.DGesture);
-                break;
-            case { Type: EventType.MultiGesture }:
-                OnMultiGesture(e.MGesture);
                 break;
             case { Type: EventType.ClipboardUpdate }:
                 OnClipboardUpdate(e);
@@ -291,10 +277,10 @@ public abstract class Window : Renderer, IRenderer {
             case { Type: EventType.RenderDeviceReset }:
                 OnRenderDeviceReset(e);
                 break;
-            case { Type: EventType.UserEvent }:
+            case { Type: EventType.User}:
                 OnUserEvent(e.User);
                 break;
-            case { Type: EventType.LastEvent }:
+            case { Type: EventType.Last}:
                 OnLastEvent(e);
                 break;
             case { Type: (EventType)0x7F00 }: // SDL_POLLSENTINEL
@@ -306,28 +292,28 @@ public abstract class Window : Renderer, IRenderer {
         }
     }
 
-    protected virtual void OnAppDidEnterBackground(Event @event) {
-        AppDidEnterBackground?.Invoke(this, @event);
+    protected virtual void OnDidEnterBackground(Event @event) {
+        DidEnterBackground?.Invoke(this, @event);
     }
 
-    protected virtual void OnAppDidEnterForeground(Event @event) {
-        AppDidEnterForeground?.Invoke(this, @event);
+    protected virtual void OnDidEnterForeground(Event @event) {
+        DidEnterForeground?.Invoke(this, @event);
     }
 
-    protected virtual void OnAppLowMemory(Event @event) {
-        AppLowMemory?.Invoke(this, @event);
+    protected virtual void OnLowMemory(Event @event) {
+        LowMemory?.Invoke(this, @event);
     }
 
-    protected virtual void OnAppTerminating(Event @event) {
-        AppTerminating?.Invoke(this, @event);
+    protected virtual void OnTerminating(Event @event) {
+        Terminating?.Invoke(this, @event);
     }
 
-    protected virtual void OnAppWillEnterBackground(Event @event) {
-        AppWillEnterBackground?.Invoke(this, @event);
+    protected virtual void OnWillEnterBackground(Event @event) {
+        WillEnterBackground?.Invoke(this, @event);
     }
 
-    protected virtual void OnAppWillEnterForeground(Event @event) {
-        AppWillEnterForeground?.Invoke(this, @event);
+    protected virtual void OnWillEnterForeground(Event @event) {
+        WillEnterForeground?.Invoke(this, @event);
     }
 
     protected virtual void OnAudioDeviceAdded(AudioDeviceEvent eventADevice) {
@@ -342,40 +328,32 @@ public abstract class Window : Renderer, IRenderer {
         ClipboardUpdate?.Invoke(this, @event);
     }
 
-    protected virtual void OnControllerAxisMotion(ControllerAxisEvent eventCAxis) {
+    protected virtual void OnControllerAxisMotion(GamepadAxisEvent eventCAxis) {
         ControllerAxisMotion?.Invoke(this, eventCAxis);
     }
 
-    protected virtual void OnControllerButtonDown(ControllerButtonEvent eventCButton) {
+    protected virtual void OnControllerButtonDown(GamepadButtonEvent eventCButton) {
         ControllerButtonDown?.Invoke(this, eventCButton);
     }
 
-    protected virtual void OnControllerButtonUp(ControllerButtonEvent eventCButton) {
+    protected virtual void OnControllerButtonUp(GamepadButtonEvent eventCButton) {
         ControllerButtonUp?.Invoke(this, eventCButton);
     }
 
-    protected virtual void OnControllerDeviceAdded(ControllerDeviceEvent eventCDevice) {
+    protected virtual void OnControllerDeviceAdded(GamepadDeviceEvent eventCDevice) {
         ControllerDeviceAdded?.Invoke(this, eventCDevice);
     }
 
-    protected virtual void OnControllerDeviceRemapped(ControllerDeviceEvent eventCDevice) {
-        ControllerDeviceRemapped?.Invoke(this, eventCDevice);
+    protected virtual void OnControllerDeviceRemed(GamepadDeviceEvent eventCDevice) {
+        ControllerDeviceRemed?.Invoke(this, eventCDevice);
     }
 
-    protected virtual void OnControllerDeviceRemoved(ControllerDeviceEvent eventCDevice) {
+    protected virtual void OnControllerDeviceRemoved(GamepadDeviceEvent eventCDevice) {
         ControllerDeviceRemoved?.Invoke(this, eventCDevice);
     }
 
     protected virtual void OnDisplayEvent(DisplayEvent eventDisplay) {
         DisplayEvents?.Invoke(this, eventDisplay);
-    }
-
-    protected virtual void OnDollarGesture(DollarGestureEvent eventDGesture) {
-        DollarGesture?.Invoke(this, eventDGesture);
-    }
-
-    protected virtual void OnDollarRecord(DollarGestureEvent eventDGesture) {
-        DollarRecord?.Invoke(this, eventDGesture);
     }
 
     protected virtual void OnDropBegin(DropEvent @event) {
@@ -434,9 +412,9 @@ public abstract class Window : Renderer, IRenderer {
         JoyDeviceRemoved?.Invoke(this, eventJDevice);
     }
 
-    //protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
-        //JoyBatteryUpdated?.Invoke(this, eventJBattery);
-    //}
+    protected virtual void OnJoyBatteryUpdated(JoyBatteryEvent eventJBattery) {
+        JoyBatteryUpdated?.Invoke(this, eventJBattery);
+    }
     protected virtual void OnJoyHatMotion(JoyHatEvent eventJHat) {
         JoyHatMotion?.Invoke(this, eventJHat);
     }
@@ -473,10 +451,6 @@ public abstract class Window : Renderer, IRenderer {
         MouseWheel?.Invoke(this, eventWheel);
     }
 
-    protected virtual void OnMultiGesture(MultiGestureEvent eventMGesture) {
-        MultiGesture?.Invoke(this, eventMGesture);
-    }
-
     protected virtual void OnQuit(QuitEvent @event) {
         Quit?.Invoke(this, @event);
     }
@@ -491,10 +465,6 @@ public abstract class Window : Renderer, IRenderer {
 
     protected virtual void OnSensorUpdate(SensorEvent eventSensor) {
         SensorUpdate?.Invoke(this, eventSensor);
-    }
-
-    protected virtual void OnSysWmEvent(SysWMEvent eventSysWm) {
-        SysWMEvent?.Invoke(this, eventSysWm);
     }
 
     protected virtual void OnTextEditing(TextEditingEvent eventEdit) {

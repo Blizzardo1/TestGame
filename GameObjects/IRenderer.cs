@@ -1,4 +1,4 @@
-﻿using SDL2;
+﻿using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects;
 
@@ -7,8 +7,8 @@ public interface IRenderer : IGameObject {
     float Y { get; }
     float Z { get; }
 
-    int Width { get; }
-    int Height { get; }
+    float Width { get; }
+    float Height { get; }
 
     void Draw();
     void Update(Event e);

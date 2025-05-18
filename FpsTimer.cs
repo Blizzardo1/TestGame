@@ -1,59 +1,53 @@
-﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SharpSDL3;
 
-namespace TestGame {
-    internal class FpsTimer {
-        private bool _running;
-        private bool _paused;
-        private uint _startTicks;
-        private uint _pausedTicks;
+namespace TestGame; 
+internal class FpsTimer {
+    private bool _running;
+    private bool _paused;
+    private ulong _startTicks;
+    private ulong _pausedTicks;
 
 
-        public bool Running => _running;
-        public bool Paused => _paused;
+    public bool Running => _running;
+    public bool Paused => _paused;
 
-        public void Start() {
-            _running = true;
-            _paused = false;
-            _startTicks = SDL.GetTicks();
+    public void Start() {
+        _running = true;
+        _paused = false;
+        _startTicks = SharpSDL3.Timer.GetTicks();
+    }
+
+    public void Stop() {
+        _running = false;
+        _paused = false;
+        _startTicks = 0;
+        _pausedTicks = 0;
+    }
+
+    public void Pause() {
+        if (_running && !_paused) {
+            _paused = true;
+            _pausedTicks = SharpSDL3.Timer.GetTicks() - _startTicks;
         }
+    }
 
-        public void Stop() {
-            _running = false;
+    public void Unpause() {
+        if (_running && _paused) {
             _paused = false;
-            _startTicks = 0;
+            _startTicks = SharpSDL3.Timer.GetTicks() - _pausedTicks;
             _pausedTicks = 0;
         }
+    }
 
-        public void Pause() {
-            if (_running && !_paused) {
-                _paused = true;
-                _pausedTicks = SDL.GetTicks() - _startTicks;
-            }
+    public ulong GetTicks() {
+        if(!_running) {
+            return 0;
         }
 
-        public void Unpause() {
-            if (_running && _paused) {
-                _paused = false;
-                _startTicks = SDL.GetTicks() - _pausedTicks;
-                _pausedTicks = 0;
-            }
+        if (_paused) {
+            return _pausedTicks;
         }
 
-        public uint GetTicks() {
-            if(!_running) {
-                return 0;
-            }
-
-            if (_paused) {
-                return _pausedTicks;
-            }
-
-            return SDL.GetTicks() - _startTicks;
-        }
+        return SharpSDL3.Timer.GetTicks() - _startTicks;
     }
 }

@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3.Enums;
 
 namespace TestGame.GameObjects; 
 
@@ -8,7 +10,7 @@ namespace TestGame.GameObjects;
 public static class ResourceManager {
     private static readonly SortedDictionary< string, IGameObject > Resources;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     private static int _nextUnknownId = 0;
 

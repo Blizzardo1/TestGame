@@ -1,9 +1,11 @@
-﻿using System.Reflection;
+﻿using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
+using System.Reflection;
 using System.Runtime.InteropServices;
-using SDL2;
-using SDL2.TTF;
 using TestGame.Config;
-using Version = SDL2.Version;
 
 namespace TestGame;
 
@@ -16,39 +18,53 @@ public static class Engine {
 
     public static readonly string GameConfigFile = Path.Combine(ConfigPath, "game.json");
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     private static Thread? _thread;
     private static Core? _game;
 
     public static uint CurrentFPS { get; private set; } = 0;
 
-    private static FpsTimer _fps;
+    private static FpsTimer _fps = new();
 
     public static Core? Game => _game;
 
     static Engine() {
-        _fps = new FpsTimer();
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
     }
 
     public static GameConfig? GameConfig { get; private set; }
     internal static string? OutputDevice { get; private set; }
     internal static string? InputDevice { get; private set; }
 
-    private static List< string >? GetAudioDevices() {
+    private  static List< string >? GetAudioDevices() {
         List< string > lst = [];
 
-        int outputCount = SDL.GetNumAudioDevices(0);
-        int inputCount = SDL.GetNumAudioDevices(1);
+        // Arrays of uints
+        uint[] playbackDevices = Audio.GetAudioPlaybackDevices(out int outputCount);
+        uint[] recordingDevices = Audio.GetAudioRecordingDevices(out int inputCount);
+
+        if (playbackDevices == null) {
+            _log?.Error("No Playback Devices found!");
+            return null;
+        }
+
+        if (recordingDevices == null) {
+            _log?.Error("No Recording Devices found!");
+            return null;
+        }
+
+        _log?.Debug($"Playback Devices: {outputCount}");
+        _log?.Debug($"Recording Devices: {inputCount}");
 
         for (int i = 0; i < outputCount; i++) {
-            string devName = SDL.GetAudioDeviceName(i, 0);
+            string devName = Audio.GetAudioDeviceName(playbackDevices[i]);
             _log?.Debug($"Output Device {i}: {devName}");
             lst.Add($"output/{i}/{devName}");
         }
 
         for (int i = 0; i < inputCount; i++) {
-            string devName = SDL.GetAudioDeviceName(i, 1);
+            string devName = Audio.GetAudioDeviceName(recordingDevices[i]);
             _log?.Debug($"Input Device {i}: {devName}");
             lst.Add($"input/{i}/{devName}");
         }
@@ -74,15 +90,7 @@ public static class Engine {
     }
 
     private static void TestSdlVersions() {
-        SDL.GetVersion(out Version sdlVersion);
-        Version mixerVersion = Mixer.MIX_Linked_Version();
-        Version imageVersion = Image.LinkedVersion();
-        Version ttfVersion = TTF.LinkedVersion();
-
-        _log?.Debug($"SDL Version: {sdlVersion.String()}");
-        _log?.Debug($"Mixer Version: {mixerVersion.String()}");
-        _log?.Debug($"Image Version: {imageVersion.String()}");
-        _log?.Debug($"TTF Version: {ttfVersion.String()}");
+        _log?.Debug($"SDL Version: {SharpSDL3.Version.GetRevision()}");
     }
 
     private static void CreateIfNotExist(string directory) {
@@ -101,7 +109,7 @@ public static class Engine {
         CreateIfNotExist(AudioConfigPath);
         CreateIfNotExist(ConfigPath);
 
-        Logger.Setup(true
+        Log.Setup(true
 #if DEBUG
             , true
 #endif
@@ -109,10 +117,15 @@ public static class Engine {
 
         GameConfig = GameConfig.Load(GameConfigFile);
 
+        bool initialized = Sdl.Init(InitFlags.Everything);
+        if(!initialized) {
+            _log?.Error("SDL Initialization failed!");
+            return;
+        }
+
         _log?.Info("Initialized Core");
 
-        _ = SDL.Init(InitFlags.Everything);
-        _ = TTF.Init();
+        Ttf.Init();
         TestSdlVersions();
 
         // This should be pulled from Config
@@ -144,23 +157,22 @@ public static class Engine {
 
         while (_game.IsRunning) {
             _fps.Start();
-            _ = SDL.PollEvent(out Event e);
+            _ = Events.PollEvent(out Event e);
 
             _game.Update(e);
             _game.Draw();
-            uint delta = _fps.GetTicks();
+            uint delta = (uint)_fps.GetTicks();
             if (delta < 1000 / FramesPerSecond) {
-                SDL.Delay((1000 / FramesPerSecond) - delta);
+                SharpSDL3.Timer.Delay((1000 / FramesPerSecond) - delta);
             }
             CurrentFPS = delta;
         }
 
         Mixer.CloseAudio();
-
         Mixer.Quit();
-        Image.Quit();
-        TTF.Quit();
-        SDL.Quit();
+        // Image.Quit();
+        Ttf.Quit();
+        Sdl.Quit();
 
         _log?.Info("Goodbye!");
 

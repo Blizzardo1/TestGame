@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
@@ -37,9 +39,9 @@ public class Enemy : Entity {
 
     public override float Z { get; set; }
 
-    public override int Width => 24;
+    public override float Width => 24;
 
-    public override int Height => 48;
+    public override float Height => 48;
 
     public override string? Name { get; protected set; }
 
@@ -65,10 +67,10 @@ public class Enemy : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = SDL.RenderFillRect(RendererPtr, ref _body);
+        _ = Render.RenderFillRect(RendererPtr, ref _body);
         Core.SetRenderColor(RendererPtr, Colors.Colors.White);
-        Rect r = HitBox;
-        _ = SDL.RenderDrawRect(RendererPtr, ref r);
+        FRect r = HitBox;
+        _ = Render.RenderRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {

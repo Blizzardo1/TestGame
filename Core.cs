@@ -5,8 +5,10 @@
 #endregion
 
 using System.Diagnostics;
-using SDL2;
-using SDL2.TTF;
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 using TestGame.Colors;
 using TestGame.Config;
 using TestGame.GameObjects;
@@ -46,7 +48,7 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
@@ -77,8 +79,8 @@ public class Core : Window {
             title,
             new Point { X = 0x7FFFFFFF, Y = 0x7FFFFFFF },
             new Size(width, height),
-            WindowFlags.AllowHighdpi | WindowFlags.Resizable | WindowFlags.Shown) {
-        WindowId = SDL.GetWindowID(WindowPtr);
+            WindowFlags.HighPixelDensity | WindowFlags.Resizable) {
+        WindowId = Sdl.GetWindowId(WindowPtr);
         Width = width;
         Height = height;
     }
@@ -179,9 +181,9 @@ public class Core : Window {
         IsRunning = true;
         IsPaused = false;
 
-        _ = SDL.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
+        _ = Render.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
 
-        _diagnostic = new Diagnostics(RendererPtr, 256, 256);
+        _diagnostic = new Diagnostics(WindowPtr, RendererPtr, 256, 256);
 
         // #TODO: This needs to be moved away from the engine and processed per separate Application.
 
@@ -216,8 +218,8 @@ public class Core : Window {
     /// <param name="rendererPtr">A Renderer* to the current renderer.</param>
     /// <param name="color">The new color to set to the Renderer*.</param>
     /// <returns>0 on success, negative error code on failure</returns>
-    public static int SetRenderColor(nint rendererPtr, Color color) {
-        return SDL.SetRenderDrawColor(rendererPtr, color.R, color.G, color.B, color.A);
+    public static bool SetRenderColor(nint rendererPtr, Color color) {
+        return Render.SetRenderDrawColor(rendererPtr, color);
     }
 
     /// <summary>
@@ -246,14 +248,14 @@ public class Core : Window {
         switch (e) {
             case MouseMotionEvent mme:
                 _diagnostic.MouseData = _diagnostic.MouseData with {
-                    Position = new System.Numerics.Vector2 { X = mme.X, Y = mme.Y }
+                    Position = new Vector2 { X = mme.X, Y = mme.Y }
                 };
                 break;
             case MouseButtonEvent mbe:
                 // SDL_PRESSED = 1, SDL_RELEASED = 0
-                if (mbe.State == 1) {
+                if (mbe.Clicks == 1) {
                     _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
-                } else if (mbe.State == 0) {
+                } else if (mbe.Clicks == 0) {
                     _diagnostic.MouseData = _diagnostic.MouseData with { Button = 0 };
                 }
                 _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
@@ -320,7 +322,7 @@ public class Core : Window {
             // Default to this if the Current Scene's Background Color isn't set.
             ?? KnownColor.Black.ToColor());
 
-        _ = SDL.RenderClear(RendererPtr);
+        _ = Render.RenderClear(RendererPtr);
 
         _currentScene?.Draw();
 
@@ -328,7 +330,7 @@ public class Core : Window {
             _diagnostic.Draw();
         }
 
-        SDL.RenderPresent(RendererPtr);
+        Render.RenderPresent(RendererPtr);
     }
 
     #region Event Methods
@@ -338,11 +340,11 @@ public class Core : Window {
     /// </summary>
     public void Close() {
         CloseFonts();
-        TTF.Quit();
+        Ttf.Quit();
 
-        SDL.DestroyRenderer(RendererPtr);
-        SDL.DestroyWindow(WindowPtr);
-        SDL.Quit();
+        Render.DestroyRenderer(RendererPtr);
+        Sdl.DestroyWindow(WindowPtr);
+        Sdl.Quit();
         IsRunning = false;
     }
 

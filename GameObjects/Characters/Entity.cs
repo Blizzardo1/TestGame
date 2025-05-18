@@ -1,11 +1,12 @@
-﻿using SDL2;
+﻿
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public abstract class Entity : Renderer, ICharacter {
     private static float _speed = 0.00125f;
 
-    public Rect HitBox { get; protected set; }
+    public FRect HitBox { get; protected set; }
 
     public int HP { get; set; }
     public int MaxHP { get; set; }
@@ -44,15 +45,15 @@ public abstract class Entity : Renderer, ICharacter {
 
     public abstract float Z { get; set; }
 
-    public abstract int Width { get; }
+    public abstract float Width { get; }
 
-    public abstract int Height { get; }
+    public abstract float Height { get; }
 
     public abstract string? Name { get; protected set; }
 
-    protected Rect _body;
+    protected FRect _body;
 
-    public Rect Body => _body;
+    public FRect Body => _body;
 
     public Direction Direction { get; set; } = Direction.None;
 

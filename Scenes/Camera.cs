@@ -1,10 +1,13 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.GameObjects;
 using TestGame.GameObjects.Characters;
 
 namespace TestGame.Scenes; 
 public class Camera(GameContext context) : Renderer {
-    private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
     public float Width { get; private set; } = context.Width;
     public float Height { get; private set; } = context.Height;
@@ -30,7 +33,7 @@ public class Camera(GameContext context) : Renderer {
             return;
         }
         // Zoom in/out by dividing the width and height by the scale
-        _ = SDL.RenderSetScale(RendererPtr, scale, scale);
+        _ = Render.SetRenderScale(RendererPtr, scale, scale);
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Structs;
 using TestGame.Colors;
 
 namespace TestGame.GameObjects;
@@ -35,14 +37,13 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     };
 
     private const int HitFrames = 30;
+    private const string FontName = "clock";
     private int _hitFrames = HitFrames;
     private bool _bounce;
     private Color _ogForeColor;
 
-    Rect _rect;
-
     public override void Initialize() {
-        Initialize(context.RendererPtr, font, "clock", FontSize);
+        Initialize(context.WindowPtr, context.RendererPtr, font, FontName, FontSize);
         Name = "object/clock";
         frect = new FRect {
             X = context.Rect.X,
@@ -50,14 +51,15 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             W = context.Width,
             H = context.Height
         };
-        (Width, Height) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
+        FSize size = MeasureString(RendererPtr, GetFont(FontName, FontSize), System.DateTime.Now.ToString("HH:mm:ss"));
+        Width = size.Width;
+        Height = size.Height;
         ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
         FontSize = fontSize;
         _ogForeColor = ForegroundColor;
         _animate = animate;
         _xSpeed = animate ? Speed : 0;
         _ySpeed = animate ? Speed : 0;
-        _rect = frect.ToRect();
     }
 
     private static Color CalculateShadow(float x, float y) {
@@ -83,14 +85,14 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             }
         }
 
-        RenderText(_time, FontSize, "clock", (int)( X + FontSize / ShadowDivisor ),
+        RenderText(_time, FontSize, FontName, (int)( X + (float) FontSize / ShadowDivisor ),
             (int)( Y + FontSize / ShadowDivisor ),
-            CalculateShadow(FontSize / ShadowDivisor, FontSize / ShadowDivisor));
-        RenderText(_time, FontSize, "clock", (int)X, (int)Y, ForegroundColor);
+            CalculateShadow(FontSize / ShadowDivisor, (float)FontSize / ShadowDivisor));
+        RenderText(_time, FontSize, FontName, (int)X, (int)Y, ForegroundColor);
 
         Core.SetRenderColor(RendererPtr, KnownColor.Red.ToColor());
         if (Core.IsDebugging) {
-            _ = SDL.RenderDrawRect(RendererPtr, ref _rect);
+            _ = Render.RenderRect(RendererPtr, ref frect);
         }
     }
 
@@ -98,16 +100,17 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     public override void Update(Event e) {
         // rx - right-most x or width
         // by - bottom-most y or height
-        _ = SDL.GetRendererOutputSize(RendererPtr, out int rx, out int by);
-        _time = DateTime.Now.ToString("HH:mm:ss");
-        ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
-        _rect = frect.ToRect();
-        _rect.X += 8;
-        _rect.Y += 10;
-        _rect.W -= 8;
-        _rect.H -= 14;
-        Width = _rect.W;
-        Height = _rect.H;
+        _ = Render.GetRenderOutputSize(RendererPtr, out int rx, out int by);
+        _time = System.DateTime.Now.ToString("HH:mm:ss");
+        FSize size = MeasureString(RendererPtr, GetFont(FontName, FontSize), System.DateTime.Now.ToString("HH:mm:ss"));
+        Width = size.Width;
+        Height = size.Height;
+        frect.X += 8;
+        frect.Y += 10;
+        frect.W -= 8;
+        frect.H -= 14;
+        Width = frect.W;
+        Height = frect.H;
 
         if (
             X <= 0 && Y <= 0 // Top left

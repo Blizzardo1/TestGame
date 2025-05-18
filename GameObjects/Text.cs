@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects; 
 internal class Text(GameContext context, string fontFile, int size, string text) : GameObject {

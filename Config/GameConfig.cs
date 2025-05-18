@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
-using SDL2;
+using SharpSDL3.Enums;
 using TestGame.GameObjects.Map;
 
 namespace TestGame.Config;
 
 public record GameConfig(string Path) {
-    private static Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     [JsonProperty("maps")]
     public List< MapConfig >? Maps { get; set; }

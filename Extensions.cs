@@ -1,13 +1,13 @@
-﻿using SDL2;
+﻿using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.Colors;
 using TestGame.GameObjects.Characters;
-using Version = SDL2.Version;
 
 namespace TestGame;
 
 public static class Extensions {
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
     public static Color ToColor(this KnownColor color) {
         Color c = new();
         byte a = (byte)( (int)color >> 24 & 0xFF );
@@ -191,6 +191,4 @@ public static class Extensions {
     }
 
     public static bool IsEmpty(this string s) => string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s);
-
-    public static string String(this Version v) => $"{v.Major}.{v.Minor}.{v.Patch}";
 }

@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects.Items;
 
@@ -9,9 +11,9 @@ public class EmptyWeapon : IWeapon {
 
     public float Z => 0;
 
-    public int Width => 0;
+    public float Width => 0;
 
-    public int Height => 0;
+    public float Height => 0;
 
     public string? Name => "Empty";
 

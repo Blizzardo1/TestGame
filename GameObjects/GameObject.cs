@@ -1,5 +1,6 @@
-﻿using SDL2;
-using SDL2.TTF;
+﻿
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 
 namespace TestGame.GameObjects;
 
@@ -27,16 +28,16 @@ public abstract class GameObject : Renderer, IRenderer {
     public float Z { get; set; }
 
     /// <inheritdoc />
-    public int Width
+    public float Width
     {
-        get => (int)frect.W;
+        get => frect.W;
         set => frect.W = value;
     }
 
     /// <inheritdoc />
-    public int Height
+    public float Height
     {
-        get => (int)frect.H;
+        get => frect.H;
         set => frect.H = value;
     }
 

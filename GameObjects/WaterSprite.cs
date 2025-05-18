@@ -1,4 +1,6 @@
-﻿namespace TestGame.GameObjects; 
+﻿using SharpSDL3.Structs;
+
+namespace TestGame.GameObjects; 
 /// <inheritdoc />
 public class WaterSprite(GameContext context, Size spriteSize)
     : AnimatedSprite(context, Path.Combine(Engine.StartupPath, "Water.bmp"),

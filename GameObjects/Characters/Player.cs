@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
@@ -37,13 +39,13 @@ public class Player : Entity {
 
     public override float Z { get; set; }
 
-    public override int Width => 24;
+    public override float Width => 24;
 
-    public override int Height => 48;
+    public override float Height => 48;
 
-    public Rect HealthRect => new() {
-        X = (int)X,
-        Y = (int)Y,
+    public FRect HealthRect => new() {
+        X = X,
+        Y = Y,
         W = 100,
         H = 16
     };
@@ -74,10 +76,10 @@ public class Player : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-        _ = SDL.RenderFillRect(RendererPtr, ref _body);
-        Rect r = HitBox;
+        _ = Render.RenderFillRect(RendererPtr, ref _body);
+        FRect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = SDL.RenderDrawRect(RendererPtr, ref r);
+        _ = Render.RenderRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {

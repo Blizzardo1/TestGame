@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using SDL2;
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.GameObjects;
 using TestGame.Scenes.EventArgs;
 
@@ -10,7 +12,7 @@ public abstract class Scene : Renderer {
     public event SceneEventHandler? SceneEnter;
     public event SceneEventHandler? SceneLeave;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Video);
     protected bool Initialized { get; set; } = false;
 
     public Scene? LastScene { get; set; }
@@ -40,11 +42,11 @@ public abstract class Scene : Renderer {
         BackgroundColor = context.Color;
         Name = name;
         FontName = context.FontName;
-        Initialize(context.RendererPtr);
+        Initialize(context.WindowPtr, context.RendererPtr);
     }
 
     protected void SetColor(Color color) {
-        _ = SDL.SetRenderDrawColor(RendererPtr, color.R, color.G, color.B, color.A);
+        _ = Render.SetRenderDrawColor(RendererPtr, color);
     }
 
     public abstract void Initialize();

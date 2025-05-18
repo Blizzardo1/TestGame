@@ -1,4 +1,4 @@
-﻿using SDL2;
+﻿
 
 namespace TestGame.GameObjects; 
 
@@ -13,7 +13,7 @@ public abstract class Audio : IGameObject {
 
     public bool IsPlaying { get; protected set; }
     ~Audio() {
-        Mixer.FreeChunk(Pointer);
+        // Mixer.FreeChunk(Pointer);
     }
 
     public abstract void Play();

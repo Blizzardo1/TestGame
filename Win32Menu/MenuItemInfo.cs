@@ -4,7 +4,64 @@
 
 #endregion
 
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+
 namespace TestGame.Win32Menu;
+
+[CustomMarshaller(typeof(MenuItemInfo), MarshalMode.ManagedToUnmanagedIn, typeof(MenuItemInfoMarshaller))]
+internal unsafe static class MenuItemInfoMarshaller {
+    public struct Unmanaged {
+        public uint cbSize;
+
+        public uint fMask;
+
+        public uint fType;
+
+        public uint fState;
+
+        public uint wID;
+
+        public nint hSubMenu;
+
+        public nint hbmpChecked;
+
+        public nint hbmpUnchecked;
+
+        public nuint dwItemData;
+
+        public nint dwTypeData; // Changed from string to nint to ensure it is unmanaged
+
+        public uint cch;
+
+        public nint hbmpItem;
+    }
+
+    public static Unmanaged ConvertToUnmanaged(MenuItemInfo managed) {
+        var unmanaged = new Unmanaged {
+            cbSize = (uint)Marshal.SizeOf<Unmanaged>(), // Corrected to use Unmanaged type
+            fMask = managed.fMask,
+            fType = managed.fType,
+            fState = managed.fState,
+            wID = managed.wID,
+            hSubMenu = managed.hSubMenu,
+            hbmpChecked = managed.hbmpChecked,
+            hbmpUnchecked = managed.hbmpUnchecked,
+            dwItemData = managed.dwItemData,
+            dwTypeData = Marshal.StringToHGlobalUni(managed.dwTypeData), // Convert string to unmanaged memory
+            cch = managed.cch,
+            hbmpItem = managed.hbmpItem
+        };
+
+        return unmanaged;
+    }
+
+    public static void Free(Unmanaged unmanaged) {
+        if (unmanaged.dwTypeData != nint.Zero) {
+            Marshal.FreeHGlobal(unmanaged.dwTypeData); // Free unmanaged memory for dwTypeData
+        }
+    }
+}
 
 /// <summary>
 /// Contains information about a menu item.
@@ -13,6 +70,7 @@ namespace TestGame.Win32Menu;
 /// The MENUITEMINFO structure is used with the GetMenuItemInfo, InsertMenuItem, and SetMenuItemInfo functions.
 /// The menu can display items using text, bitmaps, or both.
 /// </remarks>
+[NativeMarshalling(typeof(MenuItemInfoMarshaller))]
 public struct MenuItemInfo {
     /// <summary>
     /// The size of the structure, in bytes. The caller must set this member to sizeof(MENUITEMINFO).
