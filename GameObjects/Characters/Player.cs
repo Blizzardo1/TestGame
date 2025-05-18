@@ -3,7 +3,8 @@ using SharpSDL3;
 using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
-namespace TestGame.GameObjects.Characters; 
+namespace TestGame.GameObjects.Characters;
+
 public class Player : Entity {
    public override AnimatedSprite32 Sprite { get; set; }
 

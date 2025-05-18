@@ -8,7 +8,7 @@ using SharpSDL3.Structs;
 using TestGame.GameObjects.Characters;
 using TestGame.GameObjects.Textures;
 
-namespace TestGame.GameObjects.Map; 
+namespace TestGame.GameObjects.Map;
 
 public record TextureData(Textures.Texture Texture, Rect Rect);
 
@@ -48,7 +48,7 @@ public class World(nint rendererPtr, string map) : GameObject {
 
             Entity e = EntityFactory.CreateEntity(obj?.Name, entityType.Value, RendererPtr);
             e.X = obj!.X;
-            e.Y = obj!.Y;
+            e.Y = obj.Y;
             e.Initialize();
 
             switch (e) {
@@ -82,7 +82,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             Log.Info($"Loading world: {world.WorldName} from path: {world.WorldPath}");
             WorldName = world.WorldName;
             WorldPath = world.WorldPath;
-            _map = LoadMap(world.WorldPath!);
+            _map = LoadMap(world.WorldPath);
             if (_map is null) {
                 Log.Error("Failed to load map from world path");
                 return;
@@ -98,7 +98,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             Log.Error($"Tileset {tileset.Name} has no image");
             return;
         }
-        
+
         nint texture = Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
         if (texture == nint.Zero) {
             Log.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
@@ -153,7 +153,7 @@ public class World(nint rendererPtr, string map) : GameObject {
                     break;
             }
         }
-        Log.Debug($"New Entities: {string.Join(',', _entities!.Select(e => e.Name))}");
+        Log.Debug($"New Entities: {string.Join(',', _entities.Select(e => e.Name))}");
 
         if (layer is TileLayer tileLayer) {
             BuildLayers(tileLayer, map, mapPath);
@@ -207,7 +207,7 @@ public class World(nint rendererPtr, string map) : GameObject {
                 continue;
             }
 
-            if (!_textures!.TryGetValue(tileId, out TextureData? td)) {
+            if (!_textures.TryGetValue(tileId, out TextureData? td)) {
                 Log.Error($"Texture for tile {tileId} not found");
                 continue;
             }
@@ -277,7 +277,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             return;
         }
 
-        // Lower Z values are drawn first        
+        // Lower Z values are drawn first
         List<Entity> sorted = [.. _entities.OrderByDescending(e => e.Z + e.Height / 2)];
         _entities = [.. sorted];
     }

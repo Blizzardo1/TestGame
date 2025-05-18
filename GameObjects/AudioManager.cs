@@ -3,7 +3,8 @@ using SharpSDL3.Enums;
 using SharpSDL3.Mixer;
 using SharpSDL3.Structs;
 
-namespace TestGame.GameObjects; 
+namespace TestGame.GameObjects;
+
 public class AudioManager : IDisposable {
     private bool _initialized;
 
@@ -41,7 +42,7 @@ public class AudioManager : IDisposable {
                 Format = SharpSDL3.Enums.AudioFormat.S16,
                 Freq=48000
             });
-        
+
         if(Mixer.MasterVolume(50) == -1) {
             Log.Error($"Failed to set master volume: {Sdl.GetError()}");
             return;
@@ -87,7 +88,7 @@ public class AudioManager : IDisposable {
 
     public override bool Equals(object? obj) => obj is AudioManager && obj == this;
 
-    public override int GetHashCode() { 
+    public override int GetHashCode() {
         return HashCode.Combine(typeof(AudioManager).FullName);
     }
 }

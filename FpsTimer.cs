@@ -1,6 +1,7 @@
 ﻿using SharpSDL3;
 
-namespace TestGame; 
+namespace TestGame;
+
 internal class FpsTimer {
     private bool _running;
     private bool _paused;
