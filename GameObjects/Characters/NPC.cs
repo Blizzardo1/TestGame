@@ -1,14 +1,22 @@
+<<<<<<< HEAD:GameObjects/Characters/NPC.cs
 ﻿
 using SharpSDL3;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
+=======
+using SharpSDL3;
+using TestGame.GameObjects.Items;
+
+namespace TestGame.GameObjects.Characters;
+>>>>>>> 4ee76db (SDL3 Migration almost complete):GameObjects/Characters/Npc.cs
 public class Npc : Entity {
 
     public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "NPC";
 
+<<<<<<< HEAD:GameObjects/Characters/NPC.cs
 <<<<<<< HEAD
     public override float Width => 24;
 
@@ -21,16 +29,21 @@ public class Npc : Entity {
 
 =======
 >>>>>>> f9d28d7 (Changed some things around)
+=======
+>>>>>>> 4ee76db (SDL3 Migration almost complete):GameObjects/Characters/Npc.cs
     public override float Width => 24;
 
     public override float Height => 48;
 
+<<<<<<< HEAD:GameObjects/Characters/NPC.cs
 <<<<<<< HEAD
     public override string? Name { get; protected set; }
 >>>>>>> b06930d (Included Global UnmanagedTypes for Strings and Bools)
 
 =======
 >>>>>>> f9d28d7 (Changed some things around)
+=======
+>>>>>>> 4ee76db (SDL3 Migration almost complete):GameObjects/Characters/Npc.cs
     public Npc(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
@@ -53,6 +66,7 @@ public class Npc : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
+<<<<<<< HEAD:GameObjects/Characters/NPC.cs
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -68,3 +82,8 @@ public class Npc : Entity {
 >>>>>>> c521a5a (Fixed some code convention issues)
     }
 }
+=======
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
+    }
+}
+>>>>>>> 4ee76db (SDL3 Migration almost complete):GameObjects/Characters/Npc.cs
