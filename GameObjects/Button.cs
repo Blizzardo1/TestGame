@@ -20,7 +20,7 @@ public class Button(GameContext context) : GameObject {
     public event EventHandler< MouseMotionEvent >? MouseLeave;
 
     private const float DefaultTextSize = 12f;
-    private readonly TextString _text = new(context, GetFontStatic(), DefaultTextSize, "Button");
+    private readonly TextString _text = new(context, GetFontStatic(context.FontName), DefaultTextSize, "Button");
 
     private bool _inverse;
     

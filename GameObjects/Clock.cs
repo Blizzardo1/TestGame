@@ -32,7 +32,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
 
     public bool ShowShadow { get; set; }
 
-    private readonly TextString _time = new(context, GetFontStatic(fontPath: font), fontSize, TimeFormat);
+    private readonly TextString _time = new(context, GetFontStatic(context.FontName), fontSize, TimeFormat);
 
     private readonly Color[] _hitSequence = [
         new() { R = 88, G = 120, B = 56, A = 255 }, // Moldy Green

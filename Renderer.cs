@@ -55,6 +55,14 @@ public  abstract class Renderer {
         _initialized = true;
     }
 
+    public nint GetRenderer() {
+        if (RendererPtr == nint.Zero) {
+            _log?.Error("Renderer is not initialized");
+            return nint.Zero;
+        }
+        return RendererPtr;
+    }
+
     public static Font GetFontStatic(string fontName = FontName,
         string fontPath = FontPath) {
 

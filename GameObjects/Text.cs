@@ -83,6 +83,7 @@ public class TextString : GameObject {
                 CalculateShadow(Font.Size / ShadowDivisor, Font.Size / ShadowDivisor));
         }
         RenderText(Text, Font.Name, (int)X, (int)Y, ForegroundColor);
+        Sdl.SetRenderDrawColor(RendererPtr, Colors.Colors.Red);
         Sdl.RenderRect(RendererPtr, ref frect);
     }
 

@@ -9,8 +9,6 @@ using SharpSDL3.Structs;
 using SharpSDL3.Enums;
 using SharpSDL3;
 
-using Tex = SharpSDL3.Textures;
-
 namespace TestGame.GameObjects.Map; 
 
 public record TextureData(Textures.Texture Texture, Rect Rect);
@@ -250,7 +248,6 @@ public class World(nint rendererPtr, string map) : GameObject {
             entity.Update(e);
         }
 
-        //#TODO: Fix this to sort properly
         SortByZOrder();
     }
 

@@ -43,12 +43,7 @@ public class Player : Entity {
 
     public override float Height => 48;
 
-    public FRect HealthRect => new() {
-        X = X,
-        Y = Y,
-        W = 100,
-        H = 16
-    };
+    public Hud Hud { get; set; }
 
     public override string? Name { get; protected set; }
 
@@ -60,6 +55,7 @@ public class Player : Entity {
         MaxHP = 100;
         Heal(100);
         Sprite = AnimatedSprite32.BlankSprite;
+        Hud = new(this);
     }
 
     public override void Initialize() {
@@ -80,6 +76,7 @@ public class Player : Entity {
         FRect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
         _ = Sdl.RenderRect(RendererPtr, ref r);
+        Hud.Draw();
     }
 
     public override void Update(Event e) {
