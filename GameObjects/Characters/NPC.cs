@@ -48,9 +48,13 @@ public class Npc : Entity {
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
 <<<<<<< HEAD
+<<<<<<< HEAD
         _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
 =======
         _ = Render.RenderFillRect(RendererPtr, ref _body);
 >>>>>>> b06930d (Included Global UnmanagedTypes for Strings and Bools)
+=======
+        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
+>>>>>>> 833ffb1 (SDL3 Migration almost complete)
     }
 }
