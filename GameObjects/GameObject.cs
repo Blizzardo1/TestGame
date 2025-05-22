@@ -6,7 +6,6 @@ namespace TestGame.GameObjects;
 
 public abstract class GameObject : Renderer, IRenderer {
     protected FRect frect;
-    private Font _font;
 
     #region Implementation of IRenderable
 
@@ -41,11 +40,7 @@ public abstract class GameObject : Renderer, IRenderer {
         set => frect.H = value;
     }
 
-    public Font Font
-    {
-        get => _font;
-        set => _font = value;
-    }
+    public Font Font {get; set;}
 
     /// <inheritdoc />
     public string? Name { get; protected set; }

@@ -33,7 +33,7 @@ public class Camera(GameContext context) : Renderer {
             return;
         }
         // Zoom in/out by dividing the width and height by the scale
-        _ = Render.SetRenderScale(RendererPtr, scale, scale);
+        _ = Sdl.SetRenderScale(RendererPtr, scale, scale);
     }
 
     /// <summary>

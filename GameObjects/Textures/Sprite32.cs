@@ -88,6 +88,6 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
     }
 
     public void RenderTile() {
-        _ = Render.RenderTexture(RendererPtr, TexturePtr, ref _source, ref _destination);
+        _ = Sdl.RenderTexture(RendererPtr, TexturePtr, ref _source, ref _destination);
     }
 }

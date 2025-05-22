@@ -40,7 +40,7 @@ public class AnimatedSprite : Sprite {
     public override void Draw() {
         var rect = Rect;
         
-        _ = Render.RenderTexture(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
+        _ = Sdl.RenderTexture(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
     }
 
     /// <inheritdoc />

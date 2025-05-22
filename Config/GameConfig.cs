@@ -5,7 +5,7 @@ using TestGame.GameObjects.Map;
 namespace TestGame.Config;
 
 public record GameConfig(string Path) {
-    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     [JsonProperty("maps")]
     public List< MapConfig >? Maps { get; set; }
@@ -39,7 +39,7 @@ public record GameConfig(string Path) {
                 return;
             }
 
-            Renderer.GetFontStatic(font.Name, font.Font, 12);
+            Renderer.GetFontStatic(font.Name, font.Font);
         });
 
         if (AudioDevices is null) return;

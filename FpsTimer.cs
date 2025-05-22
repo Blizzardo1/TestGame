@@ -14,7 +14,7 @@ internal class FpsTimer {
     public void Start() {
         _running = true;
         _paused = false;
-        _startTicks = SharpSDL3.Timer.GetTicks();
+        _startTicks = Sdl.GetTicks();
     }
 
     public void Stop() {
@@ -27,14 +27,14 @@ internal class FpsTimer {
     public void Pause() {
         if (_running && !_paused) {
             _paused = true;
-            _pausedTicks = SharpSDL3.Timer.GetTicks() - _startTicks;
+            _pausedTicks = Sdl.GetTicks() - _startTicks;
         }
     }
 
     public void Unpause() {
         if (_running && _paused) {
             _paused = false;
-            _startTicks = SharpSDL3.Timer.GetTicks() - _pausedTicks;
+            _startTicks = Sdl.GetTicks() - _pausedTicks;
             _pausedTicks = 0;
         }
     }
@@ -48,6 +48,6 @@ internal class FpsTimer {
             return _pausedTicks;
         }
 
-        return SharpSDL3.Timer.GetTicks() - _startTicks;
+        return Sdl.GetTicks() - _startTicks;
     }
 }

@@ -17,7 +17,7 @@ public record TextureData(Textures.Texture Texture, Rect Rect);
 
 public class World(nint rendererPtr, string map) : GameObject {
 
-    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private readonly static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
     private FRect sourceRect;
     private FRect destinationRect;
@@ -54,9 +54,6 @@ public class World(nint rendererPtr, string map) : GameObject {
             e.Y = obj!.Y;
             e.Initialize();
 
-            _log?.Assert(e.X == obj.X, $"X coordinate mismatch: {e.X} != {obj.X}");
-            _log?.Assert(e.Y == obj.Y, $"Y coordinate mismatch: {e.Y} != {obj.Y}");
-
             switch (e) {
                 case Player:
                     _entities.Add((Player)e);
@@ -78,7 +75,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             return;
         }
         
-        nint texture = (nint)Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
+        nint texture = Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
         if (texture == nint.Zero) {
             _log?.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
             return;
@@ -146,46 +143,13 @@ public class World(nint rendererPtr, string map) : GameObject {
         });
     }
 
-
-    private Tileset ResolveTileset(string source) {
-        using var tilesetFileReader = new StreamReader(source);
-        var tilesetString = tilesetFileReader.ReadToEnd();
-        using var tilesetReader = new TilesetReader(tilesetString, ResolveTileset, ResolveTemplate, ResolveCustomType);
-        return tilesetReader.ReadTileset();
-    }
-
-    private Template ResolveTemplate(string source) {
-        string templatePath = source;
-        using var templateFileReader = new StreamReader(templatePath);
-        var templateString = templateFileReader.ReadToEnd();
-        using var templateReader = new TemplateReader(templateString, ResolveTileset, ResolveTemplate, ResolveCustomType);
-        return templateReader.ReadTemplate();
-    }
-
-    private Optional<ICustomTypeDefinition>? ResolveCustomType(string name) {
-        List<ICustomTypeDefinition> allDefinedTypes = [new Water()];
-        return allDefinedTypes.FirstOrDefault(type => type.Name == name) as Optional<ICustomTypeDefinition>;
-    }
-
-
-    private DotTiled.Map LoadReadMap(string mapPath) {
-        using var mapFileReader = new StreamReader(mapPath);
-        var mapString = mapFileReader.ReadToEnd();
-        using var mapReader = new MapReader(mapString, ResolveTileset, ResolveTemplate, ResolveCustomType);
-
-        var map = mapReader.ReadMap();
-        ConstructMap(map, mapPath);
-
-        return map;
-    }
-
     private DotTiled.Map LoadMap(string mapPath) {
         string fullPath = mapPath;
         _log?.Debug($"Loading {fullPath}");
         Loader loader = Loader.Default();
-        DotTiled.Map map = loader.LoadMap(fullPath);
-        ConstructMap(map, mapPath);
-        return map;
+        DotTiled.Map dmap = loader.LoadMap(fullPath);
+        ConstructMap(dmap, mapPath);
+        return dmap;
     }
 
     public void Cleanup() {
@@ -210,11 +174,6 @@ public class World(nint rendererPtr, string map) : GameObject {
 
         Initialized = true;
     }
-
-    // Fix for CS1510: A ref or out value must be an assignable variable
-    // The issue is that the sixth argument in the `Render.RenderTextureRotated` method call
-    // requires a `ref` keyword, but `nint.Zero` is not an assignable variable.
-    // To fix this, we need to declare a variable of type `FPoint` and pass it by reference.
 
     private void RenderLayer(TileLayer layer) {
         int x = 0, y = 0;
@@ -256,9 +215,9 @@ public class World(nint rendererPtr, string map) : GameObject {
             // - End Rant
 
             // Declare a variable of type FPoint to pass as a ref argument
-            FPoint center = new FPoint { X = 0, Y = 0 };
+            FPoint center = new() { X = 0, Y = 0 };
 
-            bool res = Render.RenderTextureRotated(RendererPtr, td.Texture, ref sourceRect, ref destinationRect,
+            bool res = Sdl.RenderTextureRotated(RendererPtr, td.Texture, ref sourceRect, ref destinationRect,
                 0, ref center, FlipMode.None);
             if (!res) {
                 _log?.Error($"Error rendering tile: {Sdl.GetError()}");

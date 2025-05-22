@@ -76,10 +76,10 @@ public class Player : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-        _ = Render.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
         FRect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = Render.RenderRect(RendererPtr, ref r);
+        _ = Sdl.RenderRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {

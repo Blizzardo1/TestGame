@@ -42,11 +42,11 @@ public abstract class Scene : Renderer {
         BackgroundColor = context.Color;
         Name = name;
         FontName = context.FontName;
-        Initialize(context.WindowPtr, context.RendererPtr);
+        Initialize(context.RendererPtr);
     }
 
     protected void SetColor(Color color) {
-        _ = Render.SetRenderDrawColor(RendererPtr, color);
+        _ = Sdl.SetRenderDrawColor(RendererPtr, color);
     }
 
     public abstract void Initialize();

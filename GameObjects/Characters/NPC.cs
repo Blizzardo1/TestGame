@@ -66,6 +66,6 @@ public class Npc : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
-        _ = Render.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
     }
 }

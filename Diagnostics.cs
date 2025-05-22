@@ -42,8 +42,8 @@ internal class Diagnostics : Renderer, IRenderer {
 
     public bool Shown { get; set; }
 
-    public Diagnostics(nint windowPtr, nint rendererPtr, int width, int height) {
-        Initialize(windowPtr, rendererPtr);
+    public Diagnostics(nint rendererPtr, int width, int height) {
+        Initialize(rendererPtr);
         Width = width;
         Height = height;
         _rect = new FRect { X = X, Y = Y, W = Width, H = Height };
@@ -77,8 +77,8 @@ internal class Diagnostics : Renderer, IRenderer {
     /// <inheritdoc />
     public void Draw() {
         string[] a = [.. _diagnostics];
-        _ = Render.SetRenderDrawColor(RendererPtr, 0, 0, 0, 128);
-        _ = Render.RenderFillRect(RendererPtr, ref _rect);
+        _ = Sdl.SetRenderDrawColor(RendererPtr, 0, 0, 0, 128);
+        _ = Sdl.RenderFillRect(RendererPtr, ref _rect);
         for (int y = 0; y < a.Length; y++) {
             if (a[ y ].IsEmpty()) continue;
 

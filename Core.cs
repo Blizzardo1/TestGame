@@ -181,9 +181,9 @@ public class Core : Window {
         IsRunning = true;
         IsPaused = false;
 
-        _ = Render.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
+        _ = Sdl.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
 
-        _diagnostic = new Diagnostics(WindowPtr, RendererPtr, 256, 256);
+        _diagnostic = new Diagnostics(RendererPtr, 256, 256);
 
         // #TODO: This needs to be moved away from the engine and processed per separate Application.
 
@@ -219,7 +219,7 @@ public class Core : Window {
     /// <param name="color">The new color to set to the Renderer*.</param>
     /// <returns>0 on success, negative error code on failure</returns>
     public static bool SetRenderColor(nint rendererPtr, Color color) {
-        return Render.SetRenderDrawColor(rendererPtr, color);
+        return Sdl.SetRenderDrawColor(rendererPtr, color);
     }
 
     /// <summary>
@@ -322,7 +322,7 @@ public class Core : Window {
             // Default to this if the Current Scene's Background Color isn't set.
             ?? KnownColor.Black.ToColor());
 
-        _ = Render.RenderClear(RendererPtr);
+        _ = Sdl.RenderClear(RendererPtr);
 
         _currentScene?.Draw();
 
@@ -330,7 +330,7 @@ public class Core : Window {
             _diagnostic.Draw();
         }
 
-        Render.RenderPresent(RendererPtr);
+        Sdl.RenderPresent(RendererPtr);
     }
 
     #region Event Methods
@@ -342,7 +342,7 @@ public class Core : Window {
         CloseFonts();
         Ttf.Quit();
 
-        Render.DestroyRenderer(RendererPtr);
+        Sdl.DestroyRenderer(RendererPtr);
         Sdl.DestroyWindow(WindowPtr);
         Sdl.Quit();
         IsRunning = false;

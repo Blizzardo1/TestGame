@@ -67,10 +67,10 @@ public class Enemy : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = Render.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
         Core.SetRenderColor(RendererPtr, Colors.Colors.White);
         FRect r = HitBox;
-        _ = Render.RenderRect(RendererPtr, ref r);
+        _ = Sdl.RenderRect(RendererPtr, ref r);
     }
 
     public override void Update(Event e) {

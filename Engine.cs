@@ -126,6 +126,11 @@ public static class Engine {
         _log?.Info("Initialized Core");
 
         Ttf.Init();
+        initialized = Sdl.InitSubSystem(InitFlags.Everything);
+        if(!initialized) {
+            _log?.Error("SDL Subsystem Initialization failed!");
+            return;
+        }
         TestSdlVersions();
 
         // This should be pulled from Config
@@ -155,15 +160,22 @@ public static class Engine {
         _game.InitializeComponents();
         _thread.Start();
 
+        Event[] events = new Event[10];
+        Sdl.PeepEvents(ref events, events.Length, EventAction.Peek, EventType.First, EventType.Last);
+        for (int i = 0; i < events.Length; i++) {
+            Event e = events[i];
+            Logger.LogDebug(LogCategory.Application, $"Event[{i}] = {e.Type}");
+        }
+
         while (_game.IsRunning) {
             _fps.Start();
-            _ = Events.PollEvent(out Event e);
+            _ = Sdl.PollEvent(out Event e);
 
             _game.Update(e);
             _game.Draw();
             uint delta = (uint)_fps.GetTicks();
             if (delta < 1000 / FramesPerSecond) {
-                SharpSDL3.Timer.Delay((1000 / FramesPerSecond) - delta);
+                Sdl.Delay((1000 / FramesPerSecond) - delta);
             }
             CurrentFPS = delta;
         }

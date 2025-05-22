@@ -29,7 +29,7 @@ public abstract class Texture : GameObject {
 
     /// <inheritdoc />
     public override void Draw() {
-        _ = Render.RenderTexture(RendererPtr, TexturePtr, nint.Zero, ref frect);
+        _ = Sdl.RenderTexture(RendererPtr, TexturePtr, nint.Zero, ref frect);
     }
 
     /// <inheritdoc />

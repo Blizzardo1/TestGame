@@ -82,7 +82,7 @@ public  class Log : IDisposable {
             _ => "Unknown"
         };
 
-        string output = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.ffff}|{priorityStr}|{categoryStr}|{_currentClass}] {message}";
+        string output = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.ffff}|{priorityStr}|{categoryStr}|{(category == LogCategory.System ? "Library" : _currentClass)}] {message}";
 #if WINDOWS
         Console.ForegroundColor = priority switch {
             LogPriority.Verbose => ConsoleColor.White,
