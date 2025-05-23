@@ -6,7 +6,7 @@ using TestGame.GameObjects;
 namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer {
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
     #region Events
 
     public event EventHandler<AudioDeviceEvent>? AudioDeviceAdded;
@@ -245,7 +245,7 @@ public abstract class Window : Renderer, IRenderer {
             flags);
 
         if (WindowPtr == nint.Zero) {
-            _log?.Error($"Cannot create Window: {Sdl.GetError()}");
+            _log.Error($"Cannot create Window: {Sdl.GetError()}");
             return;
         }
 
@@ -256,7 +256,7 @@ public abstract class Window : Renderer, IRenderer {
         Initialize(Sdl.CreateRenderer(WindowPtr, null));
 
         if (RendererPtr == nint.Zero) {
-            _log?.Error($"Cannot create RendererPtr: {Sdl.GetError()}");
+            _log.Error($"Cannot create RendererPtr: {Sdl.GetError()}");
         }
     }
 
@@ -284,6 +284,13 @@ public abstract class Window : Renderer, IRenderer {
     public float Z { get; } = float.MaxValue;
 
     protected nint WindowPtr { get; }
+
+    /// <summary>
+    /// A Pointer to the Window
+    /// </summary>
+    /// <returns>A <see cref="nint"/> Pointer to the Window</returns>
+    public nint GetWindow() => WindowPtr;
+
     /// <inheritdoc />
     public abstract void Draw();
     public void OnAudioDeviceAdded(AudioDeviceEvent @event) {
@@ -1100,7 +1107,7 @@ public abstract class Window : Renderer, IRenderer {
                 OnWindowSafeAreaChanged(e.Window);
                 break;
             default:
-                _log?.Error($"Unhandled event type: {e.Type}");
+                _log.Error($"Unhandled event type: {e.Type}");
                 break;
         }
     }

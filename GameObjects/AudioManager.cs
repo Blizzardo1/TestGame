@@ -1,21 +1,16 @@
 ﻿using SharpSDL3;
 using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
 using SharpSDL3.Structs;
 using TestGame.Config;
-
-using SAudio = SharpSDL3.Audio;
 
 namespace TestGame.GameObjects; 
 public class AudioManager : IDisposable {
     private bool _initialized;
-    private AudioSpec FileSupported;
 
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Audio);
 
     private bool _disposed;
-
-    public bool DeviceOpened { get; private set; }
-    public uint DeviceId { get; private set; }
 
     private static AudioManager? _instance;
     public static AudioManager Instance {
@@ -27,34 +22,43 @@ public class AudioManager : IDisposable {
 
     private AudioManager() {
         _disposed = false;
+    }
+
+    public void Initialize() {
+        Mixer.Initialize(Mixer.MixInit.Midi | Mixer.MixInit.Ogg | Mixer.MixInit.Flac | Mixer.MixInit.Mp3);
         OpenAudioDevice();
     }
 
     //#TODO: Implement a new way to handle Audio
     private void OpenAudioDevice() {
+        Mixer.OpenAudio(AudioDeviceId.DefaultPlayback,
+            new () {
+                Channels = 8,
+                Format = SharpSDL3.Enums.AudioFormat.S16,
+                Freq=48000
+            });
         
         _initialized = true;
+        _log.Info("Audio Manager initialized");
     }
 
     /// <summary>
     /// Plays a sound effect.
     /// </summary>
     /// <param name="effectName">The name of the effect without the scope. e.g effect, not audio/effect</param>
-    /// <param name="channel">Channel to play the sound effect on. -1 for any available channel.</param>
+    /// <param name="channel">Channel to play the sound effect on. Channel 1 is default base channel</param>
     /// <param name="loops">How many times we want to loop.</param>
-    public void PlaySoundEffect(string effectName, int channel = -1, int loops = 0) {
-        Task.Run(() => {
-            if (!_initialized) {
-                _log?.Error("AudioManager is not initialized.");
-                return;
-            }
+    public void PlaySoundEffect(string effectName, int channel = 1, int loops = 0) {
+        if (!_initialized) {
+            _log.Error("AudioManager is not initialized.");
+            return;
+        }
 
-            if (!ResourceManager.TryGet($"audio/{effectName}", out SoundEffect? effect)) {
-                return;
-            }
+        if (!ResourceManager.TryGet($"audio/{effectName}", out SoundEffect? effect)) {
+            return;
+        }
 
-            effect!.Play(channel, loops);
-        }).Wait();
+        effect!.Play(channel, loops);
     }
 
     public void Dispose() {

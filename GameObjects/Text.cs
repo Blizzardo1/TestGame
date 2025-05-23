@@ -1,6 +1,7 @@
 ﻿
 
 using SharpSDL3;
+using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
 using TestGame.Colors;
@@ -8,23 +9,65 @@ using TestGame.Colors;
 namespace TestGame.GameObjects; 
 public class TextString : GameObject {
     private const int ShadowDivisor = 10;
-    private readonly GameContext _context;
 
-    public TextString(GameContext context, Font font, float size, string text) {
-        _context = context;
-        RendererPtr = _context.RendererPtr;
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+
+    private TextEngine _textEngine;
+    private Text _sText;
+
+    ~TextString() {
+        if (_sText.Handle != nint.Zero) {
+            Ttf.DestroyText(_sText);
+        }
+        if (_textEngine.Handle != nint.Zero) {
+            Ttf.DestroyRendererTextEngine(_textEngine);
+        }
+    }
+
+    public TextString(Font font, float size, string text) {
+        RendererPtr = GetRenderer();
+
+        if (font.Handle == nint.Zero) {
+            _log.Error($"Font is not loaded: {Sdl.GetError()}");
+            return;
+        }
+
+        _textEngine = Ttf.CreateRendererTextEngine(RendererPtr);
+        _sText = Ttf.CreateText(_textEngine, Font, text);
+        _sText.TextStr = text;
+
         Text = text;
         font.Size = size;
         Font = font;
+        FSize oSize = MeasureString(Font, text);
+        Width = oSize.Width;
+        Height = oSize.Height;
+        uint props = Ttf.GetTextProperties(_sText.Handle);
+        _log.Info($"Initialized new TextString({text}) using Font {font.Name}-{font.Size} with Dimensions({X}, {Y}, {Width}, {Height}) and Text Properties {props}.");
     }
 
-    public Color ForegroundColor { get; set; }
+    public Color ForegroundColor {
+        get => Ttf.GetTextColor(_sText);
+        set {
+            Ttf.SetTextColor(_sText, value);
+        }
+    }
 
     public Color BackgroundColor { get; set; }
 
     public Color ShadowColor { get; set; }
 
-    public float TextSize {
+    public string Text {
+        get => _sText.TextStr;
+        set {
+            _sText.TextStr = value;
+            FSize size = MeasureString(Font, value);
+            Width = size.Width;
+            Height = size.Height;
+        }
+    }
+
+    public float FontSize {
         get {
             if (Font.Handle == nint.Zero) {
                 Font = GetFontStatic();
@@ -32,6 +75,7 @@ public class TextString : GameObject {
             return Font.Size;
         }
         set {
+            // This I believe copies the font while preserving the handle.
             Font f = Font;
             f.Size = value;
             Font = f;
@@ -42,10 +86,7 @@ public class TextString : GameObject {
 
     public int Length => Text?.Length ?? 0;
 
-    public string Text { get; set; }
-
     public override void Initialize() {
-        RendererPtr = _context.RendererPtr;
     }
 
     public static implicit operator string(TextString text) {
@@ -62,18 +103,27 @@ public class TextString : GameObject {
         X = x;
         Y = y;
     }
+
     public void SetPosition(FPoint point) {
-        X = point.X;
-        Y = point.Y;
+        SetPosition(point.X, point.Y);
+    }
+
+    public void CenterText() {
+        CenterText(Width, Height);
     }
 
     public void CenterText(float width, float height) {
+        CenterText(X, Y, width, height);
+    }
+
+    public void CenterText(float x, float y, float w, float h) {
         if (Font.Handle == nint.Zero) {
             Font = GetFontStatic();
         }
         FSize size = MeasureString(Font, Text);
-        X = width / 2 - size.Width / 2;
-        Y = height / 2 - size.Height / 2;
+        X = x + w / 2 - size.Width / 2;
+        Y = y + h / 2 - size.Height / 2;
+        Ttf.SetTextPosition(_sText, (int)X, (int)Y);
     }
 
     public override void Draw() {
@@ -82,7 +132,7 @@ public class TextString : GameObject {
                 (int)(Y + Font.Size / ShadowDivisor),
                 CalculateShadow(Font.Size / ShadowDivisor, Font.Size / ShadowDivisor));
         }
-        RenderText(Text, Font.Name, (int)X, (int)Y, ForegroundColor);
+        Ttf.DrawRendererText(_sText, X, Y);
         Sdl.SetRenderDrawColor(RendererPtr, Colors.Colors.Red);
         Sdl.RenderRect(RendererPtr, ref frect);
     }

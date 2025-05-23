@@ -50,6 +50,12 @@
     <None Update="SDL3_image.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SDL3_mixer.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SDL3_net.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SDL3_ttf.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

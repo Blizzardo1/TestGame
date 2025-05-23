@@ -1,10 +1,12 @@
 ﻿
 
+using SharpSDL3.Mixer;
+
 namespace TestGame.GameObjects; 
 
 public abstract class Audio : IGameObject {
 
-    protected nint Pointer = nint.Zero;
+    protected Chunk Pointer;
 
     protected int PreviousVolume = 0;
 
@@ -13,7 +15,7 @@ public abstract class Audio : IGameObject {
 
     public bool IsPlaying { get; protected set; }
     ~Audio() {
-        // Mixer.FreeChunk(Pointer);
+        Mixer.FreeChunk(Pointer);
     }
 
     public abstract void Play();

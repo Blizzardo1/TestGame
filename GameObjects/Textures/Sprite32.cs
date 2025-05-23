@@ -16,7 +16,7 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
     private FRect _source;
     private FRect _destination;
 
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
 
     /// <summary>
     /// Is set if this <see cref="Sprite32"/> is loaded by an image, else, it's strictly from memory
@@ -49,12 +49,12 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
         }
 
         if (surface == nint.Zero) {
-            _log?.Error($"Failed to create surface");
+            _log.Error($"Failed to create surface");
             return;
         }
 
         if (parentTexture is not null) {
-            _log?.Debug($"Rendering to parent texture {parentTexture}");
+            _log.Debug($"Rendering to parent texture {parentTexture}");
             TexturePtr = parentTexture.Value;
         }
 

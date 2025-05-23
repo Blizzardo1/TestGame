@@ -19,8 +19,8 @@ public class Button(GameContext context) : GameObject {
     public event EventHandler< MouseMotionEvent >? MouseEnter;
     public event EventHandler< MouseMotionEvent >? MouseLeave;
 
-    private const float DefaultTextSize = 12f;
-    private readonly TextString _text = new(context, GetFontStatic(context.FontName), DefaultTextSize, "Button");
+    private const float DefaultFontSize = 12f;
+    private readonly TextString _text = new(GetFontStatic(context.FontName), DefaultFontSize, "Button");
 
     private bool _inverse;
     
@@ -41,24 +41,19 @@ public class Button(GameContext context) : GameObject {
         get => _text.Text ?? "";
         set
         {
-            if(_text.TextSize <= 0.01) {
-                _text.TextSize = DefaultTextSize;
+            if(_text.FontSize <= 0.01) {
+                _text.FontSize = DefaultFontSize;
             }
             if (Font.Handle == nint.Zero) {
                 Font f = GetFontStatic();
-                f.Size = _text.TextSize;
+                f.Size = _text.FontSize;
                 Font = f;
             }
 
             _text.Text = value;
-            TextPosition = new() {
-                X = ( Width / 2 ) - ( MeasureString(Font, value).Width / 2 ),
-                Y = ( Height / 2 )
-            };
+            _text.CenterText();
         }
     }
-
-    public FPoint TextPosition { get; set; } = new() { X = 10, Y = 6 };
 
     private Color _selectedColor;
 
@@ -66,7 +61,10 @@ public class Button(GameContext context) : GameObject {
 
     public Color BackgroundColor { get; set; } = new() { R = 240, G = 240, B = 240, A = 255 };
     public Color HighlightColor { get; set; } = new() { R = 64, G = 150, B = 255, A = 255 };
-    public Color ForegroundColor { get; set; } = new() { R = 255, G = 255, B = 255, A = 255 }; // White
+    public Color ForegroundColor {
+        get => _text.ForegroundColor;
+        set => _text.ForegroundColor = value;
+    }
     public Color DisabledColor { get; set; } = new() { R = 100, G = 100, B = 100, A = 255 };
     public Color ClickedColor { get; set; } = new() { R = 32, G = 75, B = 128, A = 255 };
 
@@ -84,7 +82,8 @@ public class Button(GameContext context) : GameObject {
         _previousState = ButtonState.Default;
         State = _previousState;
         ForegroundColor = ColorConverter.SetInverseBasedOn(_selectedColor);
-        _text.TextSize = DefaultTextSize;
+        _text.FontSize = DefaultFontSize;
+        _text.CenterText(X, Y, Width, Height);
     }
 
     public virtual void OnClick(object? sender, MouseButtonEvent e) {
@@ -174,7 +173,7 @@ public class Button(GameContext context) : GameObject {
                 _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref sfRect, ref sfRect);
             }
 
-            DrawText(ref sfRect);
+            _text.Draw();
 
             // We don't need to render the rest of the button.
             return;
@@ -201,13 +200,7 @@ public class Button(GameContext context) : GameObject {
         if (Image is not null) {
             _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref frect, ref frect);
         }
-
-        DrawText(ref frect);
-    }
-
-    private void DrawText(ref FRect fr) {
-        if (Text is null || Text == string.Empty) return;
-        RenderText(Text, fr.X + TextPosition.X, fr.Y + TextPosition.Y, ForegroundColor);
+        _text.Draw();
     }
 
     private bool InRange(MouseMotionEvent mme) {
@@ -229,6 +222,8 @@ public class Button(GameContext context) : GameObject {
             ButtonState.Clicked => ClickedColor,
             _ => throw new ArgumentOutOfRangeException("ButtonState out of range!", new Exception())
         };
+
+        _text.CenterText(X, Y, Width, Height);
 
         ForegroundColor = ColorConverter.SetInverseBasedOn(_selectedColor);
 

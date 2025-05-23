@@ -2,16 +2,15 @@
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
-using System.Runtime.InteropServices;
-using Tex = SharpSDL3.Textures;
+
 namespace TestGame;
 
-public  abstract class Renderer {
+public abstract class Renderer {
     protected nint RendererPtr;
 
     private bool _initialized;
 
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
 
     private static readonly Dictionary< string, Font > LoadedFonts = [];
 
@@ -40,14 +39,13 @@ public  abstract class Renderer {
         Font f = GetFontStatic(fontName, fontPath);
 
         if (f.Handle == nint.Zero) {
-            _log?.Error($"Font has no handle... {fontPath}: {Sdl.GetError()}");
+            _log.Error($"Font has no handle... {fontPath}: {Sdl.GetError()}");
             return;
         }
 
         _renderingFont = fontPath;
         if(renderer == nint.Zero) {
-            // Who called?
-            _log?.Error("Renderer is not initialized");
+            _log.Error("Renderer is not initialized");
             return;
         }
         
@@ -57,7 +55,7 @@ public  abstract class Renderer {
 
     public nint GetRenderer() {
         if (RendererPtr == nint.Zero) {
-            _log?.Error("Renderer is not initialized");
+            _log.Error("Renderer is not initialized");
             return nint.Zero;
         }
         return RendererPtr;
@@ -71,19 +69,19 @@ public  abstract class Renderer {
         }
 
         if (fontName.IsEmpty()) {
-            _log?.Warn($"Font path \"{fontName}\" is empty. Using Default: {FontName}");
+            _log.Warn($"Font path \"{fontName}\" is empty. Using Default: {FontName}");
             fontPath = FontPath;
         }
 
         if (fontPath.IsEmpty()) {
-            _log?.Warn($"Font path \"{fontPath}\" is empty. Using Default: {FontPath}");
+            _log.Warn($"Font path \"{fontPath}\" is empty. Using Default: {FontPath}");
             fontPath = FontPath;
         }
 
         Font f = Ttf.OpenFont(fontPath, FontSize);
 
         LoadedFonts.Add(fontName, f);
-        _log?.Debug($"Loaded font: {fontName}:{fontPath}");
+        _log.Debug($"Loaded font: {fontName}:{fontPath}");
         return LoadedFonts[ fontName ];
     }
 
@@ -103,13 +101,13 @@ public  abstract class Renderer {
         }
 
         if (RendererPtr == nint.Zero) {
-            _log?.Error("Renderer is not initialized");
+            _log.Error("Renderer is not initialized");
             return;
         }
         if (_textEngine.Handle == nint.Zero) {
             _textEngine = Ttf.CreateRendererTextEngine(RendererPtr);
             if (_textEngine.Handle == nint.Zero) {
-                _log?.Error($"Error creating text engine: {Sdl.GetError()}");
+                _log.Error($"Error creating text engine: {Sdl.GetError()}");
                 return;
             }
         }
@@ -142,12 +140,12 @@ public  abstract class Renderer {
     protected static FSize MeasureString(Font font, string text) {
         
         if(font.Handle == nint.Zero) {
-            _log?.Error($"Font is not loaded: {Sdl.GetError()}");
+            _log.Error($"Font is not loaded: {Sdl.GetError()}");
             return new FSize();
         }
 
         if(!Ttf.MeasureString(font, text, 0, out Size measuredSize)) {
-            _log?.Error($"Error measuring text \"{text}\": {Sdl.GetError()}");
+            _log.Error($"Error measuring text \"{text}\": {Sdl.GetError()}");
             return new FSize();
         }
 

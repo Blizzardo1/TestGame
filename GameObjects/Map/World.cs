@@ -15,7 +15,7 @@ public record TextureData(Textures.Texture Texture, Rect Rect);
 
 public class World(nint rendererPtr, string map) : GameObject {
 
-    private readonly static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private readonly static Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
     private FRect sourceRect;
     private FRect destinationRect;
@@ -64,18 +64,18 @@ public class World(nint rendererPtr, string map) : GameObject {
                     break;
             }
         }
-        _log?.Info("Entities Added");
+        _log.Info("Entities Added");
     }
 
     private  void LoadTilesets(Tileset tileset, string mapPath) {
         if (tileset.Image is null) {
-            _log?.Error($"Tileset {tileset.Name} has no image");
+            _log.Error($"Tileset {tileset.Name} has no image");
             return;
         }
         
         nint texture = Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
         if (texture == nint.Zero) {
-            _log?.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
+            _log.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
             return;
         }
 
@@ -127,7 +127,7 @@ public class World(nint rendererPtr, string map) : GameObject {
                     break;
             }
         }
-        _log?.Debug($"New Entities: {string.Join(',', _entities!.Select(e => e.Name))}");
+        _log.Debug($"New Entities: {string.Join(',', _entities!.Select(e => e.Name))}");
 
         if (layer is TileLayer tileLayer) {
             BuildLayers(tileLayer, map, mapPath);
@@ -143,7 +143,7 @@ public class World(nint rendererPtr, string map) : GameObject {
 
     private DotTiled.Map LoadMap(string mapPath) {
         string fullPath = mapPath;
-        _log?.Debug($"Loading {fullPath}");
+        _log.Debug($"Loading {fullPath}");
         Loader loader = Loader.Default();
         DotTiled.Map dmap = loader.LoadMap(fullPath);
         ConstructMap(dmap, mapPath);
@@ -187,12 +187,12 @@ public class World(nint rendererPtr, string map) : GameObject {
             }
 
             if (!_textures!.TryGetValue(tileId, out TextureData? td)) {
-                _log?.Error($"Texture for tile {tileId} not found");
+                _log.Error($"Texture for tile {tileId} not found");
                 continue;
             }
 
             if (td.Texture is null) {
-                _log?.Error($"Texture for tile {tileId} is null");
+                _log.Error($"Texture for tile {tileId} is null");
                 return;
             }
 
@@ -218,7 +218,7 @@ public class World(nint rendererPtr, string map) : GameObject {
             bool res = Sdl.RenderTextureRotated(RendererPtr, td.Texture, ref sourceRect, ref destinationRect,
                 0, ref center, FlipMode.None);
             if (!res) {
-                _log?.Error($"Error rendering tile: {Sdl.GetError()}");
+                _log.Error($"Error rendering tile: {Sdl.GetError()}");
                 return;
             }
             x++;

@@ -4,8 +4,8 @@ using SharpSDL3.Mixer;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using TestGame.Config;
+using TestGame.GameObjects;
 
 namespace TestGame;
 
@@ -18,7 +18,7 @@ public static class Engine {
 
     public static readonly string GameConfigFile = Path.Combine(ConfigPath, "game.json");
 
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     private static Thread? _thread;
     private static Core? _game;
@@ -41,36 +41,36 @@ public static class Engine {
         List< string > lst = [];
 
         // Arrays of uints
-        uint[] playbackDevices = Audio.GetAudioPlaybackDevices(out int outputCount);
-        uint[] recordingDevices = Audio.GetAudioRecordingDevices(out int inputCount);
+        uint[] playbackDevices = Sdl.GetAudioPlaybackDevices(out int outputCount);
+        uint[] recordingDevices = Sdl.GetAudioRecordingDevices(out int inputCount);
 
         if (playbackDevices == null) {
-            _log?.Error("No Playback Devices found!");
+            _log.Error("No Playback Devices found!");
             return null;
         }
 
         if (recordingDevices == null) {
-            _log?.Error("No Recording Devices found!");
+            _log.Error("No Recording Devices found!");
             return null;
         }
 
-        _log?.Debug($"Playback Devices: {outputCount}");
-        _log?.Debug($"Recording Devices: {inputCount}");
+        _log.Debug($"Playback Devices: {outputCount}");
+        _log.Debug($"Recording Devices: {inputCount}");
 
         for (int i = 0; i < outputCount; i++) {
-            string devName = Audio.GetAudioDeviceName(playbackDevices[i]);
-            _log?.Debug($"Output Device {i}: {devName}");
+            string devName = Sdl.GetAudioDeviceName(playbackDevices[i]);
+            _log.Debug($"Output Device {i}: {devName}");
             lst.Add($"output/{i}/{devName}");
         }
 
         for (int i = 0; i < inputCount; i++) {
-            string devName = Audio.GetAudioDeviceName(recordingDevices[i]);
-            _log?.Debug($"Input Device {i}: {devName}");
+            string devName = Sdl.GetAudioDeviceName(recordingDevices[i]);
+            _log.Debug($"Input Device {i}: {devName}");
             lst.Add($"input/{i}/{devName}");
         }
 
         if (GameConfig is null) {
-            _log?.Error("Game Configuration not loaded or found. Please make sure this exists and is properly configured!");
+            _log.Error("Game Configuration not loaded or found. Please make sure this exists and is properly configured!");
             return null;
         }
 
@@ -90,7 +90,7 @@ public static class Engine {
     }
 
     private static void TestSdlVersions() {
-        _log?.Debug($"SDL Version: {SharpSDL3.Version.GetRevision()}");
+        _log.Debug($"SDL Version: {SharpSDL3.Version.GetRevision()}");
     }
 
     private static void CreateIfNotExist(string directory) {
@@ -104,7 +104,6 @@ public static class Engine {
     /// </summary>
     /// <remarks>Can break if you're not careful</remarks>
     public static void PreInitialize(string title, int width, int height) {
-
         CreateIfNotExist(LogPath);
         CreateIfNotExist(AudioConfigPath);
         CreateIfNotExist(ConfigPath);
@@ -119,16 +118,20 @@ public static class Engine {
 
         bool initialized = Sdl.Init(InitFlags.Everything);
         if(!initialized) {
-            _log?.Error("SDL Initialization failed!");
+            _log.Error("SDL Initialization failed!");
             return;
         }
 
-        _log?.Info("Initialized Core");
+        _log.Info("Initialized Core");
 
         Ttf.Init();
+        AudioManager.Instance.Initialize();
         initialized = Sdl.InitSubSystem(InitFlags.Everything);
+        if(!Sdl.WasInit(InitFlags.Joystick).HasFlag(InitFlags.Joystick)) {
+            _log.Error("SDL Joystick Subsystem Initialization failed!");
+        }
         if(!initialized) {
-            _log?.Error("SDL Subsystem Initialization failed!");
+            _log.Error("SDL Subsystem Initialization failed!");
             return;
         }
         TestSdlVersions();
@@ -140,17 +143,17 @@ public static class Engine {
                 GameConfig.AudioDeviceOutput != null && GameConfig.AudioDeviceOutput.Contains(adc.DeviceName!));
         OutputDevice = audioDevice?.DeviceName ?? lst?.FirstOrDefault(s => s.StartsWith(" output"));
         if (OutputDevice is null) {
-            _log?.Error("No Audio Output Device!");
+            _log.Error("No Audio Output Device!");
             return;
         }
 
-        _log?.Info($"Selected Audio Output Device: {OutputDevice}");
+        _log.Info($"Selected Audio Output Device: {OutputDevice}");
         _game = new Core(width, height, title);
     }
 
     public static void PostInitialize() {
         if (_game is null) {
-            _log?.Error("No Game instance created!");
+            _log.Error("No Game instance created!");
             return;
         }
 
@@ -186,7 +189,7 @@ public static class Engine {
         Ttf.Quit();
         Sdl.Quit();
 
-        _log?.Info("Goodbye!");
+        _log.Info("Goodbye!");
 
         // No need to free the console. The OS will do that for us when the program exits.
     }

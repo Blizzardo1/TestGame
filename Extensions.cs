@@ -7,7 +7,7 @@ namespace TestGame;
 
 public static class Extensions {
 
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
     public static Color ToColor(this KnownColor color) {
         Color c = new();
         byte a = (byte)( (int)color >> 24 & 0xFF );
@@ -76,7 +76,7 @@ public static class Extensions {
         float timeX = Math.Abs(distX) / a.VelocityX;
         float timeY = Math.Abs(distY) / a.VelocityY;
 
-        _log?.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
+        _log.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
 
         if (distX < 0 && a.Direction.HasFlag(Direction.Left) && timeX > timeY) {
             intersection.Direction |= Intersection.Directionals.Left;

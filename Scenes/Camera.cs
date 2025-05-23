@@ -7,7 +7,7 @@ using TestGame.GameObjects.Characters;
 
 namespace TestGame.Scenes; 
 public class Camera(GameContext context) : Renderer {
-    private static Log? _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private static Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
     public float Width { get; private set; } = context.Width;
     public float Height { get; private set; } = context.Height;
@@ -29,7 +29,7 @@ public class Camera(GameContext context) : Renderer {
 
     public void SetScale(float scale) {
         if (scale <= 0) {
-            _log?.Error("Scale must be greater than 0");
+            _log.Error("Scale must be greater than 0");
             return;
         }
         // Zoom in/out by dividing the width and height by the scale
@@ -44,7 +44,7 @@ public class Camera(GameContext context) : Renderer {
     /// <param name="y">Offset Y</param>
     public void MoveCamera(int x, int y) {
         if(Target is null) {
-            _log?.Error("Target is not set");
+            _log.Error("Target is not set");
             return;
         }
 

@@ -48,7 +48,7 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
-    private static readonly Log? _log = Log.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
@@ -104,7 +104,7 @@ public class Core : Window {
         }
 
         if (_currentScene is null) {
-            _log?.Error("_currentScene is unset!");
+            _log.Error("_currentScene is unset!");
             return;
         }
 
@@ -144,7 +144,7 @@ public class Core : Window {
         
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
-            _log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            _log.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             int color = bytes[0] << 24
                 | bytes[1] << 16
                 | bytes[2] << 8
@@ -153,7 +153,7 @@ public class Core : Window {
                 bytes[0] = (byte)~bytes[0];
                 bytes[1] = (byte)~bytes[1];
                 bytes[2] = (byte)~bytes[2];
-                _log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+                _log.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             }
         } else {
             Random.NextBytes(bytes);
@@ -199,18 +199,6 @@ public class Core : Window {
 
         ( _, _currentScene ) = _scenes.First();
     }
-
-    /// <summary>
-    /// A Pointer to the Renderer
-    /// </summary>
-    /// <returns>A <see cref="nint"/> Pointer to the Renderer</returns>
-    public nint GetRenderer() => RendererPtr;
-
-    /// <summary>
-    /// A Pointer to the Window
-    /// </summary>
-    /// <returns>A <see cref="nint"/> Pointer to the Window</returns>
-    public nint GetWindow() => WindowPtr;
 
     /// <summary>
     /// Wrapper to set Render Draw Color more efficiently.

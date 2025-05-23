@@ -4,17 +4,10 @@ using TestGame.GameObjects.Characters;
 
 namespace TestGame.GameObjects;
 
-public class Hud : GameObject {
+public class Hud(Player player) : GameObject {
     private FRect _playerHealthRect;
-    private readonly Player p;
-    private readonly TextString _healthText;
-
-    public Hud(Player player) {
-        p = player;
-        // HORRIBLE HACK BECAUSE I NEED THE FUCKING RENDERER ONLY...
-        RendererPtr = p.GetRenderer();
-        _healthText = new TextString(new GameContext(nint.Zero, RendererPtr, new(), new(), Engine.Game!), GetFontStatic(), 18, "Health");
-    }
+    private readonly Player p = player;
+    private readonly TextString _healthText = new (GetFontStatic(), 18, "Health");
 
     public override void Draw() {
 
