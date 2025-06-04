@@ -1,4 +1,5 @@
 ﻿using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
 using SharpSDL3.Structs;
 using TestGame.Colors;
 using TestGame.GameObjects.Characters;
@@ -8,6 +9,14 @@ namespace TestGame;
 public static class Extensions {
 
     private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
+
+    internal static string SdlVersionToString(this int version) {
+        int major = version / 1000000 % 100;
+        int minor = version / 1000 % 100;
+        int patch = version % 1000;
+        return $"{major}.{minor}.{patch}";
+    }
+
     public static Color ToColor(this KnownColor color) {
         Color c = new();
         byte a = (byte)( (int)color >> 24 & 0xFF );

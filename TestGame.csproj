@@ -32,6 +32,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="libavif-16.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libtiff-6.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libwebp-7.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="libwebpdemux-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Nlog.config">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

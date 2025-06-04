@@ -125,8 +125,10 @@ public static class Engine {
         _log.Info("Initialized Core");
 
         Ttf.Init();
+        _log.Info($"IMG Version {Sdl.ImageVersion().SdlVersionToString()}");
+        _log.Info($"MIX Version {Mixer.MixerVersion()}");
+        _log.Info($"TTF Version {Ttf.Version().SdlVersionToString()}");
         AudioManager.Instance.Initialize();
-        initialized = Sdl.InitSubSystem(InitFlags.Everything);
         if(!Sdl.WasInit(InitFlags.Joystick).HasFlag(InitFlags.Joystick)) {
             _log.Error("SDL Joystick Subsystem Initialization failed!");
         }
