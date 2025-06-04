@@ -3,7 +3,6 @@ using SharpSDL3.Enums;
 
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace TestGame; 
@@ -30,16 +29,16 @@ public  class Log : IDisposable {
         }
         NativeMethods.AllocConsole();
 
-        Logger.SetLogOutputFunction(GameLogOutputFunction, nint.Zero);
+        Sdl.SetLogOutputFunction(GameLogOutputFunction, nint.Zero);
 #if DEBUG
-        Logger.SetLogPriorities(LogPriority.Debug);
+        Sdl.SetLogPriorities(LogPriority.Debug);
 #else
-        Logger.SetLogPriorities(LogPriority.Info);
+        Sdl.SetLogPriorities(LogPriority.Info);
 #endif
         if (fileOutput) {
             string logPath = Path.Combine("Logs", $"log{System.DateTime.Now:yyyyMMddHHmmss}.log");
             _logOut = new FileStream(logPath, FileMode.Create, FileAccess.Write);
-            Logger.SetLogOutputFunction(GameLogOutputFunction, nint.Zero);
+            Sdl.SetLogOutputFunction(GameLogOutputFunction, nint.Zero);
         }
         _outputDebug = outputDebug;
         _setup = true;
@@ -194,7 +193,7 @@ public  class Log : IDisposable {
         if (condition) {
             return true;
         }
-        Logger.LogError(LogCategory.Error, message);
+        Sdl.LogError(LogCategory.Error, message);
         return false;
     }
 
@@ -207,49 +206,49 @@ public  class Log : IDisposable {
                 _ => $"({AggregateMethodInfo(methodBase)}) {message}",
             };
         }
-        Logger.LogDebug(_category, message);
+        Sdl.LogDebug(_category, message);
     }
 
     public void Info(string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogInfo(_category, message);
+        Sdl.LogInfo(_category, message);
     }
 
     public void Warn(string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogWarn(_category, message);
+        Sdl.LogWarn(_category, message);
     }
 
     public void Error(string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogError(LogCategory.Error, message);
+        Sdl.LogError(LogCategory.Error, message);
     }
 
     public void Error(Exception ex, string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogError(LogCategory.Error, $"{message} | {ex.Source}");
+        Sdl.LogError(LogCategory.Error, $"{message} | {ex.Source}");
     }
 
     public void Critical(string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogCritical(LogCategory.Error, message);
+        Sdl.LogCritical(LogCategory.Error, message);
     }
 
     public void ConditionalDebug(string message) {
 #if DEBUG
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogDebug(_category, message);
+        Sdl.LogDebug(_category, message);
 #endif
     }
 
     public void Verbose(string message) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.LogVerbose(_category, message);
+        Sdl.LogVerbose(_category, message);
     }
 
     public void SetPriority(LogPriority priority) {
         SetCurrentClassInfo(_class, _customCategoryStr);
-        Logger.SetLogPriority(_category, priority);
+        Sdl.SetLogPriority(_category, priority);
     }
 
     public void Dispose() {

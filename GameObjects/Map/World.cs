@@ -36,14 +36,14 @@ public class World(nint rendererPtr, string map) : GameObject {
 
     private void CreateEntities(ObjectLayer objectLayer ) {
         foreach (DotTiled.Object obj in objectLayer.Objects) {
-            Logger.LogDebug(LogCategory.Application, $"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
+            _log.Debug($"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
             if (obj is null) {
-                Logger.LogError(LogCategory.Application, $"Object in layer {objectLayer.Name} is null");
+                _log.Error($"Object in layer {objectLayer.Name} is null");
                 continue;
             }
 
             if (!obj.TryGetProperty("EntityType", out IProperty<string> entityType)) {
-                Logger.LogInfo(LogCategory.Input, $"Object in layer {objectLayer} has no EntityType");
+                _log.Info($"Object in layer {objectLayer} has no EntityType");
                 continue;
             }
 
@@ -110,7 +110,7 @@ public class World(nint rendererPtr, string map) : GameObject {
     private void BuildLayers(TileLayer tileLayer, DotTiled.Map map, string mapPath) {
         uint[] ids = tileLayer.Data.Value.GlobalTileIDs.Value;
         if (ids.Length == 0) {
-            Logger.LogError(LogCategory.Application, $"No tiles found in layer {tileLayer.Name}");
+            _log.Error($"No tiles found in layer {tileLayer.Name}");
             return;
         }
 

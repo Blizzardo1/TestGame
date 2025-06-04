@@ -90,7 +90,7 @@ public static class Engine {
     }
 
     private static void TestSdlVersions() {
-        _log.Debug($"SDL Version: {SharpSDL3.Version.GetRevision()}");
+        _log.Debug($"SDL Version: {Sdl.GetRevision()}");
     }
 
     private static void CreateIfNotExist(string directory) {
@@ -167,7 +167,7 @@ public static class Engine {
         Sdl.PeepEvents(ref events, events.Length, EventAction.Peek, EventType.First, EventType.Last);
         for (int i = 0; i < events.Length; i++) {
             Event e = events[i];
-            Logger.LogDebug(LogCategory.Application, $"Event[{i}] = {e.Type}");
+            _log.Debug($"Event[{i}] = {e.Type}");
         }
 
         while (_game.IsRunning) {

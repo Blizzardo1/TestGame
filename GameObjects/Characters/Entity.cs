@@ -4,7 +4,7 @@ using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public abstract class Entity : Renderer, ICharacter {
-    private static float _speed = 0.00125f;
+    private static readonly float _speed = 0.00125f;
 
     public FRect HitBox { get; protected set; }
 

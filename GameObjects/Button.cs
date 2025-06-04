@@ -1,7 +1,6 @@
 ﻿using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
-using SharpSDL3.TTF;
 using TestGame.Colors;
 using TestGame.GameObjects.Textures;
 
@@ -20,7 +19,7 @@ public class Button(GameContext context) : GameObject {
     public event EventHandler< MouseMotionEvent >? MouseLeave;
 
     private const float DefaultFontSize = 12f;
-    private readonly TextString _text = new(GetFontStatic(context.FontName), DefaultFontSize, "Button");
+    private readonly TextString _text = new(OpenFont(context.FontName), DefaultFontSize, "Button");
 
     private bool _inverse;
     
@@ -41,17 +40,9 @@ public class Button(GameContext context) : GameObject {
         get => _text.Text ?? "";
         set
         {
-            if(_text.FontSize <= 0.01) {
-                _text.FontSize = DefaultFontSize;
-            }
-            if (Font.Handle == nint.Zero) {
-                Font f = GetFontStatic();
-                f.Size = _text.FontSize;
-                Font = f;
-            }
-
+            _text.FontSize = _text.FontSize <= 0.01 ? DefaultFontSize : _text.FontSize;
             _text.Text = value;
-            _text.CenterText();
+            _text.CenterText(Width, Height);
         }
     }
 

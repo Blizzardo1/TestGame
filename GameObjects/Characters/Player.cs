@@ -59,7 +59,7 @@ public class Player : Entity {
     }
 
     public override void Initialize() {
-
+        Hud.Initialize();
     }
 
     public override void Attack() {
@@ -83,5 +83,6 @@ public class Player : Entity {
         base.Update(e);
         Z = Y;
         HitBox = _body with { H = Height / 2 };
+        Hud.Update(e);
     }
 }

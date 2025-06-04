@@ -4,53 +4,74 @@ using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
-using TestGame.Colors;
 
 namespace TestGame.GameObjects; 
-public class TextString : GameObject {
+public class TextString : GameObject, IDisposable {
     private const int ShadowDivisor = 10;
 
     private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+
+    private bool _disposed;
 
     private TextEngine _textEngine;
     private Text _sText;
 
     ~TextString() {
+        Dispose(false);
+    }
+
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    // Protected Dispose method to handle cleanup
+    protected virtual void Dispose(bool disposing) {
+        if(_disposed) {
+            return;
+        }
+
+        if (disposing) {
+            // No managed resources to free
+        }
+
+        if (Font.Handle != nint.Zero) {
+            Font.Close();
+        }
         if (_sText.Handle != nint.Zero) {
             Ttf.DestroyText(_sText);
+            _sText = default;
         }
         if (_textEngine.Handle != nint.Zero) {
             Ttf.DestroyRendererTextEngine(_textEngine);
+            _textEngine = default;
         }
+        _disposed = true;
     }
 
     public TextString(Font font, float size, string text) {
-        RendererPtr = GetRenderer();
+        RendererPtr = Engine.Game!.GetRenderer();
 
         if (font.Handle == nint.Zero) {
             _log.Error($"Font is not loaded: {Sdl.GetError()}");
             return;
         }
+        font.Size = size;
+        Font = font;
 
         _textEngine = Ttf.CreateRendererTextEngine(RendererPtr);
         _sText = Ttf.CreateText(_textEngine, Font, text);
-        _sText.TextStr = text;
-
         Text = text;
-        font.Size = size;
-        Font = font;
-        FSize oSize = MeasureString(Font, text);
-        Width = oSize.Width;
-        Height = oSize.Height;
+
+        CenterText(Width, Height);
+
         uint props = Ttf.GetTextProperties(_sText.Handle);
-        _log.Info($"Initialized new TextString({text}) using Font {font.Name}-{font.Size} with Dimensions({X}, {Y}, {Width}, {Height}) and Text Properties {props}.");
+        _log.Info($"Initialized new TextString({text}) using Font {font.Name}-{font.Size} with Dimensions({X}, {Y}, {Width}, {Height})");
     }
 
     public Color ForegroundColor {
         get => Ttf.GetTextColor(_sText);
-        set {
-            Ttf.SetTextColor(_sText, value);
-        }
+        set => Ttf.SetTextColor(_sText, value);
     }
 
     public Color BackgroundColor { get; set; }
@@ -60,23 +81,30 @@ public class TextString : GameObject {
     public string Text {
         get => _sText.TextStr;
         set {
+            if (_sText.TextStr == value)
+                return;
             _sText.TextStr = value;
-            FSize size = MeasureString(Font, value);
+            Size size = Ttf.GetTextSize(_sText);
             Width = size.Width;
             Height = size.Height;
+            if(!Ttf.UpdateText(_sText)) {
+                _log.Error($"Failed to update text: {Sdl.GetError()}");
+            }
         }
     }
 
     public float FontSize {
         get {
             if (Font.Handle == nint.Zero) {
-                Font = GetFontStatic();
+                Font = OpenFont();
             }
             return Font.Size;
         }
         set {
-            // This I believe copies the font while preserving the handle.
-            Font f = Font;
+            const float Tolerance = 0.0001f;
+            if (Math.Abs(Font.Size - value) < Tolerance)
+                return;
+            var f = Font;
             f.Size = value;
             Font = f;
         }
@@ -84,61 +112,78 @@ public class TextString : GameObject {
 
     public bool ShowShadow { get; set; }
 
-    public int Length => Text?.Length ?? 0;
+    public int Length => _sText.TextStr?.Length ?? 0;
 
-    public override void Initialize() {
-    }
+    public override void Initialize() { }
 
-    public static implicit operator string(TextString text) {
-        return text.Text ?? string.Empty;
-    }
+    public static implicit operator string(TextString text) => text.Text ?? string.Empty;
 
     private Color CalculateShadow(float x, float y) {
         var c = ShadowColor;
-        c.A = (byte)(255 - (x + y) * 2);
+        int alpha = 255 - (int)((x + y) * 2);
+
+        if (alpha < 0) {
+            c.A = 0;
+        } else if (alpha > 255) {
+            c.A = 255;
+        } else {
+            c.A = (byte)alpha;
+        }
+
         return c;
     }
 
-    public void SetPosition(float x, float y) {
+    public void SetRelativePosition(float x, float y) {
         X = x;
         Y = y;
+        Ttf.SetTextPosition(_sText, (int)x, (int)y);
     }
 
-    public void SetPosition(FPoint point) {
-        SetPosition(point.X, point.Y);
-    }
+    public void SetRelativePosition(FPoint point) => SetRelativePosition(point.X, point.Y);
 
-    public void CenterText() {
-        CenterText(Width, Height);
-    }
+    /// <summary>
+    /// Centers the text in the given rectangle.
+    /// </summary>
+    public void CenterText() => CenterText(Width, Height);
 
-    public void CenterText(float width, float height) {
-        CenterText(X, Y, width, height);
-    }
+    /// <summary>
+    /// Centers the text in the given rectangle.
+    /// </summary>
+    /// <param name="width">Absolute Width of the Frame</param>
+    /// <param name="height">Absolute Height of the Frame</param>
+    public void CenterText(float width, float height) => CenterText(0, 0, width, height);
 
+    /// <summary>
+    /// Centers the text in the given rectangle.
+    /// </summary>
+    /// <param name="x">Relative X</param>
+    /// <param name="y">Relative Y</param>
+    /// <param name="w">Absolute Width of the Frame</param>
+    /// <param name="h">Absolute Height of the Frame</param>
     public void CenterText(float x, float y, float w, float h) {
         if (Font.Handle == nint.Zero) {
-            Font = GetFontStatic();
+            Font = OpenFont();
         }
-        FSize size = MeasureString(Font, Text);
-        X = x + w / 2 - size.Width / 2;
-        Y = y + h / 2 - size.Height / 2;
-        Ttf.SetTextPosition(_sText, (int)X, (int)Y);
+        Size size = Font.GetTextSize(Text);
+        X = (w / 2) - (size.Width / 2) + x;
+        Y = (h / 2) - (size.Height / 2) + y;
+        //SetPosition((int)X, (int)Y);
     }
 
     public override void Draw() {
         if (ShowShadow) {
-            RenderText(Text, Font.Name, (int)(X + Font.Size / ShadowDivisor),
-                (int)(Y + Font.Size / ShadowDivisor),
-                CalculateShadow(Font.Size / ShadowDivisor, Font.Size / ShadowDivisor));
+            float shadowOffset = Font.Size / ShadowDivisor;
+            RenderText(Text, (int)(X + shadowOffset),
+                (int)(Y + shadowOffset),
+                CalculateShadow(shadowOffset, shadowOffset));
         }
         Ttf.DrawRendererText(_sText, X, Y);
-        Sdl.SetRenderDrawColor(RendererPtr, Colors.Colors.Red);
+        Sdl.SetRenderDrawColor(RendererPtr, Colors.Colors.Green);
         Sdl.RenderRect(RendererPtr, ref frect);
     }
 
     public override void Update(Event e) {
-        FSize size = MeasureString(Font, Text);
+        Size size = Font.GetTextSize(Text);
         frect = new FRect {
             X = X,
             Y = Y,

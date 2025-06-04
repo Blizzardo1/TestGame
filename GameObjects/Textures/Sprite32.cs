@@ -44,7 +44,7 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
         if (imagePath is not null) {
             Sdl.Free(TexturePtr); // Destroy the unknown texture
             Sdl.DestroySurface(surface); // Since we have an image path, we can free this and load the image.
-            IOStream io = IO.IOFromFile(imagePath, "r");
+            IOStream io = Sdl.IOFromFile(imagePath, "r");
             surface = Sdl.LoadPngIo(io.Handle);// needs to pass io instead of the handle. Fix the libreary
         }
 
@@ -59,7 +59,7 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
         }
 
         if (TexturePtr == nint.Zero) {
-            TexturePtr = SharpSDL3.Textures.CreateTextureFromSurface(context.RendererPtr, (nint)surface);
+            TexturePtr = Sdl.CreateTextureFromSurface(context.RendererPtr, (nint)surface);
         }
 
         Sdl.DestroySurface(surface);
@@ -72,17 +72,17 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
             PixelFormat.Bgra8888 // RGBA Formatted
         );
         
-        nint texture = SharpSDL3.Textures.CreateTextureFromSurface(rendererPtr, surface);
-        _ = SharpSDL3.Textures.GetTextureSize(texture, out _, out float h);
-        _ = SharpSDL3.Textures.GetTextureAlphaMod(texture, out byte alpha);
-        _ = SharpSDL3.Textures.SetTextureAlphaMod(texture, (byte)( alpha - 25 ));
-        _ = SharpSDL3.Textures.SetTextureBlendMode(texture, (uint)BlendMode.Add);
-        _ = SharpSDL3.Textures.LockTexture(texture, nint.Zero, out nint pixels, out int pitch);
+        nint texture = Sdl.CreateTextureFromSurface(rendererPtr, surface);
+        _ = Sdl.GetTextureSize(texture, out _, out float h);
+        _ = Sdl.GetTextureAlphaMod(texture, out byte alpha);
+        _ = Sdl.SetTextureAlphaMod(texture, (byte)( alpha - 25 ));
+        _ = Sdl.SetTextureBlendMode(texture, (uint)BlendMode.Add);
+        _ = Sdl.LockTexture(texture, nint.Zero, out nint pixels, out int pitch);
         for (int i = 0; i < pitch * h; i++) {
             Marshal.WriteByte(pixels, 0x23);
         }
 
-        SharpSDL3.Textures.UnlockTexture(texture);
+        Sdl.UnlockTexture(texture);
 
         return texture;
     }

@@ -327,7 +327,9 @@ public class Core : Window {
     /// Handles Quit Procedures
     /// </summary>
     public void Close() {
-        CloseFonts();
+        foreach(Scene scene in _scenes!.Values) {
+            scene.Cleanup();
+        }
         Ttf.Quit();
 
         Sdl.DestroyRenderer(RendererPtr);

@@ -51,16 +51,18 @@ public class SoundEffect : Audio {
                 $"Could not play Sound Effect \"{Filename}\"; ${Sdl.GetError()}");
             return;
         }
+
         // #TODO: Need to try and play sound effects globally;
 
-        int channels = 0; // Mixer.AllocateChannels(1);
+        int channels = 0;
+        
         if (channels == 0) {
             _log.Error($"Unable to allocate channels for \"{Filename}\"; ${Sdl.GetError()}");
             return;
         }
 
 
-        //currentChannel = Mixer.PlayChannel(channel, Pointer, loops);
+        currentChannel = Mixer.PlayChannel(channel, Pointer, loops);
 
         if(currentChannel < 0) {
             _log.Error($"Unable to play sound effect \"{Filename}\"; ${Sdl.GetError()}");

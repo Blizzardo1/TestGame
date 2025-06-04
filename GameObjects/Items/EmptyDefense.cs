@@ -4,6 +4,7 @@ using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects.Items;
 public class EmptyDefense : IDefensive {
+
     public float X => 0;
 
     public float Y => 0;

@@ -5,6 +5,7 @@ using SharpSDL3.Structs;
 namespace TestGame.GameObjects.Items;
 
 public class EmptyWeapon : IWeapon {
+
     public float X => 0;
 
     public float Y => 0;

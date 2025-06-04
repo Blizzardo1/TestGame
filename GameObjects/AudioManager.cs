@@ -1,8 +1,5 @@
-﻿using SharpSDL3;
-using SharpSDL3.Enums;
+﻿using SharpSDL3.Enums;
 using SharpSDL3.Mixer;
-using SharpSDL3.Structs;
-using TestGame.Config;
 
 namespace TestGame.GameObjects; 
 public class AudioManager : IDisposable {

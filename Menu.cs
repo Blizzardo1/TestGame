@@ -1,5 +1,6 @@
 ﻿
 using SharpSDL3;
+using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using TestGame.GameObjects;
 
@@ -8,9 +9,11 @@ namespace TestGame;
 public class Menu(GameContext context) : GameObject {
     private List< MenuItem > menuItems = [];
     private readonly GameContext _context = context;
+    private readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Menu System");
 
     public override void Initialize() {
         RendererPtr = _context.RendererPtr;
+        Font = OpenFont();
         menuItems = [];
         _ = Sdl.GetRenderOutputSize(_context.RendererPtr, out int w, out _);
         Width = w;
@@ -41,9 +44,9 @@ public class Menu(GameContext context) : GameObject {
     }
 
     public void AddMenuItem(string text, int id, Action action) {
-        float w = MeasureString(GetFont("default"), text).Width + 8;
+        float w = Font.GetTextSize(text).Width + 8;
         float x = menuItems.Count > 0 ? menuItems[ ^1 ].X + menuItems[ ^1 ].Width + 2 : 0;
-        Console.WriteLine($"MenuItem::{text} X: {x}, Width: {w}");
+        _log.Info($"MenuItem::{text} X: {x}, Width: {w}");
         menuItems.Add(new MenuItem(id, text, action, _context)
             { Position = new FRect { X = x, Y = 0, W = w, H = Height } });
     }

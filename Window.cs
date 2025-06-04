@@ -5,8 +5,9 @@ using TestGame.GameObjects;
 
 namespace TestGame;
 
-public abstract class Window : Renderer, IRenderer {
+public abstract class Window : Renderer, IRenderer, IDisposable {
     private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private bool disposedValue;
     #region Events
 
     public event EventHandler<AudioDeviceEvent>? AudioDeviceAdded;
@@ -249,9 +250,9 @@ public abstract class Window : Renderer, IRenderer {
             return;
         }
 
-        Logger.LogInfo(LogCategory.Application, $"Window Created: 0x{WindowPtr:X8}");
-        Logger.LogInfo(LogCategory.Application, $"Window ID: {Sdl.GetWindowId(WindowPtr):X8}");
-        Logger.LogInfo(LogCategory.Application, $"Window Title: {title}");
+        _log.Info($"Window Created: 0x{WindowPtr:X8}");
+        _log.Info($"Window ID: {Sdl.GetWindowId(WindowPtr):X8}");
+        _log.Info($"Window Title: {title}");
 
         Initialize(Sdl.CreateRenderer(WindowPtr, null));
 
@@ -261,7 +262,8 @@ public abstract class Window : Renderer, IRenderer {
     }
 
     ~Window() {
-        Sdl.DestroyWindow(WindowPtr);
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: false);
     }
 
     public Event CurrentEvent { get; protected set; }
@@ -1110,6 +1112,24 @@ public abstract class Window : Renderer, IRenderer {
                 _log.Error($"Unhandled event type: {e.Type}");
                 break;
         }
+    }
+
+    protected virtual void Dispose(bool disposing) {
+        if (disposedValue) {
+            return;
+        }
+        if (disposing) {
+            // No managed objects to dispose
+        }
+
+        Sdl.DestroyWindow(WindowPtr);
+        disposedValue = true;
+    }
+
+    public void Dispose() {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
     #endregion
 }

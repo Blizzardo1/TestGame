@@ -32,7 +32,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
 
     public bool ShowShadow { get; set; }
 
-    private readonly TextString _time = new(GetFontStatic(context.FontName), fontSize, TimeFormat);
+    private readonly TextString _time = new(OpenFont(context.FontName), fontSize, TimeFormat);
 
     private readonly Color[] _hitSequence = [
         new() { R = 88, G = 120, B = 56, A = 255 }, // Moldy Green
@@ -43,18 +43,12 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     ];
 
     private const int HitFrames = 30;
-    private const string FontName = "clock";
     private int _hitFrames = HitFrames;
     private bool _bounce;
     private Color _ogForeColor;
 
     public override void Initialize() {
-        Initialize(context.RendererPtr, font, FontName);
-        if (RendererPtr == nint.Zero) {
-            // WHY IS THIS HAPPENING?
-            // INITIALIZE SHOULD HANDLE THE SET OF THE RENDERERPTR FOR THIS OBJECT!
-            RendererPtr = context.RendererPtr;
-        }
+        RendererPtr = context.RendererPtr;
         Name = "object/clock";
         frect = new FRect {
             X = context.Rect.X,
@@ -62,11 +56,11 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             W = context.Width,
             H = context.Height
         };
-        Font f = GetFont(FontName);
+        Font f = OpenFont();
         f.Size = fontSize;
+        Font = f;
 
-        FSize size = MeasureString(f,
-            System.DateTime.Now.ToString(TimeFormat));
+        Size size = Font.GetTextSize(System.DateTime.Now.ToString(TimeFormat));
         _time.Text = System.DateTime.Now.ToString(TimeFormat);
 
         Width = size.Width;
@@ -111,8 +105,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
         _time.ShadowColor = ShadowColor;
         _time.ShowShadow = ShowShadow;
         _time.Text = System.DateTime.Now.ToString(TimeFormat);
-        FSize size = MeasureString(GetFont(FontName),
-            System.DateTime.Now.ToString(TimeFormat));
+        Size size = Font.GetTextSize(System.DateTime.Now.ToString(TimeFormat));
 
         Width = size.Width;
         Height = size.Height;
