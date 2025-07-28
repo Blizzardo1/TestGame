@@ -2,6 +2,7 @@
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
+using System.Text.Json.Serialization;
 
 namespace TestGame;
 
@@ -14,11 +15,13 @@ public abstract class Renderer {
 
     private const string FontName = "default";
     private const string FontPath = "default.ttf";
-    
+
+    [JsonIgnore]
     protected Font Font { get; set; }
 
     private const int FontSize = 18;
 
+    [JsonIgnore]
     private TextEngine _textEngine;
 
     /// <summary>

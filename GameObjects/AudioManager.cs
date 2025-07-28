@@ -1,4 +1,5 @@
-﻿using SharpSDL3.Enums;
+﻿using SharpSDL3;
+using SharpSDL3.Enums;
 using SharpSDL3.Mixer;
 
 namespace TestGame.GameObjects; 
@@ -22,7 +23,12 @@ public class AudioManager : IDisposable {
     }
 
     public void Initialize() {
-        Mixer.Initialize(Mixer.MixInit.Midi | Mixer.MixInit.Ogg | Mixer.MixInit.Flac | Mixer.MixInit.Mp3);
+        Mixer.MixInit result = Mixer.Initialize(Mixer.MixInit.Midi | Mixer.MixInit.Ogg | Mixer.MixInit.Flac | Mixer.MixInit.Mp3);
+        if (result == Mixer.MixInit.None) {
+            _log.Error($"Failed to initialize audio mixer: {Sdl.GetError()}");
+            return;
+        }
+        _log.Info($"Initialized Audio Manager with {result}");
         OpenAudioDevice();
     }
 
@@ -35,8 +41,13 @@ public class AudioManager : IDisposable {
                 Freq=48000
             });
         
+        if(Mixer.MasterVolume(50) == -1) {
+            _log.Error($"Failed to set master volume: {Sdl.GetError()}");
+            return;
+        }
+
         _initialized = true;
-        _log.Info("Audio Manager initialized");
+        _log.Info("Audio Manager opened an audio device - OK");
     }
 
     /// <summary>

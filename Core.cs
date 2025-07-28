@@ -48,15 +48,15 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
 public class Core : Window {
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log _log;
 
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
     public static bool IsDebugging { get; private set; }
-    public static bool IsPausedDisabled { get; private set; } = true;
+    public static bool IsPausedDisabled { get; private set; }
 
-    public static Random Random { get; } = new();
+    public static Random Random { get; }
 
     private Dictionary< string, Scene >? _scenes;
 
@@ -65,7 +65,12 @@ public class Core : Window {
     private Diagnostics? _diagnostic;
 
     static Core() {
-        
+        IsDebugging = false;
+        IsPausedDisabled = true;
+        IsPaused = false;
+        Random = new();
+        _log = Log.GetCurrentClassLogger(LogCategory.Application);
+        _log.Info("Core Engine Initialized");
     }
 
     /// <summary>
@@ -81,12 +86,19 @@ public class Core : Window {
             new Size(width, height),
             WindowFlags.HighPixelDensity | WindowFlags.Resizable) {
         WindowId = Sdl.GetWindowId(WindowPtr);
+        _log.Info($"Created Window with ID: {WindowId}");
         Width = width;
         Height = height;
     }
 
     public static void ToggleDebug() {
         IsDebugging = !IsDebugging;
+
+        if(Engine.Game is null || Engine.Game._diagnostic is null) {
+            return;
+        }
+
+        Engine.Game._diagnostic.Shown = IsDebugging;
     }
 
     /// <summary>
@@ -130,6 +142,7 @@ public class Core : Window {
             return true;
         }
 
+        _log.Error($"Scene with name {name} does not exist");
         scene = null;
         return false;
     }

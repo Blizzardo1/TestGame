@@ -1,6 +1,7 @@
 ﻿
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
+using System.Text.Json.Serialization;
 
 namespace TestGame.GameObjects;
 
@@ -40,6 +41,7 @@ public abstract class GameObject : Renderer, IRenderer {
         set => frect.H = value;
     }
 
+    [JsonIgnore]
     public Font Font {get; set;}
 
     /// <inheritdoc />

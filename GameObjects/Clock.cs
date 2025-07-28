@@ -6,7 +6,7 @@ using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-public class Clock(GameContext context, string font = @"default.ttf", bool animate = true,
+public class Clock(GameContext context, string font = @"default.ttf", bool animate = true, bool rotate = false,
     int fontSize = 72) : GameObject {
     private const float Speed = 1.5f;
     private const string TimeFormat = "HH:mm:ss";
@@ -14,6 +14,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     private float _xSpeed;
     private float _ySpeed;
     private readonly bool _animate = animate;
+    private bool _rotate = rotate;
 
     /// <summary>
     /// The foreground color of the clock
@@ -32,7 +33,7 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
 
     public bool ShowShadow { get; set; }
 
-    private readonly TextString _time = new(OpenFont(context.FontName), fontSize, TimeFormat);
+    private readonly TextString _time = new(OpenFont(context.FontName), fontSize, "00:00:00");
 
     private readonly Color[] _hitSequence = [
         new() { R = 88, G = 120, B = 56, A = 255 }, // Moldy Green
@@ -61,7 +62,15 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
         Font = f;
 
         Size size = Font.GetTextSize(System.DateTime.Now.ToString(TimeFormat));
+
         _time.Text = System.DateTime.Now.ToString(TimeFormat);
+
+        frect = new() {
+            X = _time.X,
+            Y = _time.Y,
+            W = _time.Width,
+            H = _time.Height
+        };
 
         Width = size.Width;
         Height = size.Height;
@@ -87,7 +96,11 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             }
         }
 
-        _time.Draw();
+        if (_rotate) {
+            _time.DrawRotated(-35);
+        } else {
+            _time.Draw();
+        }
         Core.SetRenderColor(RendererPtr, KnownColor.Red.ToColor());
         if (Core.IsDebugging) {
             _ = Sdl.RenderRect(RendererPtr, ref frect);
@@ -109,17 +122,11 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
 
         Width = size.Width;
         Height = size.Height;
-        frect.X += 8;
-        frect.Y += 10;
-        frect.W -= 8;
-        frect.H -= 14;
-        Width = frect.W;
-        Height = frect.H;
 
         if (!_animate) {
             return;
         }
-
+        
         if (
             X <= 0 && Y <= 0 // Top left
             || X >= rx - Width && Y <= 0 // Top right

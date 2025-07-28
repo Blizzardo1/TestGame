@@ -15,7 +15,7 @@ public class TextString : GameObject, IDisposable {
 
     private TextEngine _textEngine;
     private Text _sText;
-
+    
     ~TextString() {
         Dispose(false);
     }
@@ -87,7 +87,8 @@ public class TextString : GameObject, IDisposable {
             Size size = Ttf.GetTextSize(_sText);
             Width = size.Width;
             Height = size.Height;
-            if(!Ttf.UpdateText(_sText)) {
+            Ttf.SetTextString(_sText, value, (ulong)value.Length);
+            if (!Ttf.UpdateText(_sText)) {
                 _log.Error($"Failed to update text: {Sdl.GetError()}");
             }
         }
@@ -170,6 +171,39 @@ public class TextString : GameObject, IDisposable {
         //SetPosition((int)X, (int)Y);
     }
 
+    public void DrawRotated(float angle) {
+        if (_sText.Handle == nint.Zero) {
+            _log.Error("Text is not initialized, cannot rotate.");
+            return;
+        }
+        // Texture Invalid
+        nint surface = Ttf.RenderTextSolid(Font, Text, ForegroundColor);
+        if (surface == nint.Zero) {
+            _log.Error($"Failed to create surface: {Sdl.GetError()}");
+            return;
+        }
+
+        nint texture = Sdl.CreateTextureFromSurface(RendererPtr, surface);
+
+        FRect dstRect = new() {
+            X = X,
+            Y = Y,
+            W = Width,
+            H = Height
+        };
+
+        FPoint fPoint = new() {
+            X = X + (Width / 2),
+            Y = Y + (Height / 2)
+        };
+        bool result = Sdl.RenderTextureRotated(RendererPtr, texture, ref frect, ref dstRect, angle, ref fPoint, FlipMode.None);
+        if (!result) {
+            _log.Error($"Failed to render rotated text: {Sdl.GetError()}\n\tDelaying 5 Seconds...");
+            Sdl.Delay(5000);
+        }
+        Sdl.DestroyTexture(texture);
+    }
+
     public override void Draw() {
         if (ShowShadow) {
             float shadowOffset = Font.Size / ShadowDivisor;
@@ -178,8 +212,6 @@ public class TextString : GameObject, IDisposable {
                 CalculateShadow(shadowOffset, shadowOffset));
         }
         Ttf.DrawRendererText(_sText, X, Y);
-        Sdl.SetRenderDrawColor(RendererPtr, Colors.Colors.Green);
-        Sdl.RenderRect(RendererPtr, ref frect);
     }
 
     public override void Update(Event e) {

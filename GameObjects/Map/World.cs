@@ -67,6 +67,33 @@ public class World(nint rendererPtr, string map) : GameObject {
         _log.Info("Entities Added");
     }
 
+    public void LoadFromSaveData(string saveData) {
+        try {
+            World world = JsonConvert.DeserializeObject<World>(saveData, new JsonSerializerSettings {
+                TypeNameHandling = TypeNameHandling.Auto
+            })!;
+            if (world is null) {
+                _log.Error("Failed to deserialize world from save data");
+                return;
+            }
+            if (string.IsNullOrEmpty(world.WorldName) || string.IsNullOrEmpty(world.WorldPath)) {
+                _log.Error("World name or path is null or empty");
+                return;
+            }
+            _log.Info($"Loading world: {world.WorldName} from path: {world.WorldPath}");
+            WorldName = world.WorldName;
+            WorldPath = world.WorldPath;
+            _map = LoadMap(world.WorldPath!);
+            if (_map is null) {
+                _log.Error("Failed to load map from world path");
+                return;
+            }
+            _log.Info($"World {WorldName} loaded successfully from {WorldPath}");
+        } catch (JsonException ex) {
+            _log.Error($"Failed to load world from save data: {ex.Message}");
+        }
+    }
+
     private  void LoadTilesets(Tileset tileset, string mapPath) {
         if (tileset.Image is null) {
             _log.Error($"Tileset {tileset.Name} has no image");

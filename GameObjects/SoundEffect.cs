@@ -54,7 +54,7 @@ public class SoundEffect : Audio {
 
         // #TODO: Need to try and play sound effects globally;
 
-        int channels = 0;
+        int channels = Mixer.Channels;
         
         if (channels == 0) {
             _log.Error($"Unable to allocate channels for \"{Filename}\"; ${Sdl.GetError()}");
