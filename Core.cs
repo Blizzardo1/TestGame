@@ -47,6 +47,9 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 /// <param name="e">An SDL <see cref="MouseButtonEvent"/> containing information about the triggered event</param>
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
+/// <summary>
+/// Core Engine
+/// </summary>
 public class Core : Window {
     private static readonly Log _log;
 

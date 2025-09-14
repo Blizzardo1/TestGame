@@ -5,39 +5,9 @@ using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public class Player : Entity {
-    public override IWeapon Weapon { get; set; }
-
-    public override IDefensive Defense { get; set; }
-    public override int AttackPower { get; set; } = 1;
-
-    public override bool CanSwim { get; set; } = true;
-
-    public override bool CanAttack { get; set; } = true;
-
-    public override bool CanDefend { get; set; } = true;
-
-    public override bool CanClimb { get; set; } = true;
-    
-    public override bool CanMove { get; set; } = true;
-   
-    public override bool CanJump { get; set; } = true;
-
-    public override bool IsOverWater { get; set; }
-
-    public override bool IsOverGround { get; set; }
-
-    public override bool IsInvincible { get; set; }
-
-
-    public override AnimatedSprite32 Sprite { get; set; }
+   public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "Player";
-
-    public override float X { get; set; }
-
-    public override float Y { get; set; }
-
-    public override float Z { get; set; }
 
     public override float Width => 24;
 
@@ -45,15 +15,13 @@ public class Player : Entity {
 
     public Hud Hud { get; set; }
 
-    public override string? Name { get; protected set; }
-
     public Player(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
         Defense = Defenses.None;
         MaxHP = 100;
-        Heal(100);
+        Heal(MaxHP);
         Sprite = AnimatedSprite32.BlankSprite;
         Hud = new(this);
     }
@@ -63,11 +31,22 @@ public class Player : Entity {
     }
 
     public override void Attack() {
-
+        if(Weapon is null) {
+            return;
+        }
+        if (HP > 0) {
+            Weapon.Use();
+        }
     }
 
     public override void Defend() {
+        if (Defense is null) {
+            return;
+        }
 
+        if (HP > 0) {
+            Defense.Use();
+        }
     }
 
     public override void Draw() {

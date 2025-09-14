@@ -13,43 +13,43 @@ public abstract class Entity : Renderer, ICharacter {
     public float VelocityX { get; set; } = _speed;
     public float VelocityY { get; set; } = _speed;
 
-    public abstract IWeapon Weapon { get; set; }
+    public IWeapon? Weapon { get; set; }
 
-    public abstract IDefensive Defense { get; set; }
+    public IDefensive? Defense { get; set; }
 
-    public abstract int AttackPower { get; set; }
+    public int AttackPower { get; set; }
 
-    public abstract bool CanSwim { get; set; }
+    public bool CanSwim { get; set; }
 
-    public abstract bool CanAttack { get; set; }
+    public bool CanAttack { get; set; }
 
-    public abstract bool CanDefend { get; set; }
+    public bool CanDefend { get; set; }
 
-    public abstract bool CanClimb { get; set; }
+    public bool CanClimb { get; set; }
 
-    public abstract bool CanMove { get; set; }
+    public bool CanMove { get; set; }
 
-    public abstract bool CanJump { get; set; }
-    public abstract bool IsOverWater { get; set; }
-    public abstract bool IsOverGround { get; set; }
+    public bool CanJump { get; set; }
+    public bool IsOverWater { get; set; }
+    public bool IsOverGround { get; set; }
 
-    public abstract bool IsInvincible { get; set; }
+    public bool IsInvincible { get; set; }
 
-    public abstract AnimatedSprite32 Sprite { get;set; }
+    public abstract AnimatedSprite32 Sprite { get; set; }
 
     public abstract string EntityType { get; }
 
-    public abstract float X { get; set; }
+    public float X { get; set; }
 
-    public abstract float Y { get; set; }
+    public float Y { get; set; }
 
-    public abstract float Z { get; set; }
+    public float Z { get; set; }
 
     public abstract float Width { get; }
 
     public abstract float Height { get; }
 
-    public abstract string? Name { get; protected set; }
+    public string? Name { get; protected set; }
 
     protected FRect _body;
 

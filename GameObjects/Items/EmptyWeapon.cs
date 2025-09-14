@@ -25,4 +25,8 @@ public class EmptyWeapon : IWeapon {
     public void Update(Event e) {
 
     }
+
+    public void Use() {
+
+    }
 }

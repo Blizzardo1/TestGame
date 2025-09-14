@@ -6,4 +6,6 @@
 
 namespace TestGame.GameObjects.Items;
 
-public interface IDefensive : IRenderer { }
+public interface IDefensive : IRenderer {
+    void Use();
+}

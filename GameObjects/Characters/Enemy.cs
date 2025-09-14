@@ -5,45 +5,14 @@ using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public class Enemy : Entity {
-    public override IWeapon Weapon { get; set; }
-
-    public override IDefensive Defense { get; set; }
-
-    public override int AttackPower { get; set; } = 1;
-
-    public override bool CanSwim { get; set; } = true;
-
-    public override bool CanAttack { get; set; } = true;
-
-    public override bool CanDefend { get; set; } = true;
-
-    public override bool CanClimb { get; set; } = true;
-
-    public override bool CanMove { get; set; } = true;
-
-    public override bool CanJump { get; set; } = true;
-
-    public override bool IsOverWater { get; set; }
-
-    public override bool IsOverGround { get; set; }
-
-    public override bool IsInvincible { get; set; }
 
     public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "Enemy";
 
-    public override float X { get; set; }
-
-    public override float Y { get; set; }
-
-    public override float Z { get; set; }
-
     public override float Width => 24;
 
     public override float Height => 48;
-
-    public override string? Name { get; protected set; }
 
     public Enemy(string? name, nint rendererPtr) {
         Name = name;

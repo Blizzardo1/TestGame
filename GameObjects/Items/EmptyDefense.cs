@@ -24,4 +24,8 @@ public class EmptyDefense : IDefensive {
     public void Update(Event e) {
 
     }
+
+    public void Use() {
+        
+    }
 }

@@ -295,6 +295,7 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
 
     /// <inheritdoc />
     public abstract void Draw();
+
     public void OnAudioDeviceAdded(AudioDeviceEvent @event) {
         AudioDeviceAdded?.Invoke(this, @event);
     }
