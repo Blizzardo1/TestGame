@@ -9,6 +9,7 @@ public class Npc : Entity {
 
     public override string EntityType => "NPC";
 
+<<<<<<< HEAD
     public override float Width => 24;
 
 <<<<<<< HEAD
@@ -18,13 +19,18 @@ public class Npc : Entity {
 
     public override float Z { get; set; }
 
+=======
+>>>>>>> f9d28d7 (Changed some things around)
     public override float Width => 24;
 
     public override float Height => 48;
 
+<<<<<<< HEAD
     public override string? Name { get; protected set; }
 >>>>>>> b06930d (Included Global UnmanagedTypes for Strings and Bools)
 
+=======
+>>>>>>> f9d28d7 (Changed some things around)
     public Npc(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
