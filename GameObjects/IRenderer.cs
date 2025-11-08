@@ -10,6 +10,14 @@ public interface IRenderer : IGameObject {
     float Width { get; }
     float Height { get; }
 
+    /// <summary>
+    /// Draw objects to the screen
+    /// </summary>
     void Draw();
+
+    /// <summary>
+    /// Handles all updates
+    /// </summary>
+    /// <param name="e">A <see cref="Event"/> of the current frame</param>
     void Update(Event e);
 }

@@ -36,7 +36,7 @@ public class Enemy : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
         Core.SetRenderColor(RendererPtr, Colors.Colors.White);
         FRect r = HitBox;
         _ = Sdl.RenderRect(RendererPtr, ref r);
@@ -45,6 +45,6 @@ public class Enemy : Entity {
     public override void Update(Event e) {
         base.Update(e);
         Z = Y;
-        HitBox = _body with { H = Height / 2 };
+        HitBox = PBody with { H = Height / 2 };
     }
 }

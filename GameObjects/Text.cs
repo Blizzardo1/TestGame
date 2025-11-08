@@ -1,6 +1,4 @@
-﻿
-
-using SharpSDL3;
+﻿using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
@@ -9,7 +7,7 @@ namespace TestGame.GameObjects;
 public class TextString : GameObject, IDisposable {
     private const int ShadowDivisor = 10;
 
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
     private bool _disposed;
 
@@ -53,7 +51,7 @@ public class TextString : GameObject, IDisposable {
         RendererPtr = Engine.Game!.GetRenderer();
 
         if (font.Handle == nint.Zero) {
-            _log.Error($"Font is not loaded: {Sdl.GetError()}");
+            Log.Error($"Font is not loaded: {Sdl.GetError()}");
             return;
         }
         font.Size = size;
@@ -66,7 +64,7 @@ public class TextString : GameObject, IDisposable {
         CenterText(Width, Height);
 
         uint props = Ttf.GetTextProperties(_sText.Handle);
-        _log.Info($"Initialized new TextString({text}) using Font {font.Name}-{font.Size} with Dimensions({X}, {Y}, {Width}, {Height})");
+        Log.Info($"Initialized new TextString({text}) using Font {font.Name}-{font.Size} with Dimensions({X}, {Y}, {Width}, {Height})");
     }
 
     public Color ForegroundColor {
@@ -89,7 +87,7 @@ public class TextString : GameObject, IDisposable {
             Height = size.Height;
             Ttf.SetTextString(_sText, value, (ulong)value.Length);
             if (!Ttf.UpdateText(_sText)) {
-                _log.Error($"Failed to update text: {Sdl.GetError()}");
+                Log.Error($"Failed to update text: {Sdl.GetError()}");
             }
         }
     }
@@ -102,10 +100,10 @@ public class TextString : GameObject, IDisposable {
             return Font.Size;
         }
         set {
-            const float Tolerance = 0.0001f;
-            if (Math.Abs(Font.Size - value) < Tolerance)
+            const float tolerance = 0.0001f;
+            if (Math.Abs(Font.Size - value) < tolerance)
                 return;
-            var f = Font;
+            Font f = Font;
             f.Size = value;
             Font = f;
         }
@@ -120,7 +118,7 @@ public class TextString : GameObject, IDisposable {
     public static implicit operator string(TextString text) => text.Text ?? string.Empty;
 
     private Color CalculateShadow(float x, float y) {
-        var c = ShadowColor;
+        Color c = ShadowColor;
         int alpha = 255 - (int)((x + y) * 2);
 
         if (alpha < 0) {
@@ -166,20 +164,20 @@ public class TextString : GameObject, IDisposable {
             Font = OpenFont();
         }
         Size size = Font.GetTextSize(Text);
-        X = (w / 2) - (size.Width / 2) + x;
-        Y = (h / 2) - (size.Height / 2) + y;
+        X = w / 2 - size.Width / 2 + x;
+        Y = h / 2 - size.Height / 2 + y;
         //SetPosition((int)X, (int)Y);
     }
 
     public void DrawRotated(float angle) {
         if (_sText.Handle == nint.Zero) {
-            _log.Error("Text is not initialized, cannot rotate.");
+            Log.Error("Text is not initialized, cannot rotate.");
             return;
         }
         // Texture Invalid
         nint surface = Ttf.RenderTextSolid(Font, Text, ForegroundColor);
         if (surface == nint.Zero) {
-            _log.Error($"Failed to create surface: {Sdl.GetError()}");
+            Log.Error($"Failed to create surface: {Sdl.GetError()}");
             return;
         }
 
@@ -193,12 +191,12 @@ public class TextString : GameObject, IDisposable {
         };
 
         FPoint fPoint = new() {
-            X = X + (Width / 2),
-            Y = Y + (Height / 2)
+            X = X + Width / 2,
+            Y = Y + Height / 2
         };
-        bool result = Sdl.RenderTextureRotated(RendererPtr, texture, ref frect, ref dstRect, angle, ref fPoint, FlipMode.None);
+        bool result = Sdl.RenderTextureRotated(RendererPtr, texture, ref Frect, ref dstRect, angle, ref fPoint, FlipMode.None);
         if (!result) {
-            _log.Error($"Failed to render rotated text: {Sdl.GetError()}\n\tDelaying 5 Seconds...");
+            Log.Error($"Failed to render rotated text: {Sdl.GetError()}\n\tDelaying 5 Seconds...");
             Sdl.Delay(5000);
         }
         Sdl.DestroyTexture(texture);
@@ -216,7 +214,7 @@ public class TextString : GameObject, IDisposable {
 
     public override void Update(Event e) {
         Size size = Font.GetTextSize(Text);
-        frect = new FRect {
+        Frect = new FRect {
             X = X,
             Y = Y,
             W = size.Width,

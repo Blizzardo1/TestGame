@@ -1,21 +1,20 @@
-﻿using SharpSDL3;
-using SharpSDL3.Enums;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using SharpSDL3;
+using SharpSDL3.Enums;
 
 namespace TestGame; 
 
 public  class Log : IDisposable {
-    private static bool _setup = false;
-    private static bool _outputDebug = false;
+    private static bool _setup;
+    private static bool _outputDebug;
     private static string _currentClass = "";
     private string _class = "";
     private LogCategory _category;
-    private static string currentCusomCategoryStr = "";
+    private static string _currentCustomCategoryStr = "";
     private string _customCategoryStr = "";
-    private static FileStream? _logOut = null;
+    private static FileStream? _logOut;
 
     private bool _disposed;
 
@@ -27,7 +26,7 @@ public  class Log : IDisposable {
         if (_setup) {
             return;
         }
-        NativeMethods.AllocConsole();
+        Win32Menu.NativeMethods.AllocConsole();
 
         Sdl.SetLogOutputFunction(GameLogOutputFunction, nint.Zero);
 #if DEBUG
@@ -68,7 +67,7 @@ public  class Log : IDisposable {
             LogCategory.Reserved8 => "RESERVED8",
             LogCategory.Reserved9 => "RESERVED9",
             LogCategory.Reserved10 => "RESERVEDA",
-            LogCategory.Custom => currentCusomCategoryStr,
+            LogCategory.Custom => _currentCustomCategoryStr,
             _ => "Unknown"
         };
         string priorityStr = priority switch {
@@ -102,11 +101,10 @@ public  class Log : IDisposable {
             return;
         }
 
-        if (_logOut is not null) {
-            byte[] data = Encoding.UTF8.GetBytes(output + Environment.NewLine);
-            _logOut.Write(data, 0, data.Length);
-            _logOut.Flush();
-        }
+        if (_logOut is null) return;
+        byte[] data = Encoding.UTF8.GetBytes(output + Environment.NewLine);
+        _logOut.Write(data, 0, data.Length);
+        _logOut.Flush();
     }
 
     public static Log GetCurrentClassLogger(LogCategory category, string customCategory = "") {
@@ -129,7 +127,7 @@ public  class Log : IDisposable {
 
     private static void SetCurrentClassInfo(string className, string customCategory) {
         _currentClass = className;
-        currentCusomCategoryStr = customCategory;
+        _currentCustomCategoryStr = customCategory;
     }
 
     private static string AggregateConstructorInfo(ConstructorInfo constructorInfo) {
@@ -162,7 +160,7 @@ public  class Log : IDisposable {
 
     private static string AggregateMethodInfo(MethodBase methodBase) {
         StringBuilder sb = new();
-        MethodInfo mi = (MethodInfo)methodBase;
+        var mi = (MethodInfo)methodBase;
         switch (mi.ReturnType.Name) {
             case "List`1":
                 sb.Append($"List<{AggregateTypes(mi.ReturnTypeCustomAttributes.GetType().GenericTypeArguments)}>");

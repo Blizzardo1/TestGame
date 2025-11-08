@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
-
+﻿using System.Collections.Concurrent;
 using DotTiled;
 using DotTiled.Serialization;
-using TestGame.GameObjects.Textures;
-using System.Collections.Concurrent;
-using TestGame.GameObjects.Characters;
-using SharpSDL3.Structs;
-using SharpSDL3.Enums;
+using Newtonsoft.Json;
 using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
+using TestGame.GameObjects.Characters;
+using TestGame.GameObjects.Textures;
 
 namespace TestGame.GameObjects.Map; 
 
@@ -15,10 +14,10 @@ public record TextureData(Textures.Texture Texture, Rect Rect);
 
 public class World(nint rendererPtr, string map) : GameObject {
 
-    private readonly static Log _log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Custom, "Game");
 
-    private FRect sourceRect;
-    private FRect destinationRect;
+    private FRect _sourceRect;
+    private FRect _destinationRect;
 
     private Dictionary<uint, TextureData> _textures = [];
     private DotTiled.Map? _map;
@@ -36,14 +35,14 @@ public class World(nint rendererPtr, string map) : GameObject {
 
     private void CreateEntities(ObjectLayer objectLayer ) {
         foreach (DotTiled.Object obj in objectLayer.Objects) {
-            _log.Debug($"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
+            Log.Debug($"Found object in layer {objectLayer.Name}: class {obj?.Type} {obj?.Name} ({obj?.X}, {obj?.Y})");
             if (obj is null) {
-                _log.Error($"Object in layer {objectLayer.Name} is null");
+                Log.Error($"Object in layer {objectLayer.Name} is null");
                 continue;
             }
 
             if (!obj.TryGetProperty("EntityType", out IProperty<string> entityType)) {
-                _log.Info($"Object in layer {objectLayer} has no EntityType");
+                Log.Info($"Object in layer {objectLayer} has no EntityType");
                 continue;
             }
 
@@ -53,62 +52,62 @@ public class World(nint rendererPtr, string map) : GameObject {
             e.Initialize();
 
             switch (e) {
-                case Player:
-                    _entities.Add((Player)e);
+                case Player player:
+                    _entities.Add(player);
                     break;
-                case Enemy:
-                    _entities.Add((Enemy)e);
+                case Enemy enemy:
+                    _entities.Add(enemy);
                     break;
                 case Npc:
                     // Not Implemented yet
                     break;
             }
         }
-        _log.Info("Entities Added");
+        Log.Info("Entities Added");
     }
 
     public void LoadFromSaveData(string saveData) {
         try {
-            World world = JsonConvert.DeserializeObject<World>(saveData, new JsonSerializerSettings {
+            var world = JsonConvert.DeserializeObject<World>(saveData, new JsonSerializerSettings {
                 TypeNameHandling = TypeNameHandling.Auto
             })!;
             if (world is null) {
-                _log.Error("Failed to deserialize world from save data");
+                Log.Error("Failed to deserialize world from save data");
                 return;
             }
             if (string.IsNullOrEmpty(world.WorldName) || string.IsNullOrEmpty(world.WorldPath)) {
-                _log.Error("World name or path is null or empty");
+                Log.Error("World name or path is null or empty");
                 return;
             }
-            _log.Info($"Loading world: {world.WorldName} from path: {world.WorldPath}");
+            Log.Info($"Loading world: {world.WorldName} from path: {world.WorldPath}");
             WorldName = world.WorldName;
             WorldPath = world.WorldPath;
             _map = LoadMap(world.WorldPath!);
             if (_map is null) {
-                _log.Error("Failed to load map from world path");
+                Log.Error("Failed to load map from world path");
                 return;
             }
-            _log.Info($"World {WorldName} loaded successfully from {WorldPath}");
+            Log.Info($"World {WorldName} loaded successfully from {WorldPath}");
         } catch (JsonException ex) {
-            _log.Error($"Failed to load world from save data: {ex.Message}");
+            Log.Error($"Failed to load world from save data: {ex.Message}");
         }
     }
 
     private  void LoadTilesets(Tileset tileset, string mapPath) {
         if (tileset.Image is null) {
-            _log.Error($"Tileset {tileset.Name} has no image");
+            Log.Error($"Tileset {tileset.Name} has no image");
             return;
         }
         
         nint texture = Sdl.LoadTexture(RendererPtr, Path.Combine(Path.GetDirectoryName(mapPath)!, tileset.Image.Value.Source));
         if (texture == nint.Zero) {
-            _log.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
+            Log.Error($"Failed to load texture for tileset {tileset.Source}: {Sdl.GetError()}");
             return;
         }
 
         int x = 0, y = 0;
         for (int c = 0; c < tileset.TileCount; c++) {
-            if (x > (tileset.Columns * tileset.TileWidth) - tileset.TileWidth) {
+            if (x > tileset.Columns * tileset.TileWidth - tileset.TileWidth) {
                 x = 0;
                 y += (int)tileset.TileHeight + (int)tileset.Spacing + (int)tileset.Margin;
             }
@@ -137,7 +136,7 @@ public class World(nint rendererPtr, string map) : GameObject {
     private void BuildLayers(TileLayer tileLayer, DotTiled.Map map, string mapPath) {
         uint[] ids = tileLayer.Data.Value.GlobalTileIDs.Value;
         if (ids.Length == 0) {
-            _log.Error($"No tiles found in layer {tileLayer.Name}");
+            Log.Error($"No tiles found in layer {tileLayer.Name}");
             return;
         }
 
@@ -147,42 +146,37 @@ public class World(nint rendererPtr, string map) : GameObject {
     }
 
     private void BuildLayer(DotTiled.Map map, string mapPath, BaseLayer layer) {
-        if (layer is ObjectLayer objlayer) {
-            switch (objlayer.Name) {
+        if (layer is ObjectLayer objLayer) {
+            switch (objLayer.Name) {
                 case "Entities":
-                    CreateEntities(objlayer);
+                    CreateEntities(objLayer);
                     break;
             }
         }
-        _log.Debug($"New Entities: {string.Join(',', _entities!.Select(e => e.Name))}");
+        Log.Debug($"New Entities: {string.Join(',', _entities!.Select(e => e.Name))}");
 
         if (layer is TileLayer tileLayer) {
             BuildLayers(tileLayer, map, mapPath);
         }
     }
 
-    private void ConstructMap(DotTiled.Map map, string mapPath) {
+    private void ConstructMap(DotTiled.Map dMap, string mapPath) {
         _textures = [];
-        map.Layers.ForEach(layer => {
-            BuildLayer(map, mapPath, layer);
+        dMap.Layers.ForEach(layer => {
+            BuildLayer(dMap, mapPath, layer);
         });
     }
 
     private DotTiled.Map LoadMap(string mapPath) {
-        string fullPath = mapPath;
-        _log.Debug($"Loading {fullPath}");
+        Log.Debug($"Loading {mapPath}");
         Loader loader = Loader.Default();
-        DotTiled.Map dmap = loader.LoadMap(fullPath);
-        ConstructMap(dmap, mapPath);
-        return dmap;
+        DotTiled.Map dMap = loader.LoadMap(mapPath);
+        ConstructMap(dMap, mapPath);
+        return dMap;
     }
 
     public void Cleanup() {
-        if (_textures is null) {
-            return;
-        }
-
-        foreach (TextureData texture in _textures!.Values) {
+        foreach (TextureData texture in _textures.Values) {
             Sdl.Free(texture.Texture);
         }
         _textures.Clear();
@@ -214,24 +208,24 @@ public class World(nint rendererPtr, string map) : GameObject {
             }
 
             if (!_textures!.TryGetValue(tileId, out TextureData? td)) {
-                _log.Error($"Texture for tile {tileId} not found");
+                Log.Error($"Texture for tile {tileId} not found");
                 continue;
             }
 
             if (td.Texture is null) {
-                _log.Error($"Texture for tile {tileId} is null");
+                Log.Error($"Texture for tile {tileId} is null");
                 return;
             }
 
             // - Should be in the update function, but whatever
-            sourceRect = sourceRect with {
+            _sourceRect = _sourceRect with {
                 X = td.Rect.X,
                 Y = td.Rect.Y,
                 W = td.Rect.W,
                 H = td.Rect.H
             };
 
-            destinationRect = destinationRect with {
+            _destinationRect = _destinationRect with {
                 X = x * td.Rect.W,
                 Y = y * td.Rect.H,
                 W = td.Rect.W,
@@ -242,10 +236,10 @@ public class World(nint rendererPtr, string map) : GameObject {
             // Declare a variable of type FPoint to pass as a ref argument
             FPoint center = new() { X = 0, Y = 0 };
 
-            bool res = Sdl.RenderTextureRotated(RendererPtr, td.Texture, ref sourceRect, ref destinationRect,
+            bool res = Sdl.RenderTextureRotated(RendererPtr, td.Texture, ref _sourceRect, ref _destinationRect,
                 0, ref center, FlipMode.None);
             if (!res) {
-                _log.Error($"Error rendering tile: {Sdl.GetError()}");
+                Log.Error($"Error rendering tile: {Sdl.GetError()}");
                 return;
             }
             x++;
@@ -284,7 +278,7 @@ public class World(nint rendererPtr, string map) : GameObject {
         }
 
         // Lower Z values are drawn first        
-        List<Entity> sorted = [.. _entities.OrderByDescending(e => e.Z + (e.Height / 2))];
+        List<Entity> sorted = [.. _entities.OrderByDescending(e => e.Z + e.Height / 2)];
         _entities = [.. sorted];
     }
 }

@@ -25,18 +25,16 @@ internal class FpsTimer {
     }
 
     public void Pause() {
-        if (_running && !_paused) {
-            _paused = true;
-            _pausedTicks = Sdl.GetTicks() - _startTicks;
-        }
+        if (!_running || _paused) return;
+        _paused = true;
+        _pausedTicks = Sdl.GetTicks() - _startTicks;
     }
 
     public void Unpause() {
-        if (_running && _paused) {
-            _paused = false;
-            _startTicks = Sdl.GetTicks() - _pausedTicks;
-            _pausedTicks = 0;
-        }
+        if (!_running || !_paused) return;
+        _paused = false;
+        _startTicks = Sdl.GetTicks() - _pausedTicks;
+        _pausedTicks = 0;
     }
 
     public ulong GetTicks() {

@@ -27,7 +27,7 @@ public class Button(GameContext context) : GameObject {
 
     public bool Flat { get; set; }
 
-    private FRect sfRect;
+    private FRect _sfRect;
     public bool ShadowEnabled { get; set; }
     public int ShadowDepth { get; set; }
     public float ShadowOrientation { get; set; }
@@ -64,7 +64,7 @@ public class Button(GameContext context) : GameObject {
         Name = "Button";
         // #TODO: This is a horrible hack and exists elsewhere around the code. I need to fix this.
         // Essentially just use FRect unless you need to use Rect.
-        frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Width, H = context.Height };
+        Frect = new FRect { X = context.Rect.X, Y = context.Rect.Y, W = context.Width, H = context.Height };
         Width = (int)context.Width;
         Height = (int)context.Height;
         _inverse = false;
@@ -78,7 +78,7 @@ public class Button(GameContext context) : GameObject {
     }
 
     public virtual void OnClick(object? sender, MouseButtonEvent e) {
-        if (!frect.Intersects(e.X, e.Y))
+        if (!Frect.Intersects(e.X, e.Y))
             return;
 
         _previousState = State;
@@ -97,7 +97,7 @@ public class Button(GameContext context) : GameObject {
     }
 
     public virtual void OnDoubleClick(object? sender, MouseButtonEvent e) {
-        if (!frect.Intersects(e.X, e.Y))
+        if (!Frect.Intersects(e.X, e.Y))
             return;
 
         _previousState = State;
@@ -145,7 +145,7 @@ public class Button(GameContext context) : GameObject {
                 ShadowColor.B,
                 ShadowColor.A
             );
-            _ = Sdl.RenderFillRect(RendererPtr, ref sfRect);
+            _ = Sdl.RenderFillRect(RendererPtr, ref _sfRect);
         }
 
         _ = Sdl.SetRenderDrawColor(
@@ -159,9 +159,9 @@ public class Button(GameContext context) : GameObject {
         // If shadow is enabled and our depth is more than 0
         if (ShadowEnabled && ShadowDepth > 0 && State == ButtonState.Clicked) {
             // We "move" the button to the depth of the shadow.
-            _ = Sdl.RenderFillRect(RendererPtr, ref sfRect);
+            _ = Sdl.RenderFillRect(RendererPtr, ref _sfRect);
             if (Image is not null) {
-                _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref sfRect, ref sfRect);
+                _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref _sfRect, ref _sfRect);
             }
 
             _text.Draw();
@@ -171,7 +171,7 @@ public class Button(GameContext context) : GameObject {
         }
 
         // Draw Untouched Square
-        _ = Sdl.RenderFillRect(RendererPtr, ref frect);
+        _ = Sdl.RenderFillRect(RendererPtr, ref Frect);
         _ = Sdl.SetRenderDrawColor(RendererPtr, 255, 255, 255, 16);
         if (!Flat) {
             if (_inverse) {
@@ -189,7 +189,7 @@ public class Button(GameContext context) : GameObject {
         }
 
         if (Image is not null) {
-            _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref frect, ref frect);
+            _ = Sdl.RenderTexture(RendererPtr, Image.TexturePtr, ref Frect, ref Frect);
         }
         _text.Draw();
     }
@@ -204,7 +204,7 @@ public class Button(GameContext context) : GameObject {
 
     /// <inheritdoc />
     public override void Update(Event e) {
-        sfRect = frect with { X = X + ShadowDepth, Y = Y + ShadowDepth };
+        _sfRect = Frect with { X = X + ShadowDepth, Y = Y + ShadowDepth };
 
         _selectedColor = State switch {
             ButtonState.Disabled => DisabledColor,

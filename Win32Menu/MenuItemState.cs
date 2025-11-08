@@ -3,7 +3,7 @@
 [Flags]
 public enum MenuItemState {
     /// <summary>
-    /// Checks the menu item. For more information about selected menu items, see the hbmpChecked member.
+    /// Checks the menu item. For more information about selected menu items, see the Checked member.
     /// </summary>
     Checked = 0x00000008,
 
@@ -23,22 +23,20 @@ public enum MenuItemState {
     Enabled = 0x00000000,
 
     /// <summary>
-    /// Disables the menu item and grays it so that it cannot be selected. This is equivalent to DISABLED.
-    /// </summary>
-    Grayed = 0x00000003,
-
-    /// <summary>
     /// Highlights the menu item.
     /// </summary>
-    Hilite = 0x00000080,
+    Highlight = 0x00000080,
 
     /// <summary>
-    /// Unchecks the menu item. For more information about clear menu items, see the hbmpChecked member.
+    /// Unchecks the menu item. For more information about clear menu items, see the Checked member.
     /// </summary>
-    Unchecked = 0x00000000,
+    Unchecked = 0x10000000,
+}
 
-    /// <summary>
-    /// Removes the highlight from the menu item. This is the default state.
-    /// </summary>
-    Unhilite = 0x00000000,
+public static class MenuItemStateExtensions
+{
+    public static bool HasFlagFast(this MenuItemState value, MenuItemState flag)
+    {
+        return (value & flag) != 0;
+    }
 }

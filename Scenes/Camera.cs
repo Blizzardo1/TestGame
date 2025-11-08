@@ -19,7 +19,7 @@ public class Camera(GameContext context) : Renderer {
 
     public void Initialize() {
         RendererPtr = context.RendererPtr;
-        _cameraRect = new () {
+        _cameraRect = new FRect {
             X = 0,
             Y = 0,
             W = Width,

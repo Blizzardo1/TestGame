@@ -4,14 +4,14 @@ using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public abstract class Entity : Renderer, ICharacter {
-    private static readonly float _speed = 0.00125f;
+    private const float Speed = 0.00125f;
 
     public FRect HitBox { get; protected set; }
 
-    public int HP { get; set; }
-    public int MaxHP { get; set; }
-    public float VelocityX { get; set; } = _speed;
-    public float VelocityY { get; set; } = _speed;
+    public int Hp { get; set; }
+    public int MaxHp { get; set; }
+    public float VelocityX { get; set; } = Speed;
+    public float VelocityY { get; set; } = Speed;
 
     public IWeapon? Weapon { get; set; }
 
@@ -51,9 +51,9 @@ public abstract class Entity : Renderer, ICharacter {
 
     public string? Name { get; protected set; }
 
-    protected FRect _body;
+    protected FRect PBody;
 
-    public FRect Body => _body;
+    public FRect Body => PBody;
 
     public Direction Direction { get; set; } = Direction.None;
 
@@ -78,9 +78,9 @@ public abstract class Entity : Renderer, ICharacter {
         if (IsInvincible) {
             return;
         }
-        HP += hp;
-        if (HP > MaxHP) {
-            HP = MaxHP;
+        Hp += hp;
+        if (Hp > MaxHp) {
+            Hp = MaxHp;
         }
     }
 
@@ -112,18 +112,29 @@ public abstract class Entity : Renderer, ICharacter {
 
         Direction = Direction.None;
         
-        if (x > 0) {
-            Direction |= Direction.Right;
-        } else if (x < 0) {
-            Direction |= Direction.Left;
-        } else if (y > 0) {
-            Direction |= Direction.Down;
-        } else if (y < 0) {
-            Direction |= Direction.Up;
+        switch (x) {
+            case > 0:
+                Direction |= Direction.Right;
+                break;
+            case < 0:
+                Direction |= Direction.Left;
+                break;
+            default: {
+                switch (y) {
+                    case > 0:
+                        Direction |= Direction.Down;
+                        break;
+                    case < 0:
+                        Direction |= Direction.Up;
+                        break;
+                }
+
+                break;
+            }
         }
 
-        X += x * _speed;
-        Y += y * _speed;
+        X += x * Speed;
+        Y += y * Speed;
     }
 
     public void SetName(string name) {
@@ -134,15 +145,15 @@ public abstract class Entity : Renderer, ICharacter {
         if (IsInvincible) {
             return;
         }
-        if(HP <= 0) {
-            HP = 0;
+        if(Hp <= 0) {
+            Hp = 0;
             return;
         }
 
-        HP -= damage;
+        Hp -= damage;
     }
     public virtual void Update(Event e) {
-        _body = _body with {
+        PBody = PBody with {
             X = (int)X,
             Y = (int)Y,
             W = Width,

@@ -20,10 +20,10 @@ public class Player : Entity {
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
         Defense = Defenses.None;
-        MaxHP = 100;
-        Heal(MaxHP);
+        MaxHp = 100;
+        Heal(MaxHp);
         Sprite = AnimatedSprite32.BlankSprite;
-        Hud = new(this);
+        Hud = new Hud(this);
     }
 
     public override void Initialize() {
@@ -34,7 +34,7 @@ public class Player : Entity {
         if(Weapon is null) {
             return;
         }
-        if (HP > 0) {
+        if (Hp > 0) {
             Weapon.Use();
         }
     }
@@ -44,14 +44,14 @@ public class Player : Entity {
             return;
         }
 
-        if (HP > 0) {
+        if (Hp > 0) {
             Defense.Use();
         }
     }
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-        _ = Sdl.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
         FRect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
         _ = Sdl.RenderRect(RendererPtr, ref r);
@@ -61,7 +61,7 @@ public class Player : Entity {
     public override void Update(Event e) {
         base.Update(e);
         Z = Y;
-        HitBox = _body with { H = Height / 2 };
+        HitBox = PBody with { H = Height / 2 };
         Hud.Update(e);
     }
 }

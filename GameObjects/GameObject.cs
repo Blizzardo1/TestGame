@@ -1,27 +1,27 @@
 ﻿
+using System.Text.Json.Serialization;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
-using System.Text.Json.Serialization;
 
 namespace TestGame.GameObjects;
 
 public abstract class GameObject : Renderer, IRenderer {
-    protected FRect frect;
+    protected FRect Frect;
 
     #region Implementation of IRenderable
 
     /// <inheritdoc />
     public float X
     {
-        get => frect.X;
-        set => frect.X = value;
+        get => Frect.X;
+        set => Frect.X = value;
     }
 
     /// <inheritdoc />
     public float Y
     {
-        get => frect.Y;
-        set => frect.Y = value;
+        get => Frect.Y;
+        set => Frect.Y = value;
     }
 
     /// <inheritdoc />
@@ -30,15 +30,15 @@ public abstract class GameObject : Renderer, IRenderer {
     /// <inheritdoc />
     public float Width
     {
-        get => frect.W;
-        set => frect.W = value;
+        get => Frect.W;
+        set => Frect.W = value;
     }
 
     /// <inheritdoc />
     public float Height
     {
-        get => frect.H;
-        set => frect.H = value;
+        get => Frect.H;
+        set => Frect.H = value;
     }
 
     [JsonIgnore]

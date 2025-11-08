@@ -1,7 +1,6 @@
 ﻿using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
-using System.Runtime.InteropServices;
 
 namespace TestGame.GameObjects.Textures; 
 /// <summary>
@@ -16,7 +15,7 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
     private FRect _source;
     private FRect _destination;
 
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Video);
 
     /// <summary>
     /// Is set if this <see cref="Sprite32"/> is loaded by an image, else, it's strictly from memory
@@ -49,23 +48,23 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
         }
 
         if (surface == nint.Zero) {
-            _log.Error($"Failed to create surface");
+            Log.Error($"Failed to create surface");
             return;
         }
 
         if (parentTexture is not null) {
-            _log.Debug($"Rendering to parent texture {parentTexture}");
+            Log.Debug($"Rendering to parent texture {parentTexture}");
             TexturePtr = parentTexture.Value;
         }
 
         if (TexturePtr == nint.Zero) {
-            TexturePtr = Sdl.CreateTextureFromSurface(context.RendererPtr, (nint)surface);
+            TexturePtr = Sdl.CreateTextureFromSurface(context.RendererPtr, surface);
         }
 
         Sdl.DestroySurface(surface);
     }
 
-    public static nint UnknownTexture(nint rendererPtr, int width, int height) {
+    private static nint UnknownTexture(nint rendererPtr, int width, int height) {
         nint surface = Sdl.CreateSurface(
             width,
             height,

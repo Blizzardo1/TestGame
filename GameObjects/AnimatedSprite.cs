@@ -22,14 +22,14 @@ public class AnimatedSprite : Sprite {
     private void AddDelay(int delay) {
         if (delay == 0) return;
 
-        FRect[] clone = new FRect[_sourceRects.Length];
+        var clone = new FRect[_sourceRects.Length];
         
         Array.Copy(_sourceRects, clone, _sourceRects.Length);
         Array.Resize(ref _sourceRects, delay * _sourceRects.Length);
 
         for (int y = 0; y < clone.Length; y++) {
             for (int x = 0; x < delay; x++) {
-                _sourceRects[ x + ( y * delay ) ] = clone[ y ];
+                _sourceRects[ x + y * delay ] = clone[ y ];
             }
         }
     }
@@ -38,7 +38,7 @@ public class AnimatedSprite : Sprite {
 
     /// <inheritdoc />
     public override void Draw() {
-        var rect = Rect;
+        FRect rect = Rect;
         
         _ = Sdl.RenderTexture(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
     }

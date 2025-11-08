@@ -6,8 +6,8 @@ using TestGame.GameObjects;
 namespace TestGame;
 
 public abstract class Window : Renderer, IRenderer, IDisposable {
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
-    private bool disposedValue;
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private bool _disposedValue;
     #region Events
 
     public event EventHandler<AudioDeviceEvent>? AudioDeviceAdded;
@@ -246,19 +246,15 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
             flags);
 
         if (WindowPtr == nint.Zero) {
-            _log.Error($"Cannot create Window: {Sdl.GetError()}");
+            Log.Error($"Cannot create Window: {Sdl.GetError()}");
             return;
         }
 
-        _log.Info($"Window Created: 0x{WindowPtr:X8}");
-        _log.Info($"Window ID: {Sdl.GetWindowId(WindowPtr):X8}");
-        _log.Info($"Window Title: {title}");
+        Log.Info($"Window Created: 0x{WindowPtr:X8}");
+        Log.Info($"Window ID: {Sdl.GetWindowId(WindowPtr):X8}");
+        Log.Info($"Window Title: {title}");
 
         Initialize(Sdl.CreateRenderer(WindowPtr, null));
-
-        if (RendererPtr == nint.Zero) {
-            _log.Error($"Cannot create RendererPtr: {Sdl.GetError()}");
-        }
     }
 
     ~Window() {
@@ -801,6 +797,7 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
                 OnDisplayAdded(e.Display);
                 break;
             case { Type: EventType.WindowFirst }:
+                OnWindowShown(e.Window);
                 OnWindowFirst(e.Window);
                 break;
             case { Type: EventType.KeyDown }:
@@ -915,9 +912,7 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
                 OnUser(e.User);
                 break;
             case { Type: EventType.Last }:
-                OnLast(e.Common);
-                break;
-            case { Type: EventType.PollSentinel}: // SDL_POLLSENTINEL
+            case { Type: EventType.PollSentinel}:
                 OnLast(e.Common);
                 break;
             case { Type: EventType.AudioDeviceFormatChanged }:
@@ -1109,14 +1104,15 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
             case { Type: EventType.WindowSafeAreaChanged }:
                 OnWindowSafeAreaChanged(e.Window);
                 break;
+
             default:
-                _log.Error($"Unhandled event type: {e.Type}");
+                Log.Error($"Unhandled event type: {e.Type}");
                 break;
         }
     }
 
     protected virtual void Dispose(bool disposing) {
-        if (disposedValue) {
+        if (_disposedValue) {
             return;
         }
         if (disposing) {
@@ -1124,7 +1120,7 @@ public abstract class Window : Renderer, IRenderer, IDisposable {
         }
 
         Sdl.DestroyWindow(WindowPtr);
-        disposedValue = true;
+        _disposedValue = true;
     }
 
     public void Dispose() {

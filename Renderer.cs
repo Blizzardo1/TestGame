@@ -1,8 +1,8 @@
-﻿using SharpSDL3;
+﻿using System.Text.Json.Serialization;
+using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Structs;
 using SharpSDL3.TTF;
-using System.Text.Json.Serialization;
 
 namespace TestGame;
 
@@ -11,7 +11,7 @@ public abstract class Renderer {
 
     private bool _initialized;
 
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Video);
 
     private const string FontName = "default";
     private const string FontPath = "default.ttf";
@@ -39,12 +39,12 @@ public abstract class Renderer {
         Font = OpenFont(fontName, fontPath);
 
         if (Font.Handle == nint.Zero) {
-            _log.Error($"Font has no handle... {fontPath}: {Sdl.GetError()}");
+            Log.Error($"Font has no handle... {fontPath}: {Sdl.GetError()}");
             return;
         }
 
         if(renderer == nint.Zero) {
-            _log.Error("Renderer is not initialized");
+            Log.Error("Renderer is not initialized");
             return;
         }
         
@@ -53,29 +53,27 @@ public abstract class Renderer {
     }
 
     public nint GetRenderer() {
-        if (RendererPtr == nint.Zero) {
-            _log.Error("Renderer is not initialized");
-            return nint.Zero;
-        }
-        return RendererPtr;
+        if (RendererPtr != nint.Zero) return RendererPtr;
+        Log.Error("Renderer is not initialized");
+        return nint.Zero;
     }
 
     public static Font OpenFont(string fontName = FontName,
         string fontPath = FontPath) {
 
         if (fontName.IsEmpty()) {
-            _log.Warn($"Font path \"{fontName}\" is empty. Using Default: {FontName}");
+            Log.Warn($"Font path \"{fontName}\" is empty. Using Default: {FontName}");
             fontPath = FontPath;
         }
 
         if (fontPath.IsEmpty()) {
-            _log.Warn($"Font path \"{fontPath}\" is empty. Using Default: {FontPath}");
+            Log.Warn($"Font path \"{fontPath}\" is empty. Using Default: {FontPath}");
             fontPath = FontPath;
         }
 
         Font font = Ttf.OpenFont(fontPath, FontSize);
 
-        _log.Debug($"Loaded font: {fontName}:{fontPath}");
+        Log.Debug($"Loaded font: {fontName}:{fontPath}");
         return font;
     }
 
@@ -85,13 +83,13 @@ public abstract class Renderer {
         }
 
         if (RendererPtr == nint.Zero) {
-            _log.Error("Renderer is not initialized");
+            Log.Error("Renderer is not initialized");
             return;
         }
         if (_textEngine.Handle == nint.Zero) {
             _textEngine = Ttf.CreateRendererTextEngine(RendererPtr);
             if (_textEngine.Handle == nint.Zero) {
-                _log.Error($"Error creating text engine: {Sdl.GetError()}");
+                Log.Error($"Error creating text engine: {Sdl.GetError()}");
                 return;
             }
         }

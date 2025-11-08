@@ -5,7 +5,7 @@ using TestGame.GameObjects.Map;
 namespace TestGame.Config;
 
 public record GameConfig(string Path) {
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     [JsonProperty("maps")]
     public List< MapConfig >? Maps { get; set; }
@@ -35,7 +35,7 @@ public record GameConfig(string Path) {
         //AudioTracks.ForEach(audio => ResourceManager.Add(new SoundEffect(audio.Reference, Program.AudioConfigPath)));
         Fonts?.ForEach(font => {
             if (font.Name is null || font.Font is null || font.Name.IsEmpty() || font.Font.IsEmpty()) {
-                _log.Error("Font name or path is empty.");
+                Log.Error("Font name or path is empty.");
                 return;
             }
 
@@ -44,19 +44,19 @@ public record GameConfig(string Path) {
 
         if (AudioDevices is null) return;
         if (AudioDevices.Count is 0) {
-            _log.Warn("No audio devices are found in the config. The Engine should initialize and save all audio configs.");
+            Log.Warn("No audio devices are found in the config. The Engine should initialize and save all audio configs.");
         }
 
         AudioDevices.ForEach(adc => {
             if (adc.DeviceName is null || adc.DeviceIndex < 0 || adc.DeviceType is null) {
-                _log.Error("Audio Devices are not configured properly! Please check config and remove null or broken entries.");
+                Log.Error("Audio Devices are not configured properly! Please check config and remove null or broken entries.");
             }
         });
     }
 
     public static GameConfig Load(string path) {
         if (!File.Exists(path)) {
-            _log.Error(new FileNotFoundException(), $"Could not find GameConfig at {path}");
+            Log.Error(new FileNotFoundException(), $"Could not find GameConfig at {path}");
             var g = new GameConfig(path);
             g.Save();
             return g;
@@ -66,7 +66,7 @@ public record GameConfig(string Path) {
         string json = reader.ReadToEnd();
         var gc = JsonConvert.DeserializeObject< GameConfig >(json);
         if (gc == null) {
-            _log.Error("Failed to load GameConfig");
+            Log.Error("Failed to load GameConfig");
             return new GameConfig(path);
         }
 

@@ -3,11 +3,13 @@
 namespace TestGame.Colors;
 
 public static class ColorConverter {
-
     /// <summary>
     /// Determines whether to use Black or White depending on the luminance of the color
     /// </summary>
-    /// <param name="color">The <see cref="Color"/> to determine</param>
+    /// <param name="color">The <see>
+    ///         <cref>Color</cref>
+    ///     </see>
+    ///     to determine</param>
     /// <returns>Black or White depending on the luminance</returns>
     public static Color SetInverseBasedOn(Color color) {
         double lum = color.CalculateLuminance();
@@ -31,27 +33,28 @@ public static class ColorConverter {
         out byte r,
         out byte g,
         out byte b) {
+        double q = l < 0.5 ? l * ( 1 + s ) : l + s - l * s;
+        double p = 2 * l - q;
+        double hk = h / 360.0;
+        double[] t = [0, 0, 0];
         if (s.AlmostEquals(0)) {
             // Achromatic (gray)
             r = g = b = (byte)( l * 255.0 );
         }
         else {
-            double q = l < 0.5 ? l * ( 1 + s ) : l + s - l * s;
-            double p = 2 * l - q;
-            double hk = h / 360.0;
-            double[] t = [0, 0, 0];
             t[ 0 ] = hk + 1.0 / 3.0; // Tr
             t[ 1 ] = hk; // Tg
             t[ 2 ] = hk - 1.0 / 3.0; // Tb
 
-            for (int i = 0; i < 3; i++) {
+            int i = 0;
+            for (; i < 3; i++) {
                 if (t[ i ] < 0) t[ i ] += 1.0;
                 if (t[ i ] > 1) t[ i ] -= 1.0;
 
                 t[ i ] = t[ i ] switch {
-                    < 1.0 / 6.0 => p + ( ( q - p ) * 6.0 * t[ i ] ),
+                    < 1.0 / 6.0 => p + ( q - p ) * 6.0 * t[ i ],
                     < 1.0 / 2.0 => q,
-                    < 2.0 / 3.0 => p + ( ( q - p ) * ( 2.0 / 3.0 - t[ i ] ) * 6.0 ),
+                    < 2.0 / 3.0 => p + ( q - p ) * ( 2.0 / 3.0 - t[ i ] ) * 6.0,
                     _ => p
                 };
             }

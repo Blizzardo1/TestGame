@@ -51,15 +51,15 @@ public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e)
 /// Core Engine
 /// </summary>
 public class Core : Window {
-    private static readonly Log _log;
+    private static readonly Log Log;
 
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
 
     public static bool IsDebugging { get; private set; }
-    public static bool IsPausedDisabled { get; private set; }
+    public static bool IsPausedDisabled { get; private set; } = true;
 
-    public static Random Random { get; }
+    public static Random Random { get; } = new Random();
 
     private Dictionary< string, Scene >? _scenes;
 
@@ -68,12 +68,8 @@ public class Core : Window {
     private Diagnostics? _diagnostic;
 
     static Core() {
-        IsDebugging = false;
-        IsPausedDisabled = true;
-        IsPaused = false;
-        Random = new();
-        _log = Log.GetCurrentClassLogger(LogCategory.Application);
-        _log.Info("Core Engine Initialized");
+        Log = Log.GetCurrentClassLogger(LogCategory.Application);
+        Log.Info("Core Engine Initialized");
     }
 
     /// <summary>
@@ -89,7 +85,7 @@ public class Core : Window {
             new Size(width, height),
             WindowFlags.HighPixelDensity | WindowFlags.Resizable) {
         WindowId = Sdl.GetWindowId(WindowPtr);
-        _log.Info($"Created Window with ID: {WindowId}");
+        Log.Info($"Created Window with ID: {WindowId}");
         Width = width;
         Height = height;
     }
@@ -119,7 +115,7 @@ public class Core : Window {
         }
 
         if (_currentScene is null) {
-            _log.Error("_currentScene is unset!");
+            Log.Error("_currentScene is unset!");
             return;
         }
 
@@ -140,12 +136,14 @@ public class Core : Window {
             return false;
         }
 
-        if (_scenes.TryGetValue(name, out Scene? s)) {
+        if (_scenes.TryGetValue(name, out Scene? s) && s is not null) {
+            // InvalidOperationException:
+            // Unable to cast object of type 'Bazinga.Scenes.MainMenu' to type 'Bazinga.Scenes.TiledScene'.'
             scene = (T)s;
             return true;
         }
 
-        _log.Error($"Scene with name {name} does not exist");
+        Log.Error($"Scene with name {name} does not exist");
         scene = null;
         return false;
     }
@@ -160,7 +158,7 @@ public class Core : Window {
         
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
-            _log.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            Log.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             int color = bytes[0] << 24
                 | bytes[1] << 16
                 | bytes[2] << 8
@@ -169,7 +167,7 @@ public class Core : Window {
                 bytes[0] = (byte)~bytes[0];
                 bytes[1] = (byte)~bytes[1];
                 bytes[2] = (byte)~bytes[2];
-                _log.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+                Log.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             }
         } else {
             Random.NextBytes(bytes);
@@ -291,11 +289,7 @@ public class Core : Window {
         }
 
         IsPaused = !IsPaused;
-        if (IsPaused) {
-            AudioManager.Instance.PlaySoundEffect("pause", 2);
-        } else {
-            AudioManager.Instance.PlaySoundEffect("shutdown", 2);
-        }
+        AudioManager.Instance.PlaySoundEffect(IsPaused ? "pause" : "shutdown", 2);
     }
 
     /// <summary>

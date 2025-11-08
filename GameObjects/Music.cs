@@ -6,11 +6,11 @@ using SharpSDL3.Mixer;
 
 namespace TestGame.GameObjects; 
 internal class Music : Audio {
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Audio);
-    private SharpSDL3.Mixer.Music MusicPtr;
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Audio);
+    private readonly SharpSDL3.Mixer.Music _musicPtr;
 
     ~Music() {
-        Mixer.FreeMusic(MusicPtr);
+        Mixer.FreeMusic(_musicPtr);
     }
 
     /// <inheritdoc />
@@ -18,9 +18,9 @@ internal class Music : Audio {
         Name = name;
         // #TODO: Does not load MP3 nor WAV? What other files don't load?
 
-        MusicPtr = Mixer.LoadMusic(filename);
+        _musicPtr = Mixer.LoadMusic(filename);
         if (Pointer.AudioBuffer == nint.Zero) {
-            _log.Error(new FileNotFoundException(), $"Could not load audio file {filename}; ${Sdl.GetError()}");
+            Log.Error(new FileNotFoundException(), $"Could not load audio file {filename}; ${Sdl.GetError()}");
         }            
     }
 
@@ -28,8 +28,8 @@ internal class Music : Audio {
 
     /// <inheritdoc />
     public override void Play() {
-        if (Mixer.PlayMusic(MusicPtr, -1)) {
-            _log.Error(new Exception(Sdl.GetError()).Message);
+        if (Mixer.PlayMusic(_musicPtr, -1)) {
+            Log.Error(new Exception(Sdl.GetError()).Message);
         }
     }
 

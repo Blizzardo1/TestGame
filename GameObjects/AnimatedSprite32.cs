@@ -20,7 +20,7 @@ public class AnimatedSprite32 : Sprite32 {
 
     public static AnimatedSprite32 BlankSprite => new(
         new GameContext(Engine.Game!.GetWindow(), Engine.Game.GetRenderer(),
-            new(),
+            new FRect(),
             Colors.Colors.Transparent,
             Engine.Game ?? throw new ArgumentNullException("No Game instance found", new Exception())),
             "",
@@ -29,14 +29,14 @@ public class AnimatedSprite32 : Sprite32 {
     private void AddDelay(int delay) {
         if (delay == 0) return;
 
-        FRect[] clone = new FRect[_sourceRects.Length];
+        var clone = new FRect[_sourceRects.Length];
         
         Array.Copy(_sourceRects, clone, _sourceRects.Length);
         Array.Resize(ref _sourceRects, delay * _sourceRects.Length);
         
         for (int y = 0; y < clone.Length; y++) {
             for (int x = 0; x < delay; x++) {
-                _sourceRects[x + (y * delay)] = clone[y];
+                _sourceRects[x + y * delay] = clone[y];
             }
         }
     }
@@ -45,7 +45,7 @@ public class AnimatedSprite32 : Sprite32 {
 
     /// <inheritdoc />
     public override void Draw() {
-        var rect = Rect;
+        FRect rect = Rect;
 
         _ = Sdl.RenderTexture(RendererPtr, TexturePtr, ref _currentFrame, ref rect);
     }

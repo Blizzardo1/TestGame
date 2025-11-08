@@ -1,12 +1,13 @@
 ﻿using SharpSDL3;
 using SharpSDL3.Enums;
 using SharpSDL3.Mixer;
+using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects; 
 public class AudioManager : IDisposable {
     private bool _initialized;
 
-    private static readonly Log _log = Log.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Audio);
 
     private bool _disposed;
 
@@ -25,29 +26,29 @@ public class AudioManager : IDisposable {
     public void Initialize() {
         Mixer.MixInit result = Mixer.Initialize(Mixer.MixInit.Midi | Mixer.MixInit.Ogg | Mixer.MixInit.Flac | Mixer.MixInit.Mp3);
         if (result == Mixer.MixInit.None) {
-            _log.Error($"Failed to initialize audio mixer: {Sdl.GetError()}");
+            Log.Error($"Failed to initialize audio mixer: {Sdl.GetError()}");
             return;
         }
-        _log.Info($"Initialized Audio Manager with {result}");
+        Log.Info($"Initialized Audio Manager with {result}");
         OpenAudioDevice();
     }
 
     //#TODO: Implement a new way to handle Audio
     private void OpenAudioDevice() {
         Mixer.OpenAudio(AudioDeviceId.DefaultPlayback,
-            new () {
+            new AudioSpec {
                 Channels = 8,
                 Format = SharpSDL3.Enums.AudioFormat.S16,
                 Freq=48000
             });
         
         if(Mixer.MasterVolume(50) == -1) {
-            _log.Error($"Failed to set master volume: {Sdl.GetError()}");
+            Log.Error($"Failed to set master volume: {Sdl.GetError()}");
             return;
         }
 
         _initialized = true;
-        _log.Info("Audio Manager opened an audio device - OK");
+        Log.Info("Audio Manager opened an audio device - OK");
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public class AudioManager : IDisposable {
     /// <param name="loops">How many times we want to loop.</param>
     public void PlaySoundEffect(string effectName, int channel = 1, int loops = 0) {
         if (!_initialized) {
-            _log.Error("AudioManager is not initialized.");
+            Log.Error("AudioManager is not initialized.");
             return;
         }
 

@@ -23,7 +23,7 @@ public class SampleWorld(GameContext context, string name) : Scene(context, name
     public override void Initialize() {
         for (int y = 0; y < Height; y += 64) {
             for (int x = 0; x < Width; x += 64) {
-                AddGameObject(new WaterSprite(_context, new(16, 16)) {
+                AddGameObject(new WaterSprite(_context, new Size(16, 16)) {
                     X = x,
                     Y = y,
                     Z = 0,
@@ -37,7 +37,7 @@ public class SampleWorld(GameContext context, string name) : Scene(context, name
     }
 
     public override void Cleanup() {
-        foreach (var gameobject in GameObjects) {
+        foreach (GameObject gameobject in GameObjects) {
             RemoveGameObject(gameobject);
         }
     }

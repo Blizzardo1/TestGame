@@ -1,9 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using TestGame.Win32Menu;
+﻿namespace TestGame.Win32Menu;
 
-namespace TestGame;
-
-internal partial class NativeMethods {
+internal static partial class NativeMethods {
     #if WINDOWS
     private const string User32 = "User32.dll";
     private const string Kernel32 = "Kernel32.dll";
@@ -12,9 +9,9 @@ internal partial class NativeMethods {
     [LibraryImport(Kernel32)]
     private static partial uint GetConsoleOutputCP();
 
-    [LibraryImport(Kernel32, SetLastError = true)]
+    [LibraryImport(Kernel32, SetLastError = true, EntryPoint = "SetConsoleOutputCP")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetConsoleOutputCP(uint wCodePageID);
+    private static partial bool SetConsoleOutputCp(uint wCodePageId);
 
     [LibraryImport(Kernel32, EntryPoint ="AllocConsole")]
     private static partial void INTERNAL_AllocConsole();
@@ -44,20 +41,20 @@ internal partial class NativeMethods {
 
     [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf8, EntryPoint="AppendMenu")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool INTERNAL_AppendMenu(nint hMenu, uint uFlags, uint uIDNewItem, string lpNewItem);
+    private static partial bool INTERNAL_AppendMenu(nint hMenu, uint uFlags, uint uIdNewItem, string lpNewItem);
 
     [LibraryImport(User32, StringMarshalling = StringMarshalling.Utf8, EntryPoint = "InsertMenuA")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool INTERNAL_InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIDNewItem, string lpNewItem);
+    private static partial bool INTERNAL_InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIdNewItem, string lpNewItem);
 
     [LibraryImport(User32, EntryPoint = "InsertMenuItemA", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool INTERNAL_InsertMenuItem(nint hMenu, uint uItem, [MarshalAs(UnmanagedType.Bool)] bool fByPosition,
-        MenuItemInfo lpmii);
+        MenuItemInfo longPointerMenuItemInfo);
 
     [LibraryImport(User32, EntryPoint = "SetMenuInfo", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool INTERNAL_SetMenuInfo(IntPtr hMenu, MenuInfo lpcmi);
+    private static partial bool INTERNAL_SetMenuInfo(nint hMenu, MenuInfo constantLongPointerMenuItem);
     #endif
 
     /// <summary>
@@ -92,7 +89,7 @@ internal partial class NativeMethods {
         if(codePage == 0) {
             return false;
         }
-        return SetConsoleOutputCP(codePage);
+        return SetConsoleOutputCp(codePage);
 #else
         return false;
 #endif
@@ -183,12 +180,12 @@ internal partial class NativeMethods {
     /// </summary>
     /// <param name="hMenu"></param>
     /// <param name="uFlags"></param>
-    /// <param name="uIDNewItem"></param>
+    /// <param name="uIdNewItem"></param>
     /// <param name="lpNewItem"></param>
     /// <returns></returns>
-    public static bool AppendMenu(nint hMenu, uint uFlags, uint uIDNewItem, string lpNewItem) {
+    public static bool AppendMenu(nint hMenu, uint uFlags, uint uIdNewItem, string lpNewItem) {
 #if WINDOWS
-        return INTERNAL_AppendMenu(hMenu, uFlags, uIDNewItem, lpNewItem);
+        return INTERNAL_AppendMenu(hMenu, uFlags, uIdNewItem, lpNewItem);
 #else
         return false;
 #endif
@@ -200,12 +197,12 @@ internal partial class NativeMethods {
     /// <param name="hMenu"></param>
     /// <param name="uPosition"></param>
     /// <param name="uFlags"></param>
-    /// <param name="uIDNewItem"></param>
+    /// <param name="uIdNewItem"></param>
     /// <param name="lpNewItem"></param>
     /// <returns></returns>
-    public static bool InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIDNewItem, string lpNewItem) {
+    public static bool InsertMenu(nint hMenu, uint uPosition, uint uFlags, uint uIdNewItem, string lpNewItem) {
 #if WINDOWS
-        return INTERNAL_InsertMenu(hMenu, uPosition, uFlags, uIDNewItem, lpNewItem);
+        return INTERNAL_InsertMenu(hMenu, uPosition, uFlags, uIdNewItem, lpNewItem);
 #else
         return false;
 #endif

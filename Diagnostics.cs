@@ -1,8 +1,6 @@
-﻿using SharpSDL3;
+﻿using System.Diagnostics;
+using SharpSDL3;
 using SharpSDL3.Structs;
-
-using System.Diagnostics;
-
 using TestGame.Colors;
 using TestGame.GameObjects;
 using TestGame.Scenes;
@@ -47,7 +45,7 @@ internal class Diagnostics : Renderer, IRenderer {
         Width = width;
         Height = height;
         _rect = new FRect { X = X, Y = Y, W = Width, H = Height };
-        MouseData = new MouseData(new(), 0, 0);
+        MouseData = new MouseData(new Vector2(), 0, 0);
     }
 
     public void UpdateDiagnostics(Scene currentScene) {
@@ -60,7 +58,7 @@ internal class Diagnostics : Renderer, IRenderer {
         // Using List<T> it reallocates the larger it gets. Maybe use a fixed array?
         
         
-        _diagnostics.Add($"FPS: {Engine.CurrentFPS}");
+        _diagnostics.Add($"FPS: {Engine.CurrentFps}");
         _diagnostics.Add($"Current Scene: {currentScene.Name}");
         _diagnostics.Add($"Paused? {(Core.IsPaused ? "Yes" : "No")}");
         _diagnostics.Add($"RAM: {Sdl.GetSystemRAM()} MB");
