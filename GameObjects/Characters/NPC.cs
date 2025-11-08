@@ -55,6 +55,7 @@ public class Npc : Entity {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
 =======
         _ = Render.RenderFillRect(RendererPtr, ref _body);
@@ -62,5 +63,8 @@ public class Npc : Entity {
 =======
         _ = Sdl.RenderFillRect(RendererPtr, ref _body);
 >>>>>>> 833ffb1 (SDL3 Migration almost complete)
+=======
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
+>>>>>>> c521a5a (Fixed some code convention issues)
     }
 }
