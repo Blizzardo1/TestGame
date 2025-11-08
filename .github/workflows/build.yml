@@ -40,11 +40,11 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Checkout SharpSDL2
+      - name: Checkout SharpSDL3
         uses: actions/checkout@v4
         with:
-          repository: GeorchW/SharpSDL2
-          path: SharpSDL2
+          repository: Blizzardo1/SharpSDL3
+          path: SharpSDL3
       - name: Build and analyze
         shell: powershell
         run: |
