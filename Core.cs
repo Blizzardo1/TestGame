@@ -5,8 +5,10 @@
 #endregion
 
 using System.Diagnostics;
-using SDL2;
-using SDL2.TTF;
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 using TestGame.Colors;
 using TestGame.Config;
 using TestGame.GameObjects;
@@ -45,8 +47,11 @@ public delegate void MouseMotionEventHandler(object? sender, MouseMotionEvent e)
 /// <param name="e">An SDL <see cref="MouseButtonEvent"/> containing information about the triggered event</param>
 public delegate void MouseButtonEventHandler(object? sender, MouseButtonEvent e);
 
+/// <summary>
+/// Core Engine
+/// </summary>
 public class Core : Window {
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log Log;
 
     public static uint WindowId { get; private set; }
     public static bool IsPaused { get; private set; }
@@ -54,7 +59,7 @@ public class Core : Window {
     public static bool IsDebugging { get; private set; }
     public static bool IsPausedDisabled { get; private set; } = true;
 
-    public static Random Random { get; } = new();
+    public static Random Random { get; } = new Random();
 
     private Dictionary< string, Scene >? _scenes;
 
@@ -63,7 +68,8 @@ public class Core : Window {
     private Diagnostics? _diagnostic;
 
     static Core() {
-        
+        Log = Log.GetCurrentClassLogger(LogCategory.Application);
+        Log.Info("Core Engine Initialized");
     }
 
     /// <summary>
@@ -77,14 +83,21 @@ public class Core : Window {
             title,
             new Point { X = 0x7FFFFFFF, Y = 0x7FFFFFFF },
             new Size(width, height),
-            WindowFlags.AllowHighdpi | WindowFlags.Resizable | WindowFlags.Shown) {
-        WindowId = SDL.GetWindowID(WindowPtr);
+            WindowFlags.HighPixelDensity | WindowFlags.Resizable) {
+        WindowId = Sdl.GetWindowId(WindowPtr);
+        Log.Info($"Created Window with ID: {WindowId}");
         Width = width;
         Height = height;
     }
 
     public static void ToggleDebug() {
         IsDebugging = !IsDebugging;
+
+        if(Engine.Game is null || Engine.Game._diagnostic is null) {
+            return;
+        }
+
+        Engine.Game._diagnostic.Shown = IsDebugging;
     }
 
     /// <summary>
@@ -102,7 +115,7 @@ public class Core : Window {
         }
 
         if (_currentScene is null) {
-            _log?.Error("_currentScene is unset!");
+            Log.Error("_currentScene is unset!");
             return;
         }
 
@@ -123,11 +136,14 @@ public class Core : Window {
             return false;
         }
 
-        if (_scenes.TryGetValue(name, out Scene? s)) {
+        if (_scenes.TryGetValue(name, out Scene? s) && s is not null) {
+            // InvalidOperationException:
+            // Unable to cast object of type 'Bazinga.Scenes.MainMenu' to type 'Bazinga.Scenes.TiledScene'.'
             scene = (T)s;
             return true;
         }
 
+        Log.Error($"Scene with name {name} does not exist");
         scene = null;
         return false;
     }
@@ -142,7 +158,7 @@ public class Core : Window {
         
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
-            _log?.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+            Log.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             int color = bytes[0] << 24
                 | bytes[1] << 16
                 | bytes[2] << 8
@@ -151,7 +167,7 @@ public class Core : Window {
                 bytes[0] = (byte)~bytes[0];
                 bytes[1] = (byte)~bytes[1];
                 bytes[2] = (byte)~bytes[2];
-                _log?.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
+                Log.Debug($"Inverted Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
             }
         } else {
             Random.NextBytes(bytes);
@@ -179,7 +195,7 @@ public class Core : Window {
         IsRunning = true;
         IsPaused = false;
 
-        _ = SDL.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
+        _ = Sdl.SetRenderDrawBlendMode(RendererPtr, BlendMode.Blend);
 
         _diagnostic = new Diagnostics(RendererPtr, 256, 256);
 
@@ -199,25 +215,13 @@ public class Core : Window {
     }
 
     /// <summary>
-    /// A Pointer to the Renderer
-    /// </summary>
-    /// <returns>A <see cref="nint"/> Pointer to the Renderer</returns>
-    public nint GetRenderer() => RendererPtr;
-
-    /// <summary>
-    /// A Pointer to the Window
-    /// </summary>
-    /// <returns>A <see cref="nint"/> Pointer to the Window</returns>
-    public nint GetWindow() => WindowPtr;
-
-    /// <summary>
     /// Wrapper to set Render Draw Color more efficiently.
     /// </summary>
     /// <param name="rendererPtr">A Renderer* to the current renderer.</param>
     /// <param name="color">The new color to set to the Renderer*.</param>
     /// <returns>0 on success, negative error code on failure</returns>
-    public static int SetRenderColor(nint rendererPtr, Color color) {
-        return SDL.SetRenderDrawColor(rendererPtr, color.R, color.G, color.B, color.A);
+    public static bool SetRenderColor(nint rendererPtr, Color color) {
+        return Sdl.SetRenderDrawColor(rendererPtr, color);
     }
 
     /// <summary>
@@ -246,14 +250,14 @@ public class Core : Window {
         switch (e) {
             case MouseMotionEvent mme:
                 _diagnostic.MouseData = _diagnostic.MouseData with {
-                    Position = new System.Numerics.Vector2 { X = mme.X, Y = mme.Y }
+                    Position = new Vector2 { X = mme.X, Y = mme.Y }
                 };
                 break;
             case MouseButtonEvent mbe:
                 // SDL_PRESSED = 1, SDL_RELEASED = 0
-                if (mbe.State == 1) {
+                if (mbe.Clicks == 1) {
                     _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
-                } else if (mbe.State == 0) {
+                } else if (mbe.Clicks == 0) {
                     _diagnostic.MouseData = _diagnostic.MouseData with { Button = 0 };
                 }
                 _diagnostic.MouseData = _diagnostic.MouseData with { Button = mbe.Button };
@@ -285,11 +289,7 @@ public class Core : Window {
         }
 
         IsPaused = !IsPaused;
-        if (IsPaused) {
-            AudioManager.Instance.PlaySoundEffect("pause", 2);
-        } else {
-            AudioManager.Instance.PlaySoundEffect("shutdown", 2);
-        }
+        AudioManager.Instance.PlaySoundEffect(IsPaused ? "pause" : "shutdown", 2);
     }
 
     /// <summary>
@@ -320,7 +320,7 @@ public class Core : Window {
             // Default to this if the Current Scene's Background Color isn't set.
             ?? KnownColor.Black.ToColor());
 
-        _ = SDL.RenderClear(RendererPtr);
+        _ = Sdl.RenderClear(RendererPtr);
 
         _currentScene?.Draw();
 
@@ -328,7 +328,7 @@ public class Core : Window {
             _diagnostic.Draw();
         }
 
-        SDL.RenderPresent(RendererPtr);
+        Sdl.RenderPresent(RendererPtr);
     }
 
     #region Event Methods
@@ -337,12 +337,14 @@ public class Core : Window {
     /// Handles Quit Procedures
     /// </summary>
     public void Close() {
-        CloseFonts();
-        TTF.Quit();
+        foreach(Scene scene in _scenes!.Values) {
+            scene.Cleanup();
+        }
+        Ttf.Quit();
 
-        SDL.DestroyRenderer(RendererPtr);
-        SDL.DestroyWindow(WindowPtr);
-        SDL.Quit();
+        Sdl.DestroyRenderer(RendererPtr);
+        Sdl.DestroyWindow(WindowPtr);
+        Sdl.Quit();
         IsRunning = false;
     }
 

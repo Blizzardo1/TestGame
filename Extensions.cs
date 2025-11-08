@@ -1,18 +1,27 @@
-﻿using SDL2;
+﻿using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
+using SharpSDL3.Structs;
 using TestGame.Colors;
 using TestGame.GameObjects.Characters;
-using Version = SDL2.Version;
 
 namespace TestGame;
 
 public static class Extensions {
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Custom, "Root Extensions");
+
+    internal static string SdlVersionToString(this int version) {
+        int major = version / 1000000 % 100;
+        int minor = version / 1000 % 100;
+        int patch = version % 1000;
+        return $"{major}.{minor}.{patch}";
+    }
+
     public static Color ToColor(this KnownColor color) {
         Color c = new();
-        byte a = (byte)( (int)color >> 24 & 0xFF );
-        byte r = (byte)( (int)color >> 16 & 0xFF );
-        byte g = (byte)( (int)color >> 8 & 0xFF );
+        byte a = (byte)( ((int)color >> 24) & 0xFF );
+        byte r = (byte)( ((int)color >> 16) & 0xFF );
+        byte g = (byte)( ((int)color >> 8) & 0xFF );
         byte b = (byte)( (int)color & 0xFF );
         c.A = a;
         c.R = r;
@@ -39,11 +48,11 @@ public static class Extensions {
         };
 
     public static bool Intersects(this Rect rect, int x, int y) {
-        return x >= rect.X || x <= rect.X + rect.W && y >= rect.Y || y <= rect.Y + rect.H;
+        return x >= rect.X || (x <= rect.X + rect.W && y >= rect.Y) || y <= rect.Y + rect.H;
     }
 
     public static bool Intersects(this FRect rect, float x, float y) {
-        return x >= rect.X || x <= rect.X + rect.W && y >= rect.Y || y <= rect.Y + rect.H;
+        return x >= rect.X || (x <= rect.X + rect.W && y >= rect.Y) || y <= rect.Y + rect.H;
     }
 
     public static bool Intersects(this Rect rect, Rect other) {
@@ -71,28 +80,32 @@ public static class Extensions {
 
         intersection.Type = Intersection.IntersectionTypes.Rectangle;
 
-        float distX = (b.X - a.X);
-        float distY = (b.Y - a.Y);
+        float distX = b.X - a.X;
+        float distY = b.Y - a.Y;
         float timeX = Math.Abs(distX) / a.VelocityX;
         float timeY = Math.Abs(distY) / a.VelocityY;
 
-        _log?.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
+        Log.Debug($"distX: {distX} distY: {distY}; timeX: {timeX} timeY: {timeY}");
 
-        if (distX < 0 && a.Direction.HasFlag(Direction.Left) && timeX > timeY) {
-            intersection.Direction |= Intersection.Directionals.Left;
-            return intersection;
-        } else if (distX > 0 && a.Direction.HasFlag(Direction.Right) && timeX > timeY) {
-            intersection.Direction |= Intersection.Directionals.Right;
-            return intersection;
+        switch (distX) {
+            case < 0 when a.Direction.HasFlag(Direction.Left) && timeX > timeY:
+                intersection.Direction |= Intersection.Directionals.Left;
+                return intersection;
+            case > 0 when a.Direction.HasFlag(Direction.Right) && timeX > timeY:
+                intersection.Direction |= Intersection.Directionals.Right;
+                return intersection;
+            default:
+                switch (distY) {
+                    case < 0 when a.Direction.HasFlag(Direction.Up) && timeY > timeX:
+                        intersection.Direction |= Intersection.Directionals.Up;
+                        break;
+                    case > 0 when a.Direction.HasFlag(Direction.Down) && timeY > timeX:
+                        intersection.Direction |= Intersection.Directionals.Down;
+                        break;
+                }
+
+                return intersection;
         }
-
-        if (distY < 0 && a.Direction.HasFlag(Direction.Up) && timeY > timeX) {
-            intersection.Direction |= Intersection.Directionals.Up;
-        } else if (distY > 0 && a.Direction.HasFlag(Direction.Down) && timeY > timeX) {
-            intersection.Direction |= Intersection.Directionals.Down;
-        }
-
-        return intersection;
     }
 
     public static Intersection GetIntersect(this FRect rect, FRect other) {
@@ -129,14 +142,14 @@ public static class Extensions {
     /// <param name="multiple">The multiple to expand the array by</param>
     /// <returns>An expanded array of duplicated <typeparamref name="T"/></returns>
     public static T[] Expand< T >(this T[] source, int multiple) {
-        T[] clone = new T[source.Length];
+        var clone = new T[source.Length];
 
         Array.Copy(source, clone, source.Length);
         Array.Resize(ref source, multiple * source.Length);
 
         for (int y = 0; y < clone.Length; y++) {
             for (int x = 0; x < multiple; x++) {
-                source[ x + ( y * multiple ) ] = clone[ y ];
+                source[ x + y * multiple ] = clone[ y ];
             }
         }
 
@@ -151,7 +164,7 @@ public static class Extensions {
     /// <param name="multiple">The multiple to extend the array by</param>
     /// <returns>An extended array of duplicated <typeparamref name="T"/></returns>
     public static T[] Multiply< T >(this T[] source, int multiple) {
-        T[] clone = new T[source.Length];
+        var clone = new T[source.Length];
 
         Array.Copy(source, clone, source.Length);
         Array.Resize(ref source, multiple * source.Length);
@@ -184,13 +197,11 @@ public static class Extensions {
     /// </summary>
     /// <param name="a">First number</param>
     /// <param name="b">Second number</param>
-    /// <param name="precision">How precice the equality to be calculating against</param>
-    /// <returns>Truw if the two numbers are similar by precision</returns>
+    /// <param name="precision">How precise the equality to be calculating against</param>
+    /// <returns>True if the two numbers are similar by precision</returns>
     public static bool AlmostEquals(this double a, double b, double precision = 0.000000001d) {
         return Math.Abs(a - b) <= precision;
     }
 
     public static bool IsEmpty(this string s) => string.IsNullOrEmpty(s) || string.IsNullOrWhiteSpace(s);
-
-    public static string String(this Version v) => $"{v.Major}.{v.Minor}.{v.Patch}";
 }

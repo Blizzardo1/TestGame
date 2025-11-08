@@ -1,4 +1,4 @@
-﻿using SDL2;
+﻿using SharpSDL3.Structs;
 
 namespace TestGame.Colors;
 

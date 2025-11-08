@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3.Enums;
 
 namespace TestGame.GameObjects; 
 
@@ -8,7 +10,7 @@ namespace TestGame.GameObjects;
 public static class ResourceManager {
     private static readonly SortedDictionary< string, IGameObject > Resources;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Application);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Application);
 
     private static int _nextUnknownId = 0;
 
@@ -17,7 +19,7 @@ public static class ResourceManager {
     /// </summary>
     static ResourceManager() {
         Resources = [];
-        _log?.Info("Resource Manager Initialized");
+        Log.Info("Resource Manager Initialized");
     }
 
     /// <summary>
@@ -28,7 +30,7 @@ public static class ResourceManager {
     /// <param name="resource">A <typeparamref name="T"/> containing the actual resource</param>
     public static void Add< T >(string name, T resource) where T : IGameObject {
         if (Resources.ContainsKey(name)) {
-            _log?.Error($"Resource with name {name} already exists");
+            Log.Error($"Resource with name {name} already exists");
             return;
         }
 
@@ -42,7 +44,7 @@ public static class ResourceManager {
     /// <param name="resource">A <typeparamref name="T"/> containing the actual resource</param>
     public static void Add< T >(T? resource) where T : IGameObject {
         if (resource is null) {
-            _log?.Error($"Unable to load {typeof(T).Name} resource.");
+            Log.Error($"Unable to load {typeof(T).Name} resource.");
             return;
         }
 
@@ -67,7 +69,7 @@ public static class ResourceManager {
     public static T? Get< T >(string name) where T : IGameObject {
         if (Resources.TryGetValue(name, out IGameObject? resource)) return (T)resource;
 
-        _log?.Error($"Resource with name {name} does not exist");
+        Log.Error($"Resource with name {name} does not exist");
         return default;
     }
 
@@ -91,7 +93,7 @@ public static class ResourceManager {
                 .FirstOrDefault(x => x.Key == $"audio/{audioName}")
                 .Value is Audio audio) return audio;
 
-        _log?.Error($"Audio with name {audioName} does not exist");
+        Log.Error($"Audio with name {audioName} does not exist");
         return null;
     }
 
@@ -105,9 +107,9 @@ public static class ResourceManager {
         bool ret = Resources.Remove(name);
 
         if (ret)
-            _log?.Info($"Successfully removed resource with the name {name}.");
+            Log.Info($"Successfully removed resource with the name {name}.");
         else
-            _log?.Error($"Resource with name {name} does not exist");
+            Log.Error($"Resource with name {name} does not exist");
 
         return ret;
     }

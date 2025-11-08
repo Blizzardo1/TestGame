@@ -1,58 +1,59 @@
-﻿using SDL2;
+﻿
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public abstract class Entity : Renderer, ICharacter {
-    private static float _speed = 0.00125f;
+    private const float Speed = 0.00125f;
 
-    public Rect HitBox { get; protected set; }
+    public FRect HitBox { get; protected set; }
 
-    public int HP { get; set; }
-    public int MaxHP { get; set; }
-    public float VelocityX { get; set; } = _speed;
-    public float VelocityY { get; set; } = _speed;
+    public int Hp { get; set; }
+    public int MaxHp { get; set; }
+    public float VelocityX { get; set; } = Speed;
+    public float VelocityY { get; set; } = Speed;
 
-    public abstract IWeapon Weapon { get; set; }
+    public IWeapon? Weapon { get; set; }
 
-    public abstract IDefensive Defense { get; set; }
+    public IDefensive? Defense { get; set; }
 
-    public abstract int AttackPower { get; set; }
+    public int AttackPower { get; set; }
 
-    public abstract bool CanSwim { get; set; }
+    public bool CanSwim { get; set; }
 
-    public abstract bool CanAttack { get; set; }
+    public bool CanAttack { get; set; }
 
-    public abstract bool CanDefend { get; set; }
+    public bool CanDefend { get; set; }
 
-    public abstract bool CanClimb { get; set; }
+    public bool CanClimb { get; set; }
 
-    public abstract bool CanMove { get; set; }
+    public bool CanMove { get; set; }
 
-    public abstract bool CanJump { get; set; }
-    public abstract bool IsOverWater { get; set; }
-    public abstract bool IsOverGround { get; set; }
+    public bool CanJump { get; set; }
+    public bool IsOverWater { get; set; }
+    public bool IsOverGround { get; set; }
 
-    public abstract bool IsInvincible { get; set; }
+    public bool IsInvincible { get; set; }
 
-    public abstract AnimatedSprite32 Sprite { get;set; }
+    public abstract AnimatedSprite32 Sprite { get; set; }
 
     public abstract string EntityType { get; }
 
-    public abstract float X { get; set; }
+    public float X { get; set; }
 
-    public abstract float Y { get; set; }
+    public float Y { get; set; }
 
-    public abstract float Z { get; set; }
+    public float Z { get; set; }
 
-    public abstract int Width { get; }
+    public abstract float Width { get; }
 
-    public abstract int Height { get; }
+    public abstract float Height { get; }
 
-    public abstract string? Name { get; protected set; }
+    public string? Name { get; protected set; }
 
-    protected Rect _body;
+    protected FRect PBody;
 
-    public Rect Body => _body;
+    public FRect Body => PBody;
 
     public Direction Direction { get; set; } = Direction.None;
 
@@ -77,9 +78,9 @@ public abstract class Entity : Renderer, ICharacter {
         if (IsInvincible) {
             return;
         }
-        HP += hp;
-        if (HP > MaxHP) {
-            HP = MaxHP;
+        Hp += hp;
+        if (Hp > MaxHp) {
+            Hp = MaxHp;
         }
     }
 
@@ -111,18 +112,29 @@ public abstract class Entity : Renderer, ICharacter {
 
         Direction = Direction.None;
         
-        if (x > 0) {
-            Direction |= Direction.Right;
-        } else if (x < 0) {
-            Direction |= Direction.Left;
-        } else if (y > 0) {
-            Direction |= Direction.Down;
-        } else if (y < 0) {
-            Direction |= Direction.Up;
+        switch (x) {
+            case > 0:
+                Direction |= Direction.Right;
+                break;
+            case < 0:
+                Direction |= Direction.Left;
+                break;
+            default: {
+                switch (y) {
+                    case > 0:
+                        Direction |= Direction.Down;
+                        break;
+                    case < 0:
+                        Direction |= Direction.Up;
+                        break;
+                }
+
+                break;
+            }
         }
 
-        X += x * _speed;
-        Y += y * _speed;
+        X += x * Speed;
+        Y += y * Speed;
     }
 
     public void SetName(string name) {
@@ -133,15 +145,15 @@ public abstract class Entity : Renderer, ICharacter {
         if (IsInvincible) {
             return;
         }
-        if(HP <= 0) {
-            HP = 0;
+        if(Hp <= 0) {
+            Hp = 0;
             return;
         }
 
-        HP -= damage;
+        Hp -= damage;
     }
     public virtual void Update(Event e) {
-        _body = _body with {
+        PBody = PBody with {
             X = (int)X,
             Y = (int)Y,
             W = Width,

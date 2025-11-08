@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using SDL2;
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
 using TestGame.GameObjects;
 using TestGame.Scenes.EventArgs;
 
@@ -10,7 +12,7 @@ public abstract class Scene : Renderer {
     public event SceneEventHandler? SceneEnter;
     public event SceneEventHandler? SceneLeave;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Video);
     protected bool Initialized { get; set; } = false;
 
     public Scene? LastScene { get; set; }
@@ -44,7 +46,7 @@ public abstract class Scene : Renderer {
     }
 
     protected void SetColor(Color color) {
-        _ = SDL.SetRenderDrawColor(RendererPtr, color.R, color.G, color.B, color.A);
+        _ = Sdl.SetRenderDrawColor(RendererPtr, color);
     }
 
     public abstract void Initialize();
@@ -85,16 +87,16 @@ public abstract class Scene : Renderer {
 
         foreach (GameObject gameObject in GameObjectsToAdd) {
             _gameObjects.Add(gameObject);
-            _log?.Debug($"Added game object {gameObject.Name}");
+            Log.Debug($"Added game object {gameObject.Name}");
             // #TODO: Add Spawn Animation Function for _gameObjects
         }
 
         foreach (GameObject gameObject in GameObjectsToRemove.Where(_gameObjects.Remove)) {
-            _log?.Debug($"Removed game object {gameObject.Name}");
+            Log.Debug($"Removed game object {gameObject.Name}");
         }
 
         if (GameObjectsToRemove.Count > 0) {
-            _log?.Error($"Cannot remove {GameObjectsToRemove.Count} {( GameObjectsToRemove.Count != 1 ? "objects" : "object" )} at this time.");
+            Log.Error($"Cannot remove {GameObjectsToRemove.Count} {( GameObjectsToRemove.Count != 1 ? "objects" : "object" )} at this time.");
         }
 
         GameObjectsToAdd.Clear();

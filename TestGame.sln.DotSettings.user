@@ -1,0 +1,12 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Qodana/LinkUserId/@EntryValue">6K0Y2</s:String>
+	<s:String x:Key="/Default/Qodana/LinkedProjectId/@EntryValue">l0VQk</s:String>
+	<s:String x:Key="/Default/Qodana/LinkOrganizationId/@EntryValue">Blizzeta Software and Gaming</s:String>
+	<s:String x:Key="/Default/Qodana/LinkedProjectName/@EntryValue">My first project</s:String>
+	<s:String x:Key="/Default/Qodana/LinkLastReportId/@EntryValue">20NxBX</s:String>
+	<s:String x:Key="/Default/Qodana/LoadedReportsPaths/=l0VQk/@EntryIndexedValue">&lt;?xml version="1.0" encoding="utf-16"?&gt;&#xD;
+&lt;DownloadedReportInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;&#xD;
+  &lt;ReportId&gt;X6ZNr5&lt;/ReportId&gt;&#xD;
+  &lt;Path&gt;C:\Users\Adonis Deliannis\AppData\Local\JetBrains\Transient\ReSharperPlatformVs17\v252_719bdeb7\SolutionCaches\_TestGame.897045402.00\QodanaDownloadedReports\qodana_cloud_X6ZNr5.sarif.json&lt;/Path&gt;&#xD;
+  &lt;ReportArtifactFiles&gt;C:\Users\Adonis Deliannis\AppData\Local\JetBrains\Transient\ReSharperPlatformVs17\v252_719bdeb7\SolutionCaches\_TestGame.897045402.00\QodanaDownloadedReports\X6ZNr5&lt;/ReportArtifactFiles&gt;&#xD;
+&lt;/DownloadedReportInfo&gt;</s:String></wpf:ResourceDictionary>

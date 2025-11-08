@@ -1,10 +1,12 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3.Mixer;
 
 namespace TestGame.GameObjects; 
 
 public abstract class Audio : IGameObject {
 
-    protected nint Pointer = nint.Zero;
+    protected Chunk Pointer;
 
     protected int PreviousVolume = 0;
 

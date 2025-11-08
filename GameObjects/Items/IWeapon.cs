@@ -6,4 +6,6 @@
 
 namespace TestGame.GameObjects.Items;
 
-public interface IWeapon : IRenderer { }
+public interface IWeapon : IRenderer {
+    void Use();
+}

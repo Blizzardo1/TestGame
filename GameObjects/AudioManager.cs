@@ -1,18 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
-using SDL2;
-using TestGame.Config;
+﻿using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
+using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects; 
 public class AudioManager : IDisposable {
     private bool _initialized;
-    private AudioSpec FileSupported;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Audio);
 
     private bool _disposed;
-
-    public bool DeviceOpened { get; private set; }
-    public uint DeviceId { get; private set; }
 
     private static AudioManager? _instance;
     public static AudioManager Instance {
@@ -24,75 +21,53 @@ public class AudioManager : IDisposable {
 
     private AudioManager() {
         _disposed = false;
+    }
+
+    public void Initialize() {
+        Mixer.MixInit result = Mixer.Initialize(Mixer.MixInit.Midi | Mixer.MixInit.Ogg | Mixer.MixInit.Flac | Mixer.MixInit.Mp3);
+        if (result == Mixer.MixInit.None) {
+            Log.Error($"Failed to initialize audio mixer: {Sdl.GetError()}");
+            return;
+        }
+        Log.Info($"Initialized Audio Manager with {result}");
         OpenAudioDevice();
     }
 
-    //#TODO: Audio not working properly......
+    //#TODO: Implement a new way to handle Audio
     private void OpenAudioDevice() {
-        FileSupported.Frequency = 48000;
-        FileSupported.Format = (int)AudioFormat.Signed16MostSignedBit;
-        if (DeviceOpened) {
-            bool devopened = Mixer.QuerySpec(out FileSupported.Frequency, out FileSupported.Format, out int channels) == 1;
-            if(!devopened) {
-                _log?.Error("Device not opened");
-                return;
-            }
-            FileSupported.Channels = (byte)channels;
-            _log?.Debug($"Device Opened; Desired Audio: {FileSupported.Frequency}Hz; Channels: {FileSupported.Channels}; Samples: {FileSupported.Samples}; Size: {FileSupported.Size}; {FileSupported.Samples * 1000 / FileSupported.Frequency} bytes");
+        Mixer.OpenAudio(AudioDeviceId.DefaultPlayback,
+            new AudioSpec {
+                Channels = 8,
+                Format = SharpSDL3.Enums.AudioFormat.S16,
+                Freq=48000
+            });
+        
+        if(Mixer.MasterVolume(50) == -1) {
+            Log.Error($"Failed to set master volume: {Sdl.GetError()}");
             return;
         }
 
-        AudioDeviceConfig audioDeviceConfig = new(Engine.GameConfig?.AudioDeviceOutput ?? null!);
-        string device = audioDeviceConfig.DeviceName ?? SDL.GetAudioDeviceName(0, 0);
-        _log?.Debug($"Audio Device: {device}");
-        DeviceId = SDL.OpenAudioDevice(device, 0,
-            ref FileSupported,
-            out AudioSpec obtained, (int)AudioAllow.All);
-        DeviceOpened = DeviceId > 0;
-        _log?.Debug($"Audio Device {(DeviceOpened ? "opened" : "not initialized")}; ID: {DeviceId}");
-        _log?.Debug($"Desired Audio: {FileSupported.Frequency}Hz; Channels: {FileSupported.Channels}; Samples: {FileSupported.Samples}; Size: {FileSupported.Size}; {FileSupported.Samples * 1000 / FileSupported.Frequency} bytes");
-        _log?.Debug($"Obtained Audio: {obtained.Frequency}Hz; Channels: {obtained.Channels}; Samples: {obtained.Samples}; Size: {obtained.Size}; {obtained.Samples * 1000 / obtained.Frequency} bytes");
-        if (obtained.Channels > FileSupported.Channels) {
-            FileSupported = obtained;
-        }
-
-        int res = Mixer.OpenAudio(FileSupported.Frequency, FileSupported.Format, 8, 2048);
-        FileSupported.Channels += (byte)Mixer.AllocateChannels(8 - FileSupported.Channels);
-        _log?.Debug($"Allocated {FileSupported.Channels} channels");
-        if (res < 0) {
-            _log?.Error($"Audio Device not opened; {SDL.GetError()}");
-            return;
-        }
-
-        if (!DeviceOpened) {
-            _initialized = false;
-            SDL.CloseAudio();
-            string msg = SDL.GetError();
-            _log?.Error(!msg.IsEmpty() ? msg : "Audio Device not opened");
-            return;
-        }
         _initialized = true;
+        Log.Info("Audio Manager opened an audio device - OK");
     }
 
     /// <summary>
     /// Plays a sound effect.
     /// </summary>
     /// <param name="effectName">The name of the effect without the scope. e.g effect, not audio/effect</param>
-    /// <param name="channel">Channel to play the sound effect on. -1 for any available channel.</param>
+    /// <param name="channel">Channel to play the sound effect on. Channel 1 is default base channel</param>
     /// <param name="loops">How many times we want to loop.</param>
-    public void PlaySoundEffect(string effectName, int channel = -1, int loops = 0) {
-        Task.Run(() => {
-            if (!_initialized) {
-                _log?.Error("AudioManager is not initialized.");
-                return;
-            }
+    public void PlaySoundEffect(string effectName, int channel = 1, int loops = 0) {
+        if (!_initialized) {
+            Log.Error("AudioManager is not initialized.");
+            return;
+        }
 
-            if (!ResourceManager.TryGet($"audio/{effectName}", out SoundEffect? effect)) {
-                return;
-            }
+        if (!ResourceManager.TryGet($"audio/{effectName}", out SoundEffect? effect)) {
+            return;
+        }
 
-            effect!.Play(channel, loops);
-        }).Wait();
+        effect!.Play(channel, loops);
     }
 
     public void Dispose() {
@@ -105,7 +80,6 @@ public class AudioManager : IDisposable {
 
         if (disposing) {
             // Dispose managed resources here
-            Mixer.CloseAudio();
             _initialized = false;
             _disposed = true;
         }

@@ -1,16 +1,24 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 using TestGame.Colors;
 
 namespace TestGame.GameObjects;
 
-public class Clock(GameContext context, string font = @"default.ttf", bool animate = true,
+public class Clock(
+    GameContext context,
+    string font = @"default.ttf",
+    bool animate = true,
+    bool rotate = false,
     int fontSize = 72) : GameObject {
     private const float Speed = 1.5f;
-    private const int ShadowDivisor = 10;
+    private const string TimeFormat = "HH:mm:ss";
 
     private float _xSpeed;
     private float _ySpeed;
-    private bool _animate;
+    private readonly bool _animate = animate;
+    private readonly bool _rotate = rotate;
 
     /// <summary>
     /// The foreground color of the clock
@@ -18,52 +26,62 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     public Color ForegroundColor { get; set; }
 
     /// <summary>
+    /// The Shadow color of the clock
+    /// </summary>
+    public Color ShadowColor { get; set; } = KnownColor.Black.ToColor();
+
+    /// <summary>
     /// The background color of the Clock
     /// </summary>
     public Color BackgroundColor { get; set; } = KnownColor.Black.ToColor();
 
-    public int FontSize { get; set; }
+    public bool ShowShadow { get; set; }
 
-    private string _time = "";
+    private readonly TextString _time = new(OpenFont(context.FontName), fontSize, "00:00:00");
 
-    private readonly Color[] _hitSequence = {
+    private readonly Color[] _hitSequence = [
         new() { R = 88, G = 120, B = 56, A = 255 }, // Moldy Green
         new() { R = 192, G = 24, B = 32, A = 255 }, // Firebrick
         new() { R = 120, G = 144, B = 248, A = 255 }, // Ice
         new() { R = 248, G = 112, B = 48, A = 255 }, // Orange Creme
         new() { R = 80, G = 112, B = 200, A = 255 } // Royale
-    };
+    ];
 
     private const int HitFrames = 30;
     private int _hitFrames = HitFrames;
     private bool _bounce;
     private Color _ogForeColor;
 
-    Rect _rect;
-
     public override void Initialize() {
-        Initialize(context.RendererPtr, font, "clock", FontSize);
+        RendererPtr = context.RendererPtr;
         Name = "object/clock";
-        frect = new FRect {
+        Frect = new FRect {
             X = context.Rect.X,
             Y = context.Rect.Y,
             W = context.Width,
             H = context.Height
         };
-        (Width, Height) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
-        ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
-        FontSize = fontSize;
-        _ogForeColor = ForegroundColor;
-        _animate = animate;
-        _xSpeed = animate ? Speed : 0;
-        _ySpeed = animate ? Speed : 0;
-        _rect = frect.ToRect();
-    }
+        Font f = OpenFont();
+        f.Size = fontSize;
+        Font = f;
 
-    private static Color CalculateShadow(float x, float y) {
-        var c = KnownColor.Black.ToColor();
-        c.A = (byte)( 255 - ( x + y ) * 2 );
-        return c;
+        Size size = Font.GetTextSize(System.DateTime.Now.ToString(TimeFormat));
+
+        _time.Text = System.DateTime.Now.ToString(TimeFormat);
+
+        Frect = new FRect {
+            X = _time.X,
+            Y = _time.Y,
+            W = _time.Width,
+            H = _time.Height
+        };
+
+        Width = size.Width;
+        Height = size.Height;
+        ForegroundColor = Core.GetRandomColor(false, Colors.Colors.Black);
+        _ogForeColor = ForegroundColor;
+        _xSpeed = _animate ? Speed : 0;
+        _ySpeed = _animate ? Speed : 0;
     }
 
     /// <inheritdoc />
@@ -79,18 +97,20 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
             }
             else {
                 // "NPC" being "attacked"
-                ForegroundColor = _hitSequence[ _hitFrames % _hitSequence.Length ];
+                ForegroundColor = _hitSequence[_hitFrames % _hitSequence.Length];
             }
         }
 
-        RenderText(_time, FontSize, "clock", (int)( X + FontSize / ShadowDivisor ),
-            (int)( Y + FontSize / ShadowDivisor ),
-            CalculateShadow(FontSize / ShadowDivisor, FontSize / ShadowDivisor));
-        RenderText(_time, FontSize, "clock", (int)X, (int)Y, ForegroundColor);
+        if (_rotate) {
+            _time.DrawRotated(-35);
+        }
+        else {
+            _time.Draw();
+        }
 
         Core.SetRenderColor(RendererPtr, KnownColor.Red.ToColor());
         if (Core.IsDebugging) {
-            _ = SDL.RenderDrawRect(RendererPtr, ref _rect);
+            _ = Sdl.RenderRect(RendererPtr, ref Frect);
         }
     }
 
@@ -98,22 +118,27 @@ public class Clock(GameContext context, string font = @"default.ttf", bool anima
     public override void Update(Event e) {
         // rx - right-most x or width
         // by - bottom-most y or height
-        _ = SDL.GetRendererOutputSize(RendererPtr, out int rx, out int by);
-        _time = DateTime.Now.ToString("HH:mm:ss");
-        ( Width, Height ) = MeasureString(GetFont("clock", FontSize), DateTime.Now.ToString("HH:mm:ss"));
-        _rect = frect.ToRect();
-        _rect.X += 8;
-        _rect.Y += 10;
-        _rect.W -= 8;
-        _rect.H -= 14;
-        Width = _rect.W;
-        Height = _rect.H;
+        _ = Sdl.GetRenderOutputSize(RendererPtr, out int rx, out int by);
+        _time.Update(e);
+        _time.ForegroundColor = ForegroundColor;
+        _time.BackgroundColor = BackgroundColor;
+        _time.ShadowColor = ShadowColor;
+        _time.ShowShadow = ShowShadow;
+        _time.Text = System.DateTime.Now.ToString(TimeFormat);
+        Size size = Font.GetTextSize(System.DateTime.Now.ToString(TimeFormat));
+
+        Width = size.Width;
+        Height = size.Height;
+
+        if (!_animate) {
+            return;
+        }
 
         if (
-            X <= 0 && Y <= 0 // Top left
-            || X >= rx - Width && Y <= 0 // Top right
-            || X <= 0 && Y >= by - Height // Bottom left
-            || X >= rx - Width && Y >= by - Height // Bottom right
+            (X <= 0 && Y <= 0) // Top left
+            || (X >= rx - Width && Y <= 0) // Top right
+            || (X <= 0 && Y >= by - Height) // Bottom left
+            || (X >= rx - Width && Y >= by - Height) // Bottom right
         ) {
             // Change the Color
             ForegroundColor = Core.GetRandomColor();

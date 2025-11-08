@@ -1,47 +1,17 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public class Npc : Entity {
-    public override IWeapon Weapon { get; set; }
-
-    public override IDefensive Defense { get; set; }
-
-    public override int AttackPower { get; set; } = 0;
-
-    public override bool CanSwim { get; set; } = true;
-
-    public override bool CanAttack { get; set; } = true;
-
-    public override bool CanDefend { get; set; } = true;
-
-    public override bool CanClimb { get; set; } = true;
-
-    public override bool CanMove { get; set; } = true;
-
-    public override bool CanJump { get; set; } = true;
-
-    public override bool IsOverWater { get; set; }
-
-    public override bool IsOverGround { get; set; }
-
-    public override bool IsInvincible { get; set; }
 
     public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "NPC";
 
-    public override float X { get; set; }
+    public override float Width => 24;
 
-    public override float Y { get; set; }
-
-    public override float Z { get; set; }
-
-    public override int Width => 24;
-
-    public override int Height => 48;
-
-    public override string? Name { get; protected set; }
+    public override float Height => 48;
 
     public Npc(string? name, nint rendererPtr) {
         Name = name;
@@ -65,6 +35,6 @@ public class Npc : Entity {
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.Pink);
-        _ = SDL.RenderFillRect(RendererPtr, ref _body);
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
     }
 }

@@ -1,10 +1,16 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
 
 namespace TestGame.GameObjects; 
 internal class Music : Audio {
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Audio);
+    private readonly SharpSDL3.Mixer.Music _musicPtr;
+
     ~Music() {
-        Mixer.FreeMusic(Pointer);
+        Mixer.FreeMusic(_musicPtr);
     }
 
     /// <inheritdoc />
@@ -12,10 +18,9 @@ internal class Music : Audio {
         Name = name;
         // #TODO: Does not load MP3 nor WAV? What other files don't load?
 
-        Pointer = Mixer.LoadMusic(filename);
-        if (Pointer == nint.Zero) {
-            _log?.Error(new FileNotFoundException(), $"Could not load audio file {filename}; ${SDL.GetError()}");
-            return;
+        _musicPtr = Mixer.LoadMusic(filename);
+        if (Pointer.AudioBuffer == nint.Zero) {
+            Log.Error(new FileNotFoundException(), $"Could not load audio file {filename}; ${Sdl.GetError()}");
         }            
     }
 
@@ -23,8 +28,8 @@ internal class Music : Audio {
 
     /// <inheritdoc />
     public override void Play() {
-        if (Mixer.PlayMusic(Pointer, -1) == -1) {
-            _log?.Error(new Exception(SDL.GetError()).Message);
+        if (Mixer.PlayMusic(_musicPtr, -1)) {
+            Log.Error(new Exception(Sdl.GetError()).Message);
         }
     }
 

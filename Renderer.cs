@@ -1,30 +1,28 @@
-﻿using SDL2;
-using SDL2.TTF;
-using Color = SDL2.Color;
+﻿using System.Text.Json.Serialization;
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 
 namespace TestGame;
 
 public abstract class Renderer {
     protected nint RendererPtr;
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Video);
+    private bool _initialized;
 
-    private static Dictionary< string, Font > LoadedFonts = [];
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Video);
 
     private const string FontName = "default";
     private const string FontPath = "default.ttf";
 
+    [JsonIgnore]
+    protected Font Font { get; set; }
+
     private const int FontSize = 18;
 
-    private string _renderingFont = "";
-
-    private Rect _rect;
-    private int _result;
-
-    ~Renderer() {
-        _rect = default;
-        _result = 0;
-    }
+    [JsonIgnore]
+    private TextEngine _textEngine;
 
     /// <summary>
     /// Initializes the Rendering Engine for a class
@@ -33,83 +31,76 @@ public abstract class Renderer {
     /// <param name="fontPath">The font file to load, else Consolas</param>
     /// <param name="fontName">The name of the font to load, else default</param>
     /// <param name="fontSize">A real number depicting the size of the font</param>
-    public void Initialize(nint renderer, string fontPath = FontPath, string fontName = FontName,
-        int fontSize = FontSize) {
-        if (RendererPtr != nint.Zero) {
+    public void Initialize(nint renderer, string fontPath = FontPath, string fontName = FontName) {
+        if (_initialized) {
             return;
         }
 
-        Font f = TTF.OpenFont(fontPath, fontSize);
+        Font = OpenFont(fontName, fontPath);
 
-        if (f.Pointer == nint.Zero) {
-            _log?.Error($"Failed to load font: {SDL.GetError()}");
+        if (Font.Handle == nint.Zero) {
+            Log.Error($"Font has no handle... {fontPath}: {Sdl.GetError()}");
+            return;
         }
 
-        _renderingFont = fontPath;
-        _rect = new Rect { X = 0, Y = 0, W = 0, H = 0 };
-        LoadedFonts.TryAdd(fontName, f);
+        if(renderer == nint.Zero) {
+            Log.Error("Renderer is not initialized");
+            return;
+        }
+        
         RendererPtr = renderer;
+        _initialized = true;
     }
 
-    public static Font GetFontStatic(string fontName = FontName,
-        string fontPath = FontPath,
-        int size = FontSize) {
-        string font = $"{fontName}-{size}";
+    public nint GetRenderer() {
+        if (RendererPtr != nint.Zero) return RendererPtr;
+        Log.Error("Renderer is not initialized");
+        return nint.Zero;
+    }
 
-        if (LoadedFonts.TryGetValue(font, out Font value)) {
-            return value;
+    public static Font OpenFont(string fontName = FontName,
+        string fontPath = FontPath) {
+
+        if (fontName.IsEmpty()) {
+            Log.Warn($"Font path \"{fontName}\" is empty. Using Default: {FontName}");
+            fontPath = FontPath;
         }
 
-        Font f = TTF.OpenFont(fontPath, size);
-
-        LoadedFonts.Add(font, f);
-        _log?.Debug($"Loaded font: {font}:{fontPath}");
-        return LoadedFonts[ font ];
-    }
-
-    public Font GetFont(string fontName = FontName, int size = FontSize) =>
-        GetFontStatic(fontName, _renderingFont, size);
-
-    protected static void CloseFonts() {
-        foreach (( var k, var v ) in LoadedFonts) {
-            TTF.CloseFont(v);
-            LoadedFonts.Remove(k);
+        if (fontPath.IsEmpty()) {
+            Log.Warn($"Font path \"{fontPath}\" is empty. Using Default: {FontPath}");
+            fontPath = FontPath;
         }
+
+        Font font = Ttf.OpenFont(fontPath, FontSize);
+
+        Log.Debug($"Loaded font: {fontName}:{fontPath}");
+        return font;
     }
 
-    private void RenderText(string? text, int x, int y, Color color, Font font) {
+    private void RenderText(string? text, float x, float y, Color color, Font font) {
         if (text is null || text.IsEmpty()) {
             return;
         }
 
-        nint surface = TTF.RenderTextSolid(font, text, color);
-        if (surface == nint.Zero) {
-            _log?.Error($"Error rendering text for \"{text}\": {SDL.GetError()}");
+        if (RendererPtr == nint.Zero) {
+            Log.Error("Renderer is not initialized");
             return;
         }
-        nint texture = SDL.CreateTextureFromSurface(RendererPtr, surface);
-
-        if (texture == nint.Zero) {
-            _log?.Error($"Error creating Texture for text \"{text}\": {SDL.GetError()}");
-            return;
+        if (_textEngine.Handle == nint.Zero) {
+            _textEngine = Ttf.CreateRendererTextEngine(RendererPtr);
+            if (_textEngine.Handle == nint.Zero) {
+                Log.Error($"Error creating text engine: {Sdl.GetError()}");
+                return;
+            }
         }
 
-        _ = SDL.QueryTexture(
-            texture,
-            out _,
-            out _,
-            out int textureWidth,
-            out int textureHeight
-        );
+        Text txt = Ttf.CreateText(_textEngine, font, text);
 
-        _rect = _rect with { X = x, Y = y, W = textureWidth, H = textureHeight };
-        _result = SDL.RenderCopy(RendererPtr, texture, nint.Zero, ref _rect);
-        if (_result != 0) {
-            _log?.Error($"Error copying text for \"{text}\": {SDL.GetError()}");
-        }
+        Ttf.SetTextColor(txt, color);
+        
+        Ttf.DrawRendererText(txt, x, y);
 
-        SDL.DestroyTexture(texture);
-        SDL.FreeSurface(surface);
+        Ttf.DestroyText(txt);
     }
 
     /// <summary>
@@ -119,21 +110,7 @@ public abstract class Renderer {
     /// <param name="x">Absolute X Coordinate</param>
     /// <param name="y">Absolute Y Coordinate</param>
     /// <param name="color">The BackgroundColor to use</param>
-    public void RenderText(string? text, int x, int y, Color color) {
-        // #TODO: Might break if either no font is loaded, or the wrong font is loaded first.
-        RenderText(text, x, y, color, GetFont(FontName, 12));
-    }
-
-    public void RenderText(string? text, int size, int x, int y, Color color) {
-        RenderText(text, x, y, color, GetFont(FontName, size));
-    }
-
-    public void RenderText(string? text, int size, string fontName, int x, int y, Color c) {
-        RenderText(text, x, y, c, GetFont(fontName, size));
-    }
-
-    protected static Size MeasureString(Font font, string text) {
-        _ = TTF.SizeText(font, text, out int width, out int height);
-        return new Size { Width = width, Height = height };
+    public void RenderText(string? text, float x, float y, Color color) {
+        RenderText(text, x, y, color, Font);
     }
 }

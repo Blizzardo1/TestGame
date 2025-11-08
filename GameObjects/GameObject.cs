@@ -1,50 +1,48 @@
-﻿using SDL2;
-using SDL2.TTF;
+﻿
+using System.Text.Json.Serialization;
+using SharpSDL3.Structs;
+using SharpSDL3.TTF;
 
 namespace TestGame.GameObjects;
 
 public abstract class GameObject : Renderer, IRenderer {
-    protected FRect frect;
-    private Font _font;
+    protected FRect Frect;
 
     #region Implementation of IRenderable
 
     /// <inheritdoc />
     public float X
     {
-        get => frect.X;
-        set => frect.X = value;
+        get => Frect.X;
+        set => Frect.X = value;
     }
 
     /// <inheritdoc />
     public float Y
     {
-        get => frect.Y;
-        set => frect.Y = value;
+        get => Frect.Y;
+        set => Frect.Y = value;
     }
 
     /// <inheritdoc />
     public float Z { get; set; }
 
     /// <inheritdoc />
-    public int Width
+    public float Width
     {
-        get => (int)frect.W;
-        set => frect.W = value;
+        get => Frect.W;
+        set => Frect.W = value;
     }
 
     /// <inheritdoc />
-    public int Height
+    public float Height
     {
-        get => (int)frect.H;
-        set => frect.H = value;
+        get => Frect.H;
+        set => Frect.H = value;
     }
 
-    public Font Font
-    {
-        get => _font;
-        set => _font = value;
-    }
+    [JsonIgnore]
+    public Font Font {get; set;}
 
     /// <inheritdoc />
     public string? Name { get; protected set; }

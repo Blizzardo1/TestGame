@@ -1,15 +1,16 @@
-﻿using SDL2;
+﻿using SharpSDL3;
+using SharpSDL3.Structs;
 
 namespace TestGame.GameObjects.Textures; 
 public abstract class Texture : GameObject {
-    protected FRect Rect => frect;
+    protected FRect Rect => Frect;
 
     public nint TexturePtr { get; protected set; }
 
     #region Implementation of IRenderable
 
     ~Texture() {
-        SDL.DestroyTexture(TexturePtr);
+        Sdl.Free(TexturePtr);
     }
 
     protected Texture(nint rendererPtr, int width, int height) {
@@ -28,7 +29,7 @@ public abstract class Texture : GameObject {
 
     /// <inheritdoc />
     public override void Draw() {
-        _ = SDL.RenderCopyF(RendererPtr, TexturePtr, nint.Zero, ref frect);
+        _ = Sdl.RenderTexture(RendererPtr, TexturePtr, nint.Zero, ref Frect);
     }
 
     /// <inheritdoc />

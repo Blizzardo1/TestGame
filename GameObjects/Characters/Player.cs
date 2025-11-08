@@ -1,88 +1,67 @@
-﻿using SDL2;
+﻿
+using SharpSDL3;
+using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
 namespace TestGame.GameObjects.Characters; 
 public class Player : Entity {
-    public override IWeapon Weapon { get; set; }
-
-    public override IDefensive Defense { get; set; }
-    public override int AttackPower { get; set; } = 1;
-
-    public override bool CanSwim { get; set; } = true;
-
-    public override bool CanAttack { get; set; } = true;
-
-    public override bool CanDefend { get; set; } = true;
-
-    public override bool CanClimb { get; set; } = true;
-    
-    public override bool CanMove { get; set; } = true;
-   
-    public override bool CanJump { get; set; } = true;
-
-    public override bool IsOverWater { get; set; }
-
-    public override bool IsOverGround { get; set; }
-
-    public override bool IsInvincible { get; set; }
-
-
-    public override AnimatedSprite32 Sprite { get; set; }
+   public override AnimatedSprite32 Sprite { get; set; }
 
     public override string EntityType => "Player";
 
-    public override float X { get; set; }
+    public override float Width => 24;
 
-    public override float Y { get; set; }
+    public override float Height => 48;
 
-    public override float Z { get; set; }
-
-    public override int Width => 24;
-
-    public override int Height => 48;
-
-    public Rect HealthRect => new() {
-        X = (int)X,
-        Y = (int)Y,
-        W = 100,
-        H = 16
-    };
-
-    public override string? Name { get; protected set; }
+    public Hud Hud { get; set; }
 
     public Player(string? name, nint rendererPtr) {
         Name = name;
         RendererPtr = rendererPtr;
         Weapon = Weapons.None;
         Defense = Defenses.None;
-        MaxHP = 100;
-        Heal(100);
+        MaxHp = 100;
+        Heal(MaxHp);
         Sprite = AnimatedSprite32.BlankSprite;
+        Hud = new Hud(this);
     }
 
     public override void Initialize() {
-
+        Hud.Initialize();
     }
 
     public override void Attack() {
-
+        if(Weapon is null) {
+            return;
+        }
+        if (Hp > 0) {
+            Weapon.Use();
+        }
     }
 
     public override void Defend() {
+        if (Defense is null) {
+            return;
+        }
 
+        if (Hp > 0) {
+            Defense.Use();
+        }
     }
 
     public override void Draw() {
         Core.SetRenderColor(RendererPtr, Colors.Colors.CornflowerBlue);
-        _ = SDL.RenderFillRect(RendererPtr, ref _body);
-        Rect r = HitBox;
+        _ = Sdl.RenderFillRect(RendererPtr, ref PBody);
+        FRect r = HitBox;
         Core.SetRenderColor(RendererPtr, Colors.Colors.Red);
-        _ = SDL.RenderDrawRect(RendererPtr, ref r);
+        _ = Sdl.RenderRect(RendererPtr, ref r);
+        Hud.Draw();
     }
 
     public override void Update(Event e) {
         base.Update(e);
         Z = Y;
-        HitBox = _body with { H = Height / 2 };
+        HitBox = PBody with { H = Height / 2 };
+        Hud.Update(e);
     }
 }

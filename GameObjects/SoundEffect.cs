@@ -1,11 +1,15 @@
-﻿using SDL2;
+﻿
+
+using SharpSDL3;
+using SharpSDL3.Enums;
+using SharpSDL3.Mixer;
 
 namespace TestGame.GameObjects; 
 public class SoundEffect : Audio {
 
-    private static readonly Logger? _log = Logger.GetCurrentClassLogger(LogCategory.Audio);
+    private static readonly Log Log = Log.GetCurrentClassLogger(LogCategory.Audio);
 
-    private int currentChannel = -1;
+    private int _currentChannel = 1;
 
     ~SoundEffect() {
         Mixer.FreeChunk(Pointer);
@@ -19,22 +23,17 @@ public class SoundEffect : Audio {
         // OpenAudioDevice();
 
         // Pointer = Mixer.LoadWav(filename);
-        // Pointer = SDL.NewAudioStream((ushort)AudioFormat.Signed16LeastSignificantBit, 2,
+        // Pointer = Sdl.NewAudioStream((ushort)AudioFormat.Signed16LeastSignificantBit, 2,
         //     48000, (ushort)AudioFormat.Signed16LeastSignificantBit, 4, 48000);
 
-        // New Mix_Chunk*
-        if(!AudioManager.Instance.DeviceOpened) {
-            _log?.Error($"Device not opened or initialized!");
-            return;
-        }
 
         Pointer = Mixer.LoadWav(filename);
         
-        if (Pointer == nint.Zero) {
-            _log?.Error(new FileNotFoundException(), $"Could not load Sound Effect \"{filename}\"; ${SDL.GetError()}");
+        if (Pointer.AudioBuffer == nint.Zero) {
+            Log.Error(new FileNotFoundException(), $"Could not load Sound Effect \"{filename}\"; ${Sdl.GetError()}");
             return;
         }
-        _log?.Debug($"Loaded Audio \"{Filename}\" on Device {AudioManager.Instance.DeviceId}");
+        Log.Debug($"Loaded Audio \"{Filename}\"");
     }
 
     #region Overrides of Audio
@@ -47,58 +46,54 @@ public class SoundEffect : Audio {
     public void Play(int channel, int loops) {
         SetVolume(PreviousVolume);
 
-        if (Pointer == nint.Zero) {
-            _log?.Error(new FileNotFoundException(),
-                $"Could not play Sound Effect \"{Filename}\"; ${SDL.GetError()}");
+        if (Pointer.AudioBuffer == nint.Zero) {
+            Log.Error(new FileNotFoundException(),
+                $"Could not play Sound Effect \"{Filename}\"; ${Sdl.GetError()}");
             return;
         }
+
         // #TODO: Need to try and play sound effects globally;
 
-        int channels = Mixer.AllocateChannels(1);
-        if (channels == 0) {
-            _log?.Error($"Unable to allocate channels for \"{Filename}\"; ${SDL.GetError()}");
+        _currentChannel = Mixer.PlayChannel(channel, Pointer, loops);
+
+        if(_currentChannel < 0) {
+            Log.Error($"Unable to play sound effect \"{Filename}\"; ${Sdl.GetError()}");
             return;
         }
 
-
-        currentChannel = Mixer.PlayChannel(channel, Pointer, loops);
-
-        if(currentChannel < 0) {
-            _log?.Error($"Unable to play sound effect \"{Filename}\"; ${SDL.GetError()}");
-            return;
-        }
-
-        _log?.Debug($"Playing Sound Effect \"{Filename}\"");
+        Log.Debug($"Playing Sound Effect \"{Filename}\"");
         IsPlaying = true;
     }
 
     public override void Stop() {
-        if (Pointer == nint.Zero || currentChannel < 0) return;
-        int res = Mixer.HaltChannel(currentChannel);
+        // #TODO: Fix this function
+        if (Pointer.AudioBuffer == nint.Zero || _currentChannel < 0) return;
+        int res = 0;
+        Mixer.HaltChannel(_currentChannel);
         if (res < 0) {
-            _log?.Error($"Unable to stop sound effect \"{Filename}\"; ${SDL.GetError()}");
+            Log.Error($"Unable to stop sound effect \"{Filename}\"; ${Sdl.GetError()}");
             return;
         }
-        currentChannel = -1;
+        _currentChannel = -1;
     }
 
     /// <inheritdoc />
     public override void SetVolume(int volume) {
         volume = Math.Clamp(volume, 0, 128);
-        PreviousVolume = Mixer.Volume(currentChannel, volume);
+        PreviousVolume = Mixer.Volume(_currentChannel, volume);
     }
 
     /// <inheritdoc />
     public override int GetVolume() {
-        return Mixer.Volume(currentChannel, -1);
+        return Mixer.Volume(_currentChannel, -1);
     }
 
     public override void Resume() {
-        Mixer.Resume(currentChannel);
+        Mixer.Resume(_currentChannel);
     }
 
     public override void Pause() {
-        Mixer.Pause(currentChannel);
+        Mixer.Pause(_currentChannel);
     }
 
     #endregion

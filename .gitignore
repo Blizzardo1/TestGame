@@ -9,3 +9,8 @@ Maps/
 TestGame.sln
 /bin/Debug-Windows/net8.0/TestGame.dll
 /bin/Debug-Windows/net8.0/TestGame.pdb
+/libavif-16.dll
+/libtiff-6.dll
+/libwebp-7.dll
+/libwebpdemux-2.dll
+/SDL3.dll
