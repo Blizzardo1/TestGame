@@ -17,8 +17,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Blizzardo1/SharpSDL3
-          path: SDL3
+          path: SharpSDL3
       - name: Build and analyze
         shell: powershell
         run: |
-          dotnet build
+          dotnet build TestGame/TestGame.csproj
