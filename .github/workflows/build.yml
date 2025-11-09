@@ -78,7 +78,9 @@ jobs:
       - name: Build and analyze
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"TestGame" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
           dotnet build
+<<<<<<< HEAD
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 >>>>>>> c1dfcc9 (Update workflow to checkout SharpSDL3 repository)
+=======
+>>>>>>> a7079f3 (Simplify build workflow by removing unnecessary steps)
