@@ -21,4 +21,4 @@ jobs:
       - name: Build and analyze
         shell: powershell
         run: |
-          dotnet build TestGame/TestGame.csproj
+          dotnet build TestGame.csproj
