@@ -5,20 +5,35 @@ on:
     branches:
       - main
       - dev
-
+  pull_request:
+    branches:
+      - main
+      - dev
 
 jobs:
   build:
     name: Build and analyze
     runs-on: windows-latest
-    
+
     steps:
+      - name: Checkout repository (TestGame)
+        uses: actions/checkout@v4
+
       - name: Checkout SharpSDL3
         uses: actions/checkout@v4
         with:
           repository: Blizzardo1/SharpSDL3
-          path: SharpSDL3
-      - name: Build and analyze
+          path: SDL3
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
         shell: powershell
-        run: |
-          dotnet build TestGame.csproj
+        run: dotnet restore ./TestGame.csproj
+
+      - name: Build
+        shell: powershell
+        run: dotnet build ./TestGame.csproj --configuration Release --no-restore
