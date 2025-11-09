@@ -6,13 +6,19 @@ on:
       - main
       - dev
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2ba9e4f (Add pull request trigger to build workflow)
   pull_request:
     branches:
       - main
       - dev
+<<<<<<< HEAD
 =======
 
 >>>>>>> c1dfcc9 (Update workflow to checkout SharpSDL3 repository)
+=======
+>>>>>>> 2ba9e4f (Add pull request trigger to build workflow)
 
 jobs:
   build:
@@ -77,6 +83,7 @@ jobs:
           path: SharpSDL2
       - name: Build and analyze
         shell: powershell
+<<<<<<< HEAD
         run: |
 <<<<<<< HEAD
           dotnet build
@@ -88,3 +95,10 @@ jobs:
 =======
           dotnet build TestGame/TestGame.csproj
 >>>>>>> eff26d5 (Update build path and specify project for build)
+=======
+        run: dotnet restore ./TestGame.csproj
+
+      - name: Build
+        shell: powershell
+        run: dotnet build ./TestGame.csproj --configuration Release --no-restore
+>>>>>>> 2ba9e4f (Add pull request trigger to build workflow)
