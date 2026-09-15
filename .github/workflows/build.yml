@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout repository (TestGame)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Checkout SharpSDL3
         uses: actions/checkout@v4
@@ -30,27 +32,19 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
-        shell: powershell
-        run: dotnet restore ./TestGame.csproj
-
-      - name: Build
-        shell: powershell
-        run: dotnet build ./TestGame.csproj --configuration Release --no-restore
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available.
+
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~\.sonar\cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
       - name: Cache SonarQube scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
@@ -58,23 +52,21 @@ jobs:
           path: .\.sonar\scanner
           key: ${{ runner.os }}-sonar-scanner
           restore-keys: ${{ runner.os }}-sonar-scanner
+
       - name: Install SonarQube scanner
         if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-      - name: Checkout SharpSDL2
-        uses: actions/checkout@v4
-        with:
-          repository: GeorchW/SharpSDL2
-          path: SharpSDL2
+
+      - name: Restore dependencies
+        shell: powershell
+        run: dotnet restore ./TestGame.csproj
+
       - name: Build and analyze
         shell: powershell
         run: |
-          dotnet build
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"YOUR_PROJECT_KEY" /d:sonar.host.url="YOUR_SONAR_HOST_URL" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          dotnet build ./TestGame.csproj --configuration Release --no-restore
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-          dotnet build TestGame/TestGame.csproj
-      - name: Build
-        shell: powershell
-        run: dotnet build ./TestGame.csproj --configuration Release --no-restore
