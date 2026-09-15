@@ -2,7 +2,8 @@
 using SharpSDL3.Structs;
 using TestGame.GameObjects.Items;
 
-namespace TestGame.GameObjects.Characters; 
+namespace TestGame.GameObjects.Characters;
+
 public abstract class Entity : Renderer, ICharacter {
     private const float Speed = 0.00125f;
 
@@ -111,7 +112,7 @@ public abstract class Entity : Renderer, ICharacter {
         }
 
         Direction = Direction.None;
-        
+
         switch (x) {
             case > 0:
                 Direction |= Direction.Right;

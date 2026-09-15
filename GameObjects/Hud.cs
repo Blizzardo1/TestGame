@@ -23,7 +23,7 @@ public class Hud(Player player) : GameObject {
         _healthText.ShowShadow = true;
         Width = Engine.Game!.Width;
         Height = Engine.Game.Height;
-        RendererPtr = Engine.Game!.GetRenderer();
+        RendererPtr = Engine.Game.GetRenderer();
     }
 
     public override void Update(Event e) {

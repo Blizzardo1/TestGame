@@ -43,8 +43,8 @@ public  class Sprite32(GameContext context, nint? parentTexture = null,
         if (imagePath is not null) {
             Sdl.Free(TexturePtr); // Destroy the unknown texture
             Sdl.DestroySurface(surface); // Since we have an image path, we can free this and load the image.
-            IOStream io = Sdl.IOFromFile(imagePath, "r");
-            surface = Sdl.LoadPngIo(io.Handle);// needs to pass io instead of the handle. Fix the libreary
+            IoStream io = Sdl.IoFromFile(imagePath, "r");
+            surface = Sdl.LoadPngIo(io.Handle);// needs to pass io instead of the handle. Fix the library
         }
 
         if (surface == nint.Zero) {

@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 ﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
@@ -14,3 +16,22 @@ TestGame.sln
 /libwebp-7.dll
 /libwebpdemux-2.dll
 /SDL3.dll
+=======
+﻿################################################################################
+=======
+################################################################################
+>>>>>>> 76e62e3 ([Fix] Fixed code convention issues (#9))
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+.vs/*
+.vscode/*
+bin/*
+obj
+Maps/*
+TestGame.sln
+libavif-16.dll
+libtiff-6.dll
+libwebp-7.dll
+libwebpdemux-2.dll
+>>>>>>> 1f20001 (Updated Unscrewing the worktree)

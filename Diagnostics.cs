@@ -61,11 +61,11 @@ internal class Diagnostics : Renderer, IRenderer {
         _diagnostics.Add($"FPS: {Engine.CurrentFps}");
         _diagnostics.Add($"Current Scene: {currentScene.Name}");
         _diagnostics.Add($"Paused? {(Core.IsPaused ? "Yes" : "No")}");
-        _diagnostics.Add($"RAM: {Sdl.GetSystemRAM()} MB");
+        _diagnostics.Add($"RAM: {Sdl.GetSystemRam()} MB");
         _diagnostics.Add($"Allocated: {_process.PrivateMemorySize64 / 1024 / 1024} MB");
         _diagnostics.Add($"Garbage Collector: {GC.GetTotalMemory(false) / 1024 / 1024} MB");
         _diagnostics.Add($"CPU: {_process.TotalProcessorTime.TotalMilliseconds - _lastTime} ms");
-        _diagnostics.Add($"CPU Count: {Sdl.GetNumLogicalCPUCores()}");
+        _diagnostics.Add($"CPU Count: {Sdl.GetNumLogicalCpuCores()}");
         _diagnostics.Add($"Mouse: {MouseData.Position.X}, {MouseData.Position.Y}");
         _diagnostics.Add($"Mouse Button: {MouseData.Button}");
         _diagnostics.Add($"Mouse Wheel Direction: {MouseData.WheelDirection}");
