@@ -155,7 +155,7 @@ public class Core : Window {
     /// <returns>A completely random <see cref="Color"/></returns>
     public static Color GetRandomColor(bool transparent = false, Color? backgroundColor = null) {
         byte[] bytes = new byte[4];
-        
+
         if(backgroundColor is not null) {
             Random.NextBytes(bytes);
             Log.Debug($"Color: {bytes[0]:X2} {bytes[1]:X2} {bytes[2]:X2} {bytes[3]:X2}");
@@ -207,7 +207,7 @@ public class Core : Window {
             }
         }
 
-        foreach (Scene s in _scenes!.Values) {
+        foreach (Scene s in _scenes.Values) {
             s.Initialize();
         }
 
@@ -267,8 +267,6 @@ public class Core : Window {
                 break;
         }
     }
-
-    
 
     /// <summary>
     /// Toggles the Pause State
